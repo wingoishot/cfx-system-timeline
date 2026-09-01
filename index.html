@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFX-System Schedule Planning</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #0d0d0d;
+    color: #e8eaed;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .wrapper {
+    overflow-x: auto;
+    padding: 12px;
+  }
+
+  table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: max-content;
+  }
+
+  /* --- Month header row --- */
+  th.month-header {
+    background: #1e1e1e;
+    font-weight: 600;
+    font-size: 11px;
+    text-align: center;
+    padding: 6px 2px;
+    border: 1px solid #3c3c3c;
+    color: #e8eaed;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  /* --- Week date row --- */
+  th.week-header {
+    background: #252525;
+    font-weight: 500;
+    font-size: 10px;
+    text-align: center;
+    padding: 4px 2px;
+    border: 1px solid #3c3c3c;
+    color: #9aa0a6;
+    min-width: 72px;
+    max-width: 72px;
+    width: 72px;
+    position: sticky;
+    top: 28px;
+    z-index: 2;
+  }
+
+  /* --- Row label (left column) --- */
+  td.row-label, th.row-label {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: #141414;
+    font-weight: 500;
+    font-size: 11px;
+    padding: 6px 10px;
+    border: 1px solid #3c3c3c;
+    white-space: nowrap;
+    min-width: 180px;
+    max-width: 180px;
+    color: #e8eaed;
+  }
+  th.row-label {
+    background: #1e1e1e;
+    z-index: 4;
+  }
+
+  /* --- Section header row --- */
+  td.section-header {
+    background: #2a2a2a;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #bdc1c6;
+    padding: 6px 10px;
+    border: 1px solid #3c3c3c;
+    position: sticky;
+    left: 0;
+    z-index: 3;
+  }
+  td.section-fill {
+    background: #2a2a2a;
+    border: 1px solid #3c3c3c;
+  }
+
+  /* --- Data cells --- */
+  td.cell {
+    border: 1px solid #3c3c3c;
+    padding: 4px 4px;
+    vertical-align: top;
+    font-size: 10px;
+    color: #e8eaed;
+    min-width: 72px;
+    max-width: 72px;
+    width: 72px;
+    height: 32px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  td.cell.empty {
+    background: #141414;
+  }
+
+  /* Category backgrounds - dark tinted fills */
+  td.cell.cat-ota       { background: #1a3054; }
+  td.cell.cat-factory   { background: #3d2216; }
+  td.cell.cat-progress  { background: #143d2b; }
+  td.cell.cat-core      { background: #3d3010; }
+  td.cell.cat-upcoming  { background: #3d1a2d; }
+
+  td.cell.completed {
+    opacity: 0.45;
+  }
+
+  /* Today column highlight */
+  td.cell.today-col,
+  th.week-header.today-col {
+    border-left: 2px solid #e66767;
+    border-right: 2px solid #e66767;
+  }
+  th.week-header.today-col {
+    background: #3b1c1c;
+    color: #e66767;
+    font-weight: 700;
+  }
+
+  /* Milestone marker */
+  .milestone {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    transform: rotate(45deg);
+    margin-right: 4px;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+  .milestone.cat-ota       { background: #3987e5; }
+  .milestone.cat-factory   { background: #d95926; }
+  .milestone.cat-progress  { background: #199e70; }
+  .milestone.cat-core      { background: #c98500; }
+  .milestone.cat-upcoming  { background: #d55181; }
+
+  /* Rollout plans row */
+  td.rollout {
+    border: 1px solid #3c3c3c;
+    padding: 4px 4px;
+    vertical-align: top;
+    font-size: 10px;
+    color: #e8eaed;
+    min-width: 72px;
+    max-width: 72px;
+    background: #332d10;
+    line-height: 1.4;
+  }
+  td.rollout.empty { background: #141414; }
+
+  /* Tooltip */
+  .tip {
+    display: none;
+    position: fixed;
+    background: #1e1e1e;
+    border: 1px solid #3c3c3c;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #e8eaed;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    z-index: 100;
+    pointer-events: none;
+    max-width: 300px;
+    line-height: 1.5;
+  }
+  .tip.visible { display: block; }
+  .tip-title { font-weight: 600; margin-bottom: 2px; }
+  .tip-meta { color: #9aa0a6; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <table id="timeline"></table>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+const TASKS = [
+  {
+    section: "OTA Releases",
+    cat: "cat-ota",
+    tasks: [
+      { name: "Qbert 11 ET2.0 OTA release", due: "2026-07-01", completed: true, assignee: "Winston Lee" },
+      { name: "Amber 2GB - FT shipping image update", due: "2026-09-03", completed: false, assignee: "Winston Lee" },
+      { name: "G700 Thermal hotfix", due: "2026-09-15", completed: false, assignee: "Winston Lee" },
+      { name: "Topaz OTA (Wificonfig, wifi expansion)", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
+      { name: "Obsidian 11 ET2.0 release", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
+      { name: "Sapphire 11 ET2.0 release", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
+      { name: "Amber 2GB Day 1 OTA (G700)", due: "2026-12-07", completed: false, assignee: "Winston Lee" },
+    ]
+  },
+  {
+    section: "Factory Releases",
+    cat: "cat-factory",
+    tasks: [
+      { name: "Amber 2GB - shipping image to factory", due: "2026-09-11", completed: false, assignee: "Winston Lee" },
+      { name: "Amber 2GB Day 1 OTA (G700)", due: "2026-12-21", completed: false, assignee: "Winston Lee" },
+    ]
+  },
+  {
+    section: "In Progress",
+    cat: "cat-progress",
+    tasks: [
+      { name: "Raccoon ongoing refinement", start: "2026-07-01", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
+      { name: "Amber 2GB - 2GB RAM optimization", start: "2026-07-01", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
+      { name: "G700 Thermal Hotfix", start: "2026-08-17", due: "2026-09-14", completed: false, assignee: "Winston Lee" },
+    ]
+  },
+  {
+    section: "Core Services Support",
+    cat: "cat-core",
+    tasks: [
+      { name: "Wificonfig - work on boot", due: "2026-07-29", completed: true },
+      { name: "Wificonfig - self-exit", due: "2026-08-14", completed: true },
+    ]
+  },
+  {
+    section: "Upcoming Priorities",
+    cat: "cat-upcoming",
+    tasks: [
+      { name: "Wificonfig - Network Monitor", completed: false, assignee: "Winston Lee" },
+    ]
+  },
+];
+
+// Generate Monday-start weeks from Jun 1 2026 through Jan 31 2027
+function generateWeeks() {
+  const weeks = [];
+  // Find the Monday on or before Jun 1 2026
+  let d = new Date(2026, 5, 1); // Jun 1 2026
+  const dow = d.getDay();
+  const mondayOffset = dow === 0 ? -6 : 1 - dow;
+  d.setDate(d.getDate() + mondayOffset);
+
+  const end = new Date(2027, 0, 31);
+  while (d <= end) {
+    const wStart = new Date(d);
+    const wEnd = new Date(d);
+    wEnd.setDate(wEnd.getDate() + 4); // Friday
+    weeks.push({ start: wStart, end: wEnd });
+    d.setDate(d.getDate() + 7);
+  }
+  return weeks;
+}
+
+const WEEKS = generateWeeks();
+
+function fmtRange(w) {
+  return w.start.getDate() + "-" + w.end.getDate();
+}
+
+function monthName(d) {
+  return ["January","February","March","April","May","June","July","August","September","October","November","December"][d.getMonth()];
+}
+
+function fmtDateShort(dateStr) {
+  if (!dateStr) return "TBD";
+  const d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function dateInWeek(dateStr, week) {
+  if (!dateStr) return false;
+  const d = new Date(dateStr + "T00:00:00");
+  const wStart = new Date(week.start);
+  wStart.setDate(wStart.getDate() - 1); // include Sunday before
+  const wEnd = new Date(week.end);
+  wEnd.setDate(wEnd.getDate() + 1); // include Saturday after
+  return d >= wStart && d <= wEnd;
+}
+
+function rangeOverlapsWeek(startStr, dueStr, week) {
+  const s = new Date(startStr + "T00:00:00");
+  const e = new Date(dueStr + "T00:00:00");
+  return s <= week.end && e >= week.start;
+}
+
+function isTodayWeek(week) {
+  const today = new Date(2026, 8, 1); // Sep 1 2026
+  return today >= week.start && today <= week.end;
+}
+
+function render() {
+  const table = document.getElementById("timeline");
+  let html = "";
+
+  // Group weeks by month for the header
+  const monthSpans = [];
+  let curMonth = -1;
+  WEEKS.forEach((w, i) => {
+    const m = w.start.getMonth();
+    const y = w.start.getFullYear();
+    const key = y * 12 + m;
+    if (key !== curMonth) {
+      monthSpans.push({ month: m, year: y, start: i, count: 1 });
+      curMonth = key;
+    } else {
+      monthSpans[monthSpans.length - 1].count++;
+    }
+  });
+
+  // Row 1: Month headers
+  html += "<thead>";
+  html += "<tr>";
+  html += '<th class="row-label month-header" rowspan="2" style="min-width:180px">Task</th>';
+  monthSpans.forEach(ms => {
+    html += `<th class="month-header" colspan="${ms.count}">${monthName(new Date(ms.year, ms.month))} ${ms.year}</th>`;
+  });
+  html += "</tr>";
+
+  // Row 2: Week date ranges
+  html += "<tr>";
+  WEEKS.forEach((w, i) => {
+    const todayCls = isTodayWeek(w) ? " today-col" : "";
+    html += `<th class="week-header${todayCls}">${fmtRange(w)}</th>`;
+  });
+  html += "</tr>";
+  html += "</thead>";
+
+  html += "<tbody>";
+
+  // Sections and tasks
+  TASKS.forEach(section => {
+    // Section header row
+    html += "<tr>";
+    html += `<td class="section-header">${section.section}</td>`;
+    WEEKS.forEach(() => {
+      html += '<td class="section-fill"></td>';
+    });
+    html += "</tr>";
+
+    // Task rows
+    section.tasks.forEach(task => {
+      html += "<tr>";
+
+      const completedCls = task.completed ? " completed" : "";
+      const labelStyle = task.completed ? ' style="text-decoration:line-through;color:#5f6368"' : "";
+      html += `<td class="row-label"${labelStyle}>${task.name}</td>`;
+
+      WEEKS.forEach((w, wi) => {
+        const todayCls = isTodayWeek(w) ? " today-col" : "";
+        let cellClass = "cell empty" + todayCls;
+        let cellContent = "";
+        let tooltipData = "";
+
+        if (task.start && task.due) {
+          // Range task: color cells that overlap
+          if (rangeOverlapsWeek(task.start, task.due, w)) {
+            cellClass = `cell ${section.cat}${completedCls}${todayCls}`;
+            // Show text only in the first overlapping week
+            const prevOverlap = wi > 0 && rangeOverlapsWeek(task.start, task.due, WEEKS[wi - 1]);
+            if (!prevOverlap) {
+              cellContent = task.name;
+            }
+            tooltipData = ` data-tip="${encodeAttr(task.name)}" data-dates="${fmtDateShort(task.start)} – ${fmtDateShort(task.due)}" data-assignee="${task.assignee || 'Unassigned'}" data-section="${section.section}" data-status="${task.completed ? 'Completed' : 'In progress'}"`;
+          }
+        } else if (task.due) {
+          // Milestone: mark the week containing the due date
+          if (dateInWeek(task.due, w)) {
+            cellClass = `cell ${section.cat}${completedCls}${todayCls}`;
+            cellContent = `<span class="milestone ${section.cat}"></span>${fmtDateShort(task.due)}`;
+            tooltipData = ` data-tip="${encodeAttr(task.name)}" data-dates="Due: ${fmtDateShort(task.due)}" data-assignee="${task.assignee || 'Unassigned'}" data-section="${section.section}" data-status="${task.completed ? 'Completed' : 'Upcoming'}"`;
+          }
+        } else {
+          // No dates - show "TBD" in first cell
+          if (wi === 0) {
+            cellClass = `cell ${section.cat}${todayCls}`;
+            cellContent = "Dates TBD";
+          }
+        }
+
+        html += `<td class="${cellClass}"${tooltipData}>${cellContent}</td>`;
+      });
+
+      html += "</tr>";
+    });
+  });
+
+  html += "</tbody>";
+  table.innerHTML = html;
+}
+
+function encodeAttr(s) {
+  return s.replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+// Tooltip
+const tipEl = document.getElementById("tip");
+document.addEventListener("mouseover", e => {
+  const cell = e.target.closest("[data-tip]");
+  if (!cell) { tipEl.classList.remove("visible"); return; }
+  tipEl.innerHTML = `<div class="tip-title">${cell.dataset.tip}</div>
+    <div class="tip-meta">${cell.dataset.dates}</div>
+    <div class="tip-meta">Assignee: ${cell.dataset.assignee}</div>
+    <div class="tip-meta">Status: ${cell.dataset.status}</div>
+    <div class="tip-meta" style="font-weight:500">${cell.dataset.section}</div>`;
+  tipEl.classList.add("visible");
+});
+document.addEventListener("mousemove", e => {
+  if (!tipEl.classList.contains("visible")) return;
+  let x = e.clientX + 12, y = e.clientY + 12;
+  const r = tipEl.getBoundingClientRect();
+  if (x + r.width > window.innerWidth - 12) x = e.clientX - r.width - 12;
+  if (y + r.height > window.innerHeight - 12) y = e.clientY - r.height - 12;
+  tipEl.style.left = x + "px";
+  tipEl.style.top = y + "px";
+});
+document.addEventListener("mouseout", e => {
+  if (e.target.closest("[data-tip]")) tipEl.classList.remove("visible");
+});
+
+render();
+</script>
+</body>
+</html>
