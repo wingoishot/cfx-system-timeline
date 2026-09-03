@@ -120,6 +120,7 @@
   td.cell.cat-progress  { background: #143d2b; }
   td.cell.cat-core      { background: #3d3010; }
   td.cell.cat-upcoming  { background: #3d1a2d; }
+  td.cell.cat-done      { background: #1e1e1e; }
 
   td.cell.completed {
     opacity: 0.45;
@@ -152,6 +153,7 @@
   .milestone.cat-progress  { background: #199e70; }
   .milestone.cat-core      { background: #c98500; }
   .milestone.cat-upcoming  { background: #d55181; }
+  .milestone.cat-done      { background: #484f58; }
 
   /* Rollout plans row */
   td.rollout {
@@ -191,32 +193,38 @@
 <body>
 
 <div class="wrapper">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:0 0 8px 0">
+    <span style="font-size:14px;font-weight:600;color:#e8eaed">CFX-System Schedule Planning</span>
+    <span style="font-size:10px;color:#5f6368">Synced from <a href="https://app.asana.com/1/435392188998689/project/1218045518949399" style="color:#5f6368" target="_blank">Asana</a> &middot; 2026-09-03</span>
+  </div>
   <table id="timeline"></table>
 </div>
 
 <div class="tip" id="tip"></div>
 
 <script>
+// Synced from Asana project "CFX-System" (GID: 1218045518949399)
+// Last sync: 2026-09-03
 const TASKS = [
   {
     section: "OTA Releases",
     cat: "cat-ota",
     tasks: [
-      { name: "Qbert 11 ET2.0 OTA release", due: "2026-07-01", completed: true, assignee: "Winston Lee" },
       { name: "Amber 2GB - FT shipping image update", due: "2026-09-03", completed: false, assignee: "Winston Lee" },
       { name: "G700 Thermal hotfix", due: "2026-09-15", completed: false, assignee: "Winston Lee" },
-      { name: "Topaz OTA (Wificonfig, wifi expansion)", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
+      { name: "Topaz OTA release for Wificonfig, wifi expansion, and possibly consumer keyguard", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
       { name: "Obsidian 11 ET2.0 release", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
       { name: "Sapphire 11 ET2.0 release", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
-      { name: "Amber 2GB Day 1 OTA (G700)", due: "2026-12-07", completed: false, assignee: "Winston Lee" },
+      { name: "Amber 2GB Day 1 OTA - G700 single image", due: "2026-12-07", completed: false, assignee: "Winston Lee" },
+      { name: "Pheonix", completed: false, assignee: "Winston Lee" },
     ]
   },
   {
     section: "Factory Releases",
     cat: "cat-factory",
     tasks: [
-      { name: "Amber 2GB - shipping image to factory", due: "2026-09-11", completed: false, assignee: "Winston Lee" },
-      { name: "Amber 2GB Day 1 OTA (G700)", due: "2026-12-21", completed: false, assignee: "Winston Lee" },
+      { name: "Amber 2GB - shipping image release to factory", due: "2026-09-11", completed: false, assignee: "Winston Lee" },
+      { name: "Amber 2GB Day 1 OTA - G700 single image", due: "2026-12-21", completed: false, assignee: "Winston Lee" },
     ]
   },
   {
@@ -224,16 +232,11 @@ const TASKS = [
     cat: "cat-progress",
     tasks: [
       { name: "Raccoon ongoing refinement", start: "2026-07-01", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
-      { name: "Amber 2GB - 2GB RAM optimization", start: "2026-07-01", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
+      { name: "Amber 2GB - System optimization for 2GB RAM", start: "2026-07-01", due: "2026-09-30", completed: false, assignee: "Winston Lee" },
       { name: "G700 Thermal Hotfix", start: "2026-08-17", due: "2026-09-14", completed: false, assignee: "Winston Lee" },
-    ]
-  },
-  {
-    section: "Core Services Support",
-    cat: "cat-core",
-    tasks: [
-      { name: "Wificonfig - work on boot", due: "2026-07-29", completed: true },
-      { name: "Wificonfig - self-exit", due: "2026-08-14", completed: true },
+      { name: "Topaz OTA update for Sept. 2026", start: "2026-08-14", due: "2026-09-04", completed: false, assignee: "Winston Lee" },
+      { name: "Obsidian OTA update for Sept. 2026", start: "2026-07-01", due: "2026-07-31", completed: false, assignee: "Winston Lee" },
+      { name: "Sapphire OTA update for Sept. 2026", start: "2026-07-01", due: "2026-09-11", completed: false, assignee: "Winston Lee" },
     ]
   },
   {
@@ -241,6 +244,18 @@ const TASKS = [
     cat: "cat-upcoming",
     tasks: [
       { name: "Wificonfig - Network Monitor", completed: false, assignee: "Winston Lee" },
+      { name: "Amber 2GB Day 1 OTA - G700 single image", completed: false, assignee: "Winston Lee" },
+      { name: "Android 15 on Amber 2GB", completed: false, assignee: "Winston Lee" },
+    ]
+  },
+  {
+    section: "Done",
+    cat: "cat-done",
+    tasks: [
+      { name: "Qbert 11 ET2.0 OTA release", due: "2026-07-01", completed: true, assignee: "Winston Lee" },
+      { name: "Qbert OTA update for Sept. 2026", start: "2026-05-04", due: "2026-06-19", completed: true, assignee: "Winston Lee" },
+      { name: "Wificonfig - work on boot", due: "2026-07-29", completed: true },
+      { name: "Wificonfig - self-exit", due: "2026-08-14", completed: true },
     ]
   },
 ];
@@ -298,7 +313,7 @@ function rangeOverlapsWeek(startStr, dueStr, week) {
 }
 
 function isTodayWeek(week) {
-  const today = new Date(2026, 8, 1); // Sep 1 2026
+  const today = new Date();
   return today >= week.start && today <= week.end;
 }
 
