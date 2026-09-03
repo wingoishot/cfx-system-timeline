@@ -590,7 +590,43 @@ document.addEventListener("mouseout", e => {
   if (e.target.closest("[data-tip]")) tipEl.classList.remove("visible");
 });
 
+// --- Asana live sync ---
+const ASANA_PAT = "@@ASANA_PAT@@";
+const PROJECT_GID = "1218045518949399";
+const SECTION_MAP = {
+  "OTA Releases":        "cat-ota",
+  "Factory Releases":    "cat-factory",
+  "In Progress":         "cat-progress",
+  "Upcoming Priorities": "cat-upcoming",
+  "Done":                "cat-done",
+};
+const SECTION_ORDER = Object.keys(SECTION_MAP);
+
+function parseAsanaData(data) {
+  const buckets = {};
+  for (const [name, cat] of Object.entries(SECTION_MAP))
+    buckets[name] = { section: name, cat: cat, tasks: [] };
+  for (const item of data) {
+    const mem = (item.memberships || []).find(m => SECTION_MAP[m.section.name]);
+    if (!mem) continue;
+    const t = { name: item.name, completed: item.completed, assignee: (item.assignee || {}).name || null, resource_subtype: item.resource_subtype || "default_task" };
+    if (item.due_on) t.due = item.due_on;
+    if (item.start_on) t.start = item.start_on;
+    buckets[mem.section.name].tasks.push(t);
+  }
+  return SECTION_ORDER.map(s => buckets[s]).filter(Boolean);
+}
+
 render();
+
+if (ASANA_PAT && ASANA_PAT !== "@@ASANA_PAT@@") {
+  fetch(`https://app.asana.com/api/1.0/projects/${PROJECT_GID}/tasks?opt_pretty&opt_expand=(this%7Csubtasks%2B)`, {
+    headers: { Authorization: "Bearer " + ASANA_PAT }
+  })
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(json => { TASKS = parseAsanaData(json.data); render(); })
+    .catch(() => {});
+}
 </script>
 </body>
 </html>
