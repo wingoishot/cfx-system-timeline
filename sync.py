@@ -84,6 +84,8 @@ def main():
         html = f.read()
     import re
     updated = re.sub(r"// @@TASKS_START@@.*?// @@TASKS_END@@", inject, html, flags=re.DOTALL)
+    # Also inject PAT so the committed file has it (pton.me serves raw repo, not GH Pages artifact)
+    updated = re.sub(r'const ASANA_PAT = "@@ASANA_PAT@@"', f'const ASANA_PAT = "{pat}"', updated)
     with open(html_path, "w") as f:
         f.write(updated)
     count = sum(len(s["tasks"]) for s in tasks)
