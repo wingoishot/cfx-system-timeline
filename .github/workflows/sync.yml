@@ -4,15 +4,20 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '0 * * * *'  # every hour
-  workflow_dispatch:       # manual trigger
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  sync:
+  sync-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -20,14 +25,29 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Sync from Asana
+      - name: Sync task data from Asana
         env:
           ASANA_PAT: ${{ secrets.ASANA_PAT }}
         run: python3 sync.py
 
-      - name: Commit and push if changed
+      - name: Commit updated task data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add index.html
           git diff --staged --quiet || git commit -m "Auto-sync tasks from Asana" && git push
+
+      - name: Inject PAT for live client-side sync
+        env:
+          ASANA_PAT: ${{ secrets.ASANA_PAT }}
+        run: sed -i "s|@@ASANA_PAT@@|${ASANA_PAT}|g" index.html
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
