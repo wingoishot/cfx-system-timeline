@@ -24,10 +24,25 @@ def get_pat():
 
 def fetch_tasks(pat):
     url = (f"https://app.asana.com/api/1.0/projects/{PROJECT_GID}/tasks"
-           f"?opt_fields=name,completed,due_on,start_on,assignee.name,memberships.section.name,resource_subtype&limit=100")
+           f"?opt_pretty&opt_expand=(this%7Csubtasks%2B)")
     req = urllib.request.Request(url, headers={"Authorization": f"Bearer {pat}"})
     with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read())["data"]
+
+def parse_subtasks(subtasks):
+    result = []
+    for s in (subtasks or []):
+        t = {"name": s["name"], "completed": s["completed"],
+             "assignee": (s.get("assignee") or {}).get("name")}
+        if s.get("due_on"):
+            t["due"] = s["due_on"]
+        if s.get("start_on"):
+            t["start"] = s["start_on"]
+        children = parse_subtasks(s.get("subtasks"))
+        if children:
+            t["subtasks"] = children
+        result.append(t)
+    return result
 
 def parse_tasks(data):
     buckets = {}
@@ -43,11 +58,15 @@ def parse_tasks(data):
         if not section_name:
             continue
         t = {"name": item["name"], "completed": item["completed"],
-             "assignee": (item.get("assignee") or {}).get("name")}
+             "assignee": (item.get("assignee") or {}).get("name"),
+             "resource_subtype": item.get("resource_subtype", "default_task")}
         if item.get("due_on"):
             t["due"] = item["due_on"]
         if item.get("start_on"):
             t["start"] = item["start_on"]
+        subtasks = parse_subtasks(item.get("subtasks"))
+        if subtasks:
+            t["subtasks"] = subtasks
         buckets[section_name]["tasks"].append(t)
     result = sorted(buckets.values(), key=lambda b: b["order"])
     return [{"section": b["section"], "cat": b["cat"], "tasks": b["tasks"]} for b in result]
