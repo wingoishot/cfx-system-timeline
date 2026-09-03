@@ -195,7 +195,7 @@
 <div class="wrapper">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:0 0 8px 0">
     <span style="font-size:14px;font-weight:600;color:#e8eaed">CFX-System Schedule Planning</span>
-    <span style="font-size:10px;color:#5f6368">Synced from <a href="https://app.asana.com/1/435392188998689/project/1218045518949399" style="color:#5f6368" target="_blank">Asana</a> &middot; 2026-09-03</span>
+    <span id="sync-status" style="font-size:10px;color:#5f6368"></span>
   </div>
   <table id="timeline"></table>
 </div>
@@ -204,7 +204,7 @@
 
 <script>
 // @@TASKS_START@@
-// Auto-synced from Asana: 2026-09-03T10:14:05
+// Auto-synced from Asana: 2026-09-03T18:22:39
 var TASKS = [
   {
     "section": "OTA Releases",
@@ -264,7 +264,7 @@ var TASKS = [
         "completed": false,
         "assignee": null,
         "resource_subtype": "default_task",
-        "due": "2026-09-25"
+        "due": "2026-09-04"
       }
     ]
   },
@@ -617,15 +617,25 @@ function parseAsanaData(data) {
   return SECTION_ORDER.map(s => buckets[s]).filter(Boolean);
 }
 
-render();
+var statusEl;
+function setStatus(text, color) {
+  if (!statusEl) statusEl = document.getElementById("sync-status");
+  statusEl.textContent = text;
+  statusEl.style.color = color || "#5f6368";
+}
 
-if (ASANA_PAT && ASANA_PAT !== "@@ASANA_PAT@@") {
-  fetch(`https://app.asana.com/api/1.0/projects/${PROJECT_GID}/tasks?opt_pretty&opt_expand=(this%7Csubtasks%2B)`, {
-    headers: { Authorization: "Bearer " + ASANA_PAT }
+render();
+setStatus("Loading…", "#9aa0a6");
+
+if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
+  fetch("https://app.asana.com/api/1.0/projects/" + PROJECT_GID + "/tasks?opt_pretty&opt_expand=(this%7Csubtasks%2B)", {
+    headers: { "Authorization": "Bearer " + ASANA_PAT }
   })
-    .then(r => r.ok ? r.json() : Promise.reject(r.status))
-    .then(json => { TASKS = parseAsanaData(json.data); render(); })
-    .catch(() => {});
+    .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(json) { TASKS = parseAsanaData(json.data); render(); setStatus("Live Data", "#39d2b4"); })
+    .catch(function(e) { setStatus("Sync error: " + e.message, "#e66767"); });
+} else {
+  setStatus("No PAT configured", "#e66767");
 }
 </script>
 </body>
