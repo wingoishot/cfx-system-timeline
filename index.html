@@ -330,9 +330,16 @@ body {
   color: #7d8590;
   font-style: italic;
 }
+
+/* Embed mode — hides chrome when loaded inside dashboard iframe */
+body.embed .nav-bar { display: none; }
+body.embed .page-content { padding: 0; }
+body.embed .page-header { display: none; }
+body.embed .timeline-card { border: none; border-radius: 0; }
 </style>
 </head>
 <body>
+<script>if(location.search.indexOf('embed')>-1)document.body.classList.add('embed');</script>
 
 <div class="nav-bar">
   <span class="nav-brand">CFX Timeline</span>
@@ -888,6 +895,17 @@ if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
 } else {
   console.warn("[cfx-sync] No PAT — showing embedded data");
   setStatus("Embedded data only", "embedded");
+}
+
+// Notify parent frame of content height for auto-resize
+if (document.body.classList.contains("embed") && window.parent !== window) {
+  function notifyHeight() {
+    window.parent.postMessage({ type: "cfx-resize", height: document.documentElement.scrollHeight }, "*");
+  }
+  new MutationObserver(notifyHeight).observe(document.getElementById("timeline-grid"), { childList: true, subtree: true });
+  window.addEventListener("resize", notifyHeight);
+  setTimeout(notifyHeight, 200);
+  setTimeout(notifyHeight, 1000);
 }
 </script>
 </body>
