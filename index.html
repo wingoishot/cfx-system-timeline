@@ -8,213 +8,387 @@
 <meta http-equiv="Expires" content="0">
 <title>CFX-System Schedule Planning</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    background: #0d0d0d;
-    color: #e8eaed;
-    font-size: 11px;
-    line-height: 1.35;
-  }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: #0d1117;
+  color: #e6edf3;
+  font-size: 13px;
+  line-height: 1.5;
+}
 
-  .wrapper {
-    overflow-x: auto;
-    padding: 12px;
-  }
+/* Nav bar */
+.nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 24px;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+  font-size: 14px;
+}
+.nav-brand {
+  font-weight: 700;
+  color: #39d2b4;
+  font-size: 15px;
+}
+.nav-link {
+  color: #7d8590;
+  cursor: default;
+}
+.nav-link.active {
+  background: #30363d;
+  color: #e6edf3;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
 
-  table {
-    border-collapse: collapse;
-    table-layout: fixed;
-    min-width: max-content;
-  }
+/* Page content */
+.page-content {
+  padding: 24px;
+}
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+.page-subtitle {
+  font-size: 13px;
+  color: #7d8590;
+  margin-top: 2px;
+}
 
-  /* --- Month header row --- */
-  th.month-header {
-    background: #1e1e1e;
-    font-weight: 600;
-    font-size: 11px;
-    text-align: center;
-    padding: 6px 2px;
-    border: 1px solid #3c3c3c;
-    color: #e8eaed;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-  }
+/* Sync badge */
+.sync-badge {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.sync-badge.live { background: #1a3a2a; color: #39d2b4; border: 1px solid #26563b; }
+.sync-badge.error { background: #3b1c1c; color: #e5534b; border: 1px solid #5b2c2c; }
+.sync-badge.loading { background: #2a2520; color: #e6a117; border: 1px solid #4a3510; }
+.sync-badge.embedded { background: #2a2520; color: #e6a117; border: 1px solid #4a3510; }
 
-  /* --- Week date row --- */
-  th.week-header {
-    background: #252525;
-    font-weight: 500;
-    font-size: 10px;
-    text-align: center;
-    padding: 4px 2px;
-    border: 1px solid #3c3c3c;
-    color: #9aa0a6;
-    min-width: 72px;
-    max-width: 72px;
-    width: 72px;
-    position: sticky;
-    top: 28px;
-    z-index: 2;
-  }
+/* Timeline card */
+.timeline-card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border-bottom: 1px solid #30363d;
+}
+.card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-icon { font-size: 18px; }
+.card-title { font-size: 15px; font-weight: 600; }
+.card-subtitle { font-size: 12px; color: #7d8590; margin-top: 2px; }
 
-  /* --- Row label (left column) --- */
-  td.row-label, th.row-label {
-    position: sticky;
-    left: 0;
-    z-index: 3;
-    background: #141414;
-    font-weight: 500;
-    font-size: 11px;
-    padding: 6px 10px;
-    border: 1px solid #3c3c3c;
-    white-space: nowrap;
-    min-width: 180px;
-    max-width: 180px;
-    color: #e8eaed;
-  }
-  th.row-label {
-    background: #1e1e1e;
-    z-index: 4;
-  }
+.view-toggle {
+  display: flex;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.view-btn {
+  padding: 4px 14px;
+  font-size: 12px;
+  background: transparent;
+  color: #7d8590;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.view-btn.active { background: #1f6feb; color: #fff; }
 
-  /* --- Section header row --- */
-  td.section-header {
-    background: #2a2a2a;
-    font-weight: 700;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: #bdc1c6;
-    padding: 6px 10px;
-    border: 1px solid #3c3c3c;
-    position: sticky;
-    left: 0;
-    z-index: 3;
-  }
-  td.section-fill {
-    background: #2a2a2a;
-    border: 1px solid #3c3c3c;
-  }
+/* Timeline grid */
+.timeline-container { overflow-x: auto; }
+.timeline-grid { min-width: 1000px; position: relative; --label-col: 200px; }
 
-  /* --- Data cells --- */
-  td.cell {
-    border: 1px solid #3c3c3c;
-    padding: 4px 4px;
-    vertical-align: top;
-    font-size: 10px;
-    color: #e8eaed;
-    min-width: 72px;
-    max-width: 72px;
-    width: 72px;
-    height: 32px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  td.cell.empty {
-    background: #141414;
-  }
+/* Header row */
+.tl-header {
+  display: grid;
+  grid-template-columns: var(--label-col) 1fr;
+  border-bottom: 1px solid #30363d;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #161b22;
+}
+.tl-label-header {
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #7d8590;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-right: 1px solid #30363d;
+  display: flex;
+  align-items: center;
+}
+.tl-months-header {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+}
+.tl-month-label {
+  text-align: center;
+  padding: 8px 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #7d8590;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-right: 1px solid #21262d;
+}
+.tl-month-label:last-child { border-right: none; }
 
-  /* Category backgrounds - dark tinted fills */
-  td.cell.cat-ota       { background: #1a3054; }
-  td.cell.cat-factory   { background: #3d2216; }
-  td.cell.cat-progress  { background: #143d2b; }
-  td.cell.cat-core      { background: #3d3010; }
-  td.cell.cat-upcoming  { background: #3d1a2d; }
-  td.cell.cat-done      { background: #1e1e1e; }
+/* Section group */
+.section-group { border-bottom: 1px solid #21262d; }
 
-  td.cell.completed {
-    opacity: 0.45;
-  }
+.section-row {
+  display: grid;
+  grid-template-columns: var(--label-col) 1fr;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.section-row:hover { background: #1c2129; }
 
-  /* Today column highlight */
-  td.cell.today-col,
-  th.week-header.today-col {
-    border-left: 2px solid #e66767;
-    border-right: 2px solid #e66767;
-  }
-  th.week-header.today-col {
-    background: #3b1c1c;
-    color: #e66767;
-    font-weight: 700;
-  }
+.section-label {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-right: 1px solid #30363d;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.collapse-icon {
+  font-size: 8px;
+  color: #7d8590;
+  transition: transform 0.2s;
+  display: inline-block;
+  width: 12px;
+  flex-shrink: 0;
+}
+.section-group.expanded .collapse-icon { transform: rotate(90deg); }
 
-  /* Milestone marker */
-  .milestone {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    transform: rotate(45deg);
-    margin-right: 4px;
-    vertical-align: middle;
-    flex-shrink: 0;
-  }
-  .milestone.cat-ota       { background: #3987e5; }
-  .milestone.cat-factory   { background: #d95926; }
-  .milestone.cat-progress  { background: #199e70; }
-  .milestone.cat-core      { background: #c98500; }
-  .milestone.cat-upcoming  { background: #d55181; }
-  .milestone.cat-done      { background: #484f58; }
+/* Timeline area */
+.tl-area {
+  position: relative;
+  height: 36px;
+  overflow: hidden;
+}
+.month-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #21262d;
+  z-index: 1;
+  pointer-events: none;
+}
 
-  /* Rollout plans row */
-  td.rollout {
-    border: 1px solid #3c3c3c;
-    padding: 4px 4px;
-    vertical-align: top;
-    font-size: 10px;
-    color: #e8eaed;
-    min-width: 72px;
-    max-width: 72px;
-    background: #332d10;
-    line-height: 1.4;
-  }
-  td.rollout.empty { background: #141414; }
+/* Bar */
+.bar {
+  position: absolute;
+  height: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 4px;
+  background: linear-gradient(90deg, #2ea88a, #39d2b4);
+  z-index: 3;
+  min-width: 4px;
+}
+.bar.completed { background: #484f58; }
 
-  /* Tooltip */
-  .tip {
-    display: none;
-    position: fixed;
-    background: #1e1e1e;
-    border: 1px solid #3c3c3c;
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 12px;
-    color: #e8eaed;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-    z-index: 100;
-    pointer-events: none;
-    max-width: 300px;
-    line-height: 1.5;
-  }
-  .tip.visible { display: block; }
-  .tip-title { font-weight: 600; margin-bottom: 2px; }
-  .tip-meta { color: #9aa0a6; }
+/* Diamond milestone */
+.diamond {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  background: #39d2b4;
+  z-index: 4;
+  cursor: default;
+}
+.diamond.completed { background: #7d8590; }
+
+/* Date label */
+.date-label {
+  position: absolute;
+  font-size: 9px;
+  color: #7d8590;
+  top: calc(50% + 9px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Task rows */
+.section-tasks {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.section-group.expanded .section-tasks {
+  max-height: 2000px;
+}
+.task-row {
+  display: grid;
+  grid-template-columns: var(--label-col) 1fr;
+  border-top: 1px solid #21262d;
+}
+.task-row:hover { background: #1c2129; }
+
+.task-label {
+  padding: 8px 16px 8px 40px;
+  font-size: 12px;
+  border-right: 1px solid #30363d;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+.task-label.completed {
+  color: #484f58;
+  text-decoration: line-through;
+}
+
+/* Today line */
+.today-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e5534b;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  font-size: 11px;
+  color: #7d8590;
+  border-top: 1px solid #21262d;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-bar { width: 24px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #2ea88a, #39d2b4); }
+.legend-diamond { width: 8px; height: 8px; transform: rotate(45deg); background: #39d2b4; }
+.legend-today { width: 2px; height: 14px; background: #e5534b; }
+.legend-sep { color: #30363d; }
+
+/* Tooltip */
+.tip {
+  display: none;
+  position: fixed;
+  background: #1c2129;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #e6edf3;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  z-index: 100;
+  pointer-events: none;
+  max-width: 320px;
+  line-height: 1.6;
+}
+.tip.visible { display: block; }
+.tip-title { font-weight: 600; margin-bottom: 4px; }
+.tip-meta { color: #7d8590; font-size: 11px; }
+
+/* TBD label */
+.tbd-label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: #7d8590;
+  font-style: italic;
+}
 </style>
 </head>
 <body>
 
-<div class="wrapper">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:0 0 8px 0">
-    <span style="font-size:14px;font-weight:600;color:#e8eaed">CFX-System Schedule Planning</span>
-    <span id="sync-status" style="font-size:10px;color:#5f6368"></span>
+<div class="nav-bar">
+  <span class="nav-brand">CFX Timeline</span>
+  <span class="nav-link active">Roadmap</span>
+</div>
+
+<div class="page-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">CFX-System</div>
+      <div class="page-subtitle">FY27 Schedule Planning</div>
+    </div>
+    <span id="sync-status" class="sync-badge loading">Loading&hellip;</span>
   </div>
-  <table id="timeline"></table>
+
+  <div class="timeline-card">
+    <div class="card-header">
+      <div>
+        <div class="card-title-group">
+          <span class="card-title">SW &mdash; CFx &middot; CFX-System</span>
+        </div>
+        <div class="card-subtitle">FY27 &middot; Schedule Planning</div>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active">Month</button>
+        <button class="view-btn">Quarter</button>
+      </div>
+    </div>
+
+    <div class="timeline-container">
+      <div class="timeline-grid" id="timeline-grid"></div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-bar"></div> Active span</div>
+      <div class="legend-item"><div class="legend-diamond"></div> Milestone</div>
+      <div class="legend-sep">|</div>
+      <div class="legend-item"><div class="legend-today"></div> Today</div>
+      <div class="legend-sep">&middot;</div>
+      <span>Click group row to expand &middot; click title to collapse</span>
+    </div>
+  </div>
 </div>
 
 <div class="tip" id="tip"></div>
 
 <script>
 // @@TASKS_START@@
-// Auto-synced from Asana: 2026-09-04T08:21:42
+// Auto-synced from Asana: 2026-09-04T16:35:03
 var TASKS = [
   {
     "section": "OTA Releases",
     "cat": "cat-ota",
     "tasks": [
       {
-        "name": "Topaz OTA release for Wificonfig, wifi expansion, and possibly consumer keyguard",
+        "name": "Topaz OTA release for Wificonfig and Wifi expansion",
         "completed": false,
         "assignee": "Winston Lee",
         "resource_subtype": "milestone",
@@ -407,228 +581,295 @@ var TASKS = [
 ];
 // @@TASKS_END@@
 
-// Generate Monday-start weeks from Jun 1 2026 through Jan 31 2027
-function generateWeeks() {
-  const weeks = [];
-  // Find the Monday on or before Jun 1 2026
-  let d = new Date(2026, 5, 1); // Jun 1 2026
-  const dow = d.getDay();
-  const mondayOffset = dow === 0 ? -6 : 1 - dow;
-  d.setDate(d.getDate() + mondayOffset);
+// --- Timeline constants ---
+var MONTHS = [
+  { label: "JUL", year: 2026, month: 6 },
+  { label: "AUG", year: 2026, month: 7 },
+  { label: "SEP", year: 2026, month: 8 },
+  { label: "OCT", year: 2026, month: 9 },
+  { label: "NOV", year: 2026, month: 10 },
+  { label: "DEC", year: 2026, month: 11 },
+  { label: "JAN", year: 2027, month: 0 },
+  { label: "FEB", year: 2027, month: 1 },
+  { label: "MAR", year: 2027, month: 2 },
+  { label: "APR", year: 2027, month: 3 },
+  { label: "MAY", year: 2027, month: 4 },
+  { label: "JUN", year: 2027, month: 5 }
+];
+var TL_START = new Date(2026, 6, 1);
+var TL_END = new Date(2027, 6, 1);
+var TL_MS = TL_END - TL_START;
 
-  const end = new Date(2027, 0, 31);
-  while (d <= end) {
-    const wStart = new Date(d);
-    const wEnd = new Date(d);
-    wEnd.setDate(wEnd.getDate() + 4); // Friday
-    weeks.push({ start: wStart, end: wEnd });
-    d.setDate(d.getDate() + 7);
-  }
-  return weeks;
+function dateToPct(dateStr) {
+  if (!dateStr) return null;
+  var d = new Date(dateStr + "T00:00:00");
+  return Math.max(0, Math.min(100, ((d - TL_START) / TL_MS) * 100));
 }
 
-const WEEKS = generateWeeks();
-
-function fmtRange(w) {
-  return w.start.getDate() + "-" + w.end.getDate();
+function dateToPctRaw(d) {
+  return Math.max(0, Math.min(100, ((d - TL_START) / TL_MS) * 100));
 }
 
-function monthName(d) {
-  return ["January","February","March","April","May","June","July","August","September","October","November","December"][d.getMonth()];
-}
-
-function fmtDateShort(dateStr) {
+function fmtDate(dateStr) {
   if (!dateStr) return "TBD";
-  const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  var d = new Date(dateStr + "T00:00:00");
+  var mm = String(d.getMonth() + 1).padStart(2, "0");
+  var dd = String(d.getDate()).padStart(2, "0");
+  var yy = String(d.getFullYear()).slice(2);
+  return mm + "/" + dd + "/" + yy;
 }
 
-function dateInWeek(dateStr, week) {
-  if (!dateStr) return false;
-  const d = new Date(dateStr + "T00:00:00");
-  const wStart = new Date(week.start);
-  wStart.setDate(wStart.getDate() - 1); // include Sunday before
-  const wEnd = new Date(week.end);
-  wEnd.setDate(wEnd.getDate() + 1); // include Saturday after
-  return d >= wStart && d <= wEnd;
-}
-
-function rangeOverlapsWeek(startStr, dueStr, week) {
-  const s = new Date(startStr + "T00:00:00");
-  const e = new Date(dueStr + "T00:00:00");
-  return s <= week.end && e >= week.start;
-}
-
-function isTodayWeek(week) {
-  const today = new Date();
-  return today >= week.start && today <= week.end;
-}
-
-function render() {
-  const table = document.getElementById("timeline");
-  let html = "";
-
-  // Group weeks by month for the header
-  const monthSpans = [];
-  let curMonth = -1;
-  WEEKS.forEach((w, i) => {
-    const m = w.start.getMonth();
-    const y = w.start.getFullYear();
-    const key = y * 12 + m;
-    if (key !== curMonth) {
-      monthSpans.push({ month: m, year: y, start: i, count: 1 });
-      curMonth = key;
-    } else {
-      monthSpans[monthSpans.length - 1].count++;
-    }
-  });
-
-  // Row 1: Month headers
-  html += "<thead>";
-  html += "<tr>";
-  html += '<th class="row-label month-header" rowspan="2" style="min-width:180px">Task</th>';
-  monthSpans.forEach(ms => {
-    html += `<th class="month-header" colspan="${ms.count}">${monthName(new Date(ms.year, ms.month))} ${ms.year}</th>`;
-  });
-  html += "</tr>";
-
-  // Row 2: Week date ranges
-  html += "<tr>";
-  WEEKS.forEach((w, i) => {
-    const todayCls = isTodayWeek(w) ? " today-col" : "";
-    html += `<th class="week-header${todayCls}">${fmtRange(w)}</th>`;
-  });
-  html += "</tr>";
-  html += "</thead>";
-
-  html += "<tbody>";
-
-  // Sections and tasks
-  TASKS.forEach(section => {
-    // Section header row
-    html += "<tr>";
-    html += `<td class="section-header">${section.section}</td>`;
-    WEEKS.forEach(() => {
-      html += '<td class="section-fill"></td>';
-    });
-    html += "</tr>";
-
-    // Task rows
-    section.tasks.forEach(task => {
-      html += "<tr>";
-
-      const completedCls = task.completed ? " completed" : "";
-      const labelStyle = task.completed ? ' style="text-decoration:line-through;color:#5f6368"' : "";
-      html += `<td class="row-label"${labelStyle}>${task.name}</td>`;
-
-      WEEKS.forEach((w, wi) => {
-        const todayCls = isTodayWeek(w) ? " today-col" : "";
-        let cellClass = "cell empty" + todayCls;
-        let cellContent = "";
-        let tooltipData = "";
-
-        if (task.start && task.due) {
-          // Range task: color cells that overlap
-          if (rangeOverlapsWeek(task.start, task.due, w)) {
-            cellClass = `cell ${section.cat}${completedCls}${todayCls}`;
-            // Show text only in the first overlapping week
-            const prevOverlap = wi > 0 && rangeOverlapsWeek(task.start, task.due, WEEKS[wi - 1]);
-            if (!prevOverlap) {
-              cellContent = task.name;
-            }
-            tooltipData = ` data-tip="${encodeAttr(task.name)}" data-dates="${fmtDateShort(task.start)} – ${fmtDateShort(task.due)}" data-assignee="${task.assignee || 'Unassigned'}" data-section="${section.section}" data-status="${task.completed ? 'Completed' : 'In progress'}"`;
-          }
-        } else if (task.due) {
-          // Milestone: mark the week containing the due date
-          if (dateInWeek(task.due, w)) {
-            cellClass = `cell ${section.cat}${completedCls}${todayCls}`;
-            cellContent = `<span class="milestone ${section.cat}"></span>${fmtDateShort(task.due)}`;
-            tooltipData = ` data-tip="${encodeAttr(task.name)}" data-dates="Due: ${fmtDateShort(task.due)}" data-assignee="${task.assignee || 'Unassigned'}" data-section="${section.section}" data-status="${task.completed ? 'Completed' : 'Upcoming'}"`;
-          }
-        } else {
-          // No dates - show "TBD" in first cell
-          if (wi === 0) {
-            cellClass = `cell ${section.cat}${todayCls}`;
-            cellContent = "Dates TBD";
-          }
-        }
-
-        html += `<td class="${cellClass}"${tooltipData}>${cellContent}</td>`;
-      });
-
-      html += "</tr>";
-    });
-  });
-
-  html += "</tbody>";
-  table.innerHTML = html;
+function dateToStr(d) {
+  var yyyy = d.getFullYear();
+  var mm = String(d.getMonth() + 1).padStart(2, "0");
+  var dd = String(d.getDate()).padStart(2, "0");
+  return yyyy + "-" + mm + "-" + dd;
 }
 
 function encodeAttr(s) {
-  return s.replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
 
-// Tooltip
-const tipEl = document.getElementById("tip");
-document.addEventListener("mouseover", e => {
-  const cell = e.target.closest("[data-tip]");
-  if (!cell) { tipEl.classList.remove("visible"); return; }
-  tipEl.innerHTML = `<div class="tip-title">${cell.dataset.tip}</div>
-    <div class="tip-meta">${cell.dataset.dates}</div>
-    <div class="tip-meta">Assignee: ${cell.dataset.assignee}</div>
-    <div class="tip-meta">Status: ${cell.dataset.status}</div>
-    <div class="tip-meta" style="font-weight:500">${cell.dataset.section}</div>`;
+function monthLinesPcts() {
+  var lines = [];
+  for (var i = 1; i < MONTHS.length; i++) {
+    var d = new Date(MONTHS[i].year, MONTHS[i].month, 1);
+    lines.push(((d - TL_START) / TL_MS) * 100);
+  }
+  return lines;
+}
+
+function monthLinesHTML() {
+  return monthLinesPcts().map(function(p) {
+    return '<div class="month-line" style="left:' + p + '%"></div>';
+  }).join("");
+}
+
+function todayPct() {
+  var now = new Date();
+  return Math.max(0, Math.min(100, ((now - TL_START) / TL_MS) * 100));
+}
+
+function getSectionRange(section) {
+  var earliest = null, latest = null;
+  section.tasks.forEach(function(t) {
+    var dates = [];
+    if (t.start) dates.push(new Date(t.start + "T00:00:00"));
+    if (t.due) dates.push(new Date(t.due + "T00:00:00"));
+    dates.forEach(function(d) {
+      if (!earliest || d < earliest) earliest = d;
+      if (!latest || d > latest) latest = d;
+    });
+  });
+  return { earliest: earliest, latest: latest };
+}
+
+function areaHTML(mLines, tPct) {
+  return mLines + '<div class="today-line" style="left:' + tPct + '%"></div>';
+}
+
+function render() {
+  var grid = document.getElementById("timeline-grid");
+  var mLines = monthLinesHTML();
+  var tPct = todayPct();
+  var html = "";
+
+  // Header
+  html += '<div class="tl-header">';
+  html += '<div class="tl-label-header">PROGRAM</div>';
+  html += '<div class="tl-months-header">';
+  MONTHS.forEach(function(m) {
+    html += '<div class="tl-month-label">' + m.label + '</div>';
+  });
+  html += '</div></div>';
+
+  // Sections
+  TASKS.forEach(function(section, si) {
+    var isCompleted = section.cat === "cat-done";
+    var isExpanded = !isCompleted;
+    var expandedCls = isExpanded ? " expanded" : "";
+
+    html += '<div class="section-group' + expandedCls + '" data-index="' + si + '">';
+
+    // Section summary row
+    html += '<div class="section-row" onclick="toggleSection(this)">';
+    html += '<div class="section-label"><span class="collapse-icon">&#9654;</span>' + section.section + '</div>';
+    html += '<div class="tl-area">' + areaHTML(mLines, tPct);
+
+    var range = getSectionRange(section);
+    if (range.earliest && range.latest) {
+      var startPct = dateToPctRaw(range.earliest);
+      var endPct = dateToPctRaw(range.latest);
+      var barCls = isCompleted ? " completed" : "";
+      var barWidth = Math.max(0.3, endPct - startPct);
+      html += '<div class="bar' + barCls + '" style="left:' + startPct + '%;width:' + barWidth + '%"></div>';
+
+      // Milestones on summary
+      section.tasks.forEach(function(t) {
+        if (t.resource_subtype === "milestone" && t.due) {
+          var pct = dateToPct(t.due);
+          var dCls = t.completed ? " completed" : "";
+          html += '<div class="diamond' + dCls + '" style="left:calc(' + pct + '% - 5px)"';
+          html += ' data-tip="' + encodeAttr(t.name) + '"';
+          html += ' data-dates="Due: ' + fmtDate(t.due) + '"';
+          html += ' data-assignee="' + (t.assignee || "Unassigned") + '"';
+          html += ' data-section="' + section.section + '"';
+          html += ' data-status="' + (t.completed ? "Completed" : "Upcoming") + '"';
+          html += '></div>';
+          html += '<span class="date-label" style="left:' + pct + '%">' + fmtDate(t.due) + '</span>';
+        }
+      });
+
+      // Range endpoint date labels (only if no milestones at those positions)
+      var hasStartMilestone = section.tasks.some(function(t) {
+        return t.resource_subtype === "milestone" && t.due && Math.abs(dateToPct(t.due) - startPct) < 1;
+      });
+      var hasEndMilestone = section.tasks.some(function(t) {
+        return t.resource_subtype === "milestone" && t.due && Math.abs(dateToPct(t.due) - endPct) < 1;
+      });
+      if (!hasStartMilestone) {
+        html += '<span class="date-label" style="left:' + startPct + '%">' + fmtDate(dateToStr(range.earliest)) + '</span>';
+      }
+      if (!hasEndMilestone && barWidth > 3) {
+        html += '<span class="date-label" style="left:' + endPct + '%">' + fmtDate(dateToStr(range.latest)) + '</span>';
+      }
+    }
+
+    html += '</div></div>';
+
+    // Individual task rows
+    html += '<div class="section-tasks">';
+    section.tasks.forEach(function(t) {
+      var completedCls = t.completed ? " completed" : "";
+
+      html += '<div class="task-row">';
+      html += '<div class="task-label' + completedCls + '" title="' + encodeAttr(t.name) + '">' + t.name + '</div>';
+      html += '<div class="tl-area">' + areaHTML(mLines, tPct);
+
+      if (t.start && t.due) {
+        var sPct = dateToPct(t.start);
+        var ePct = dateToPct(t.due);
+        var bCls = t.completed ? " completed" : "";
+        var w = Math.max(0.3, ePct - sPct);
+        html += '<div class="bar' + bCls + '" style="left:' + sPct + '%;width:' + w + '%"';
+        html += ' data-tip="' + encodeAttr(t.name) + '"';
+        html += ' data-dates="' + fmtDate(t.start) + ' – ' + fmtDate(t.due) + '"';
+        html += ' data-assignee="' + (t.assignee || "Unassigned") + '"';
+        html += ' data-section="' + section.section + '"';
+        html += ' data-status="' + (t.completed ? "Completed" : "In progress") + '"';
+        html += '></div>';
+
+        // Endpoint diamonds
+        html += '<div class="diamond' + bCls + '" style="left:calc(' + sPct + '% - 5px)"></div>';
+        if (w > 1) {
+          html += '<div class="diamond' + bCls + '" style="left:calc(' + ePct + '% - 5px)"></div>';
+        }
+
+        html += '<span class="date-label" style="left:' + sPct + '%">' + fmtDate(t.start) + '</span>';
+        if (w > 3) {
+          html += '<span class="date-label" style="left:' + ePct + '%">' + fmtDate(t.due) + '</span>';
+        }
+      } else if (t.due) {
+        var pct = dateToPct(t.due);
+        var dCls = t.completed ? " completed" : "";
+        html += '<div class="diamond' + dCls + '" style="left:calc(' + pct + '% - 5px)"';
+        html += ' data-tip="' + encodeAttr(t.name) + '"';
+        html += ' data-dates="Due: ' + fmtDate(t.due) + '"';
+        html += ' data-assignee="' + (t.assignee || "Unassigned") + '"';
+        html += ' data-section="' + section.section + '"';
+        html += ' data-status="' + (t.completed ? "Completed" : "Upcoming") + '"';
+        html += '></div>';
+        html += '<span class="date-label" style="left:' + pct + '%">' + fmtDate(t.due) + '</span>';
+      } else {
+        html += '<span class="tbd-label">Dates TBD</span>';
+      }
+
+      html += '</div></div>';
+    });
+    html += '</div>';
+
+    html += '</div>';
+  });
+
+  grid.innerHTML = html;
+}
+
+function toggleSection(el) {
+  el.closest(".section-group").classList.toggle("expanded");
+}
+
+// --- Tooltip ---
+var tipEl = document.getElementById("tip");
+document.addEventListener("mouseover", function(e) {
+  var el = e.target.closest("[data-tip]");
+  if (!el) { tipEl.classList.remove("visible"); return; }
+  tipEl.innerHTML =
+    '<div class="tip-title">' + el.dataset.tip + '</div>' +
+    '<div class="tip-meta">' + el.dataset.dates + '</div>' +
+    '<div class="tip-meta">Assignee: ' + el.dataset.assignee + '</div>' +
+    '<div class="tip-meta">Status: ' + el.dataset.status + '</div>' +
+    '<div class="tip-meta" style="font-weight:500">' + el.dataset.section + '</div>';
   tipEl.classList.add("visible");
 });
-document.addEventListener("mousemove", e => {
+document.addEventListener("mousemove", function(e) {
   if (!tipEl.classList.contains("visible")) return;
-  let x = e.clientX + 12, y = e.clientY + 12;
-  const r = tipEl.getBoundingClientRect();
+  var x = e.clientX + 12, y = e.clientY + 12;
+  var r = tipEl.getBoundingClientRect();
   if (x + r.width > window.innerWidth - 12) x = e.clientX - r.width - 12;
   if (y + r.height > window.innerHeight - 12) y = e.clientY - r.height - 12;
   tipEl.style.left = x + "px";
   tipEl.style.top = y + "px";
 });
-document.addEventListener("mouseout", e => {
+document.addEventListener("mouseout", function(e) {
   if (e.target.closest("[data-tip]")) tipEl.classList.remove("visible");
 });
 
 // --- Asana live sync ---
-const ASANA_PAT = "2/1208717380462980/1218142428533819:12448cbda0fbf36a8831453b49b12d65";
-const PROJECT_GID = "1218045518949399";
-const SECTION_MAP = {
+var ASANA_PAT = "2/1208717380462980/1218142428533819:12448cbda0fbf36a8831453b49b12d65";
+var PROJECT_GID = "1218045518949399";
+var SECTION_MAP = {
   "OTA Releases":        "cat-ota",
   "Factory Releases":    "cat-factory",
   "In Progress":         "cat-progress",
   "Upcoming Priorities": "cat-upcoming",
-  "Done":                "cat-done",
+  "Done":                "cat-done"
 };
-const SECTION_ORDER = Object.keys(SECTION_MAP);
+var SECTION_ORDER = Object.keys(SECTION_MAP);
 
 function parseAsanaData(data) {
-  const buckets = {};
-  for (const [name, cat] of Object.entries(SECTION_MAP))
-    buckets[name] = { section: name, cat: cat, tasks: [] };
-  for (const item of data) {
-    const mem = (item.memberships || []).find(m => SECTION_MAP[m.section.name]);
+  var buckets = {};
+  for (var name in SECTION_MAP)
+    buckets[name] = { section: name, cat: SECTION_MAP[name], tasks: [] };
+  for (var i = 0; i < data.length; i++) {
+    var item = data[i];
+    var mem = (item.memberships || []).find(function(m) { return SECTION_MAP[m.section.name]; });
     if (!mem) continue;
-    const t = { name: item.name, completed: item.completed, assignee: (item.assignee || {}).name || null, resource_subtype: item.resource_subtype || "default_task" };
+    var t = { name: item.name, completed: item.completed, assignee: (item.assignee || {}).name || null, resource_subtype: item.resource_subtype || "default_task" };
     if (item.due_on) t.due = item.due_on;
     if (item.start_on) t.start = item.start_on;
     buckets[mem.section.name].tasks.push(t);
   }
-  return SECTION_ORDER.map(s => buckets[s]).filter(Boolean);
+  return SECTION_ORDER.map(function(s) { return buckets[s]; }).filter(Boolean);
+}
+
+function fitLabelColumn() {
+  var grid = document.getElementById("timeline-grid");
+  var labels = grid.querySelectorAll(".section-label, .task-label");
+  var max = 0;
+  labels.forEach(function(el) { if (el.scrollWidth > max) max = el.scrollWidth; });
+  if (max > 0) grid.style.setProperty("--label-col", (max + 16) + "px");
 }
 
 var statusEl;
-function setStatus(text, color) {
+function setStatus(text, cls) {
   if (!statusEl) statusEl = document.getElementById("sync-status");
   statusEl.textContent = text;
-  statusEl.style.color = color || "#5f6368";
+  statusEl.className = "sync-badge " + cls;
 }
 
 render();
-setStatus("Loading…", "#9aa0a6");
+fitLabelColumn();
+setStatus("Loading…", "loading");
 
 if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
   var apiUrl = "https://app.asana.com/api/1.0/projects/" + PROJECT_GID
@@ -644,15 +885,16 @@ if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
       console.log("[cfx-sync] Got", json.data.length, "tasks");
       TASKS = parseAsanaData(json.data);
       render();
-      setStatus("Live (" + json.data.length + " tasks)", "#39d2b4");
+      fitLabelColumn();
+      setStatus("Live Data (" + json.data.length + " tasks)", "live");
     })
     .catch(function(e) {
       console.error("[cfx-sync] Error:", e);
-      setStatus("Sync error: " + e.message, "#e66767");
+      setStatus("Sync error: " + e.message, "error");
     });
 } else {
   console.warn("[cfx-sync] No PAT — showing embedded data");
-  setStatus("Embedded data only", "#e6a117");
+  setStatus("Embedded data only", "embedded");
 }
 </script>
 </body>
