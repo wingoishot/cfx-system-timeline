@@ -192,7 +192,7 @@ body {
 <body>
 
 <div class="page">
-  <div class="page-title">Peloton Program Hub</div>
+  <div class="page-title">Welcome, <span id="user-name">...</span></div>
   <div class="page-subtitle">FY27 Strategic Dashboard &mdash; September 2026</div>
 
   <!-- PORTFOLIO VIEWS -->
@@ -261,5 +261,23 @@ body {
   Program Management Team &middot; FY27 &middot; Last updated September 2026
 </div>
 
+<script>
+var ASANA_PAT = "2/1208717380462980/1218142428533819:12448cbda0fbf36a8831453b49b12d65";
+if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
+  fetch("https://app.asana.com/api/1.0/users/me?opt_fields=name", {
+    headers: { "Authorization": "Bearer " + ASANA_PAT }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(json) {
+    if (json.data && json.data.name) {
+      var first = json.data.name.split(" ")[0];
+      document.getElementById("user-name").textContent = first;
+    }
+  })
+  .catch(function() {
+    document.getElementById("user-name").textContent = "User";
+  });
+}
+</script>
 </body>
 </html>
