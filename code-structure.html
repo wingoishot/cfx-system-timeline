@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFX Timeline — Code Structure</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: #0d1117;
+  color: #c9d1d9;
+  font-size: 15px;
+  line-height: 1.7;
+  padding: 40px 24px 80px;
+}
+.container { max-width: 960px; margin: 0 auto; }
+
+h1 { font-size: 28px; font-weight: 700; color: #e6edf3; margin-bottom: 4px; }
+.subtitle { font-size: 14px; color: #7d8590; margin-bottom: 40px; }
+
+h2 {
+  font-size: 18px; font-weight: 700; color: #e6edf3;
+  margin: 40px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #21262d;
+}
+h3 {
+  font-size: 15px; font-weight: 600; color: #e6edf3;
+  margin: 24px 0 8px;
+}
+
+p { margin-bottom: 12px; }
+a { color: #58a6ff; text-decoration: none; }
+a:hover { text-decoration: underline; }
+strong { color: #e6edf3; }
+code {
+  font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, monospace;
+  font-size: 13px;
+  background: #161b22;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #79c0ff;
+}
+
+/* File tree */
+.tree {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px 20px;
+  font-family: "SF Mono", "Fira Code", Menlo, monospace;
+  font-size: 13px;
+  line-height: 2;
+  margin: 12px 0 20px;
+  color: #c9d1d9;
+}
+.tree .dir { color: #79c0ff; font-weight: 600; }
+.tree .file { color: #c9d1d9; }
+.tree .note { color: #7d8590; font-style: italic; font-family: -apple-system, sans-serif; font-size: 12px; }
+
+/* Diagram boxes */
+.diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 16px 0 24px;
+}
+.drow {
+  display: flex;
+  gap: 2px;
+  min-height: 44px;
+}
+.dbox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 8px 10px;
+  line-height: 1.3;
+  color: #fff;
+}
+.dbox small { display: block; font-weight: 400; opacity: 0.7; font-size: 10px; margin-top: 2px; }
+.dbox.hdr { background: #21262d; color: #e6edf3; }
+.dbox.red { background: #c23b34; }
+.dbox.blue { background: #1a5fc9; }
+.dbox.green { background: #1a7f37; }
+.dbox.purple { background: #6e40c9; }
+.dbox.amber { background: #9e6a03; }
+.dbox.gray { background: #30363d; color: #c9d1d9; }
+.dbox.teal { background: #1b7c6e; }
+.dbox.wide2 { flex: 2; }
+.dbox.wide3 { flex: 3; }
+.dbox.wide6 { flex: 6; }
+
+/* Arrow connector */
+.arrow {
+  text-align: center;
+  color: #484f58;
+  font-size: 18px;
+  padding: 4px 0;
+  letter-spacing: 2px;
+}
+
+/* Code block */
+.codeblock {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px 20px;
+  font-family: "SF Mono", "Fira Code", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-x: auto;
+  margin: 12px 0 20px;
+  color: #c9d1d9;
+}
+.codeblock .cm { color: #7d8590; }
+.codeblock .kw { color: #ff7b72; }
+.codeblock .fn { color: #d2a8ff; }
+.codeblock .str { color: #a5d6ff; }
+.codeblock .num { color: #79c0ff; }
+
+/* Section card */
+.card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 12px 0 20px;
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card ul { padding-left: 20px; margin: 0; }
+.card li { margin-bottom: 4px; font-size: 13px; }
+
+/* Flow diagram */
+.flow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0 24px;
+}
+.flow-box {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e6edf3;
+  text-align: center;
+  min-width: 100px;
+}
+.flow-box small { display: block; font-weight: 400; color: #7d8590; font-size: 11px; }
+.flow-arrow { color: #39d2b4; font-size: 18px; flex-shrink: 0; }
+
+/* Table */
+.ref-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 20px;
+  font-size: 13px;
+}
+.ref-table th {
+  text-align: left;
+  padding: 8px 12px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: #e6edf3;
+  font-weight: 600;
+}
+.ref-table td {
+  padding: 8px 12px;
+  border: 1px solid #30363d;
+  vertical-align: top;
+}
+.ref-table tr:hover td { background: #161b22; }
+
+.line-ref { color: #7d8590; font-size: 11px; font-family: monospace; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>CFX Timeline &mdash; Code Structure</h1>
+<p class="subtitle">Architecture guide for <code>index.html</code> (Gantt chart view)</p>
+
+<!-- ===== FILE TREE ===== -->
+<h2>1. Project Files</h2>
+
+<div class="tree">
+  <span class="dir">cfx-system-timeline/</span><br>
+  &nbsp;&nbsp;<span class="file">index.html</span> <span class="note">&larr; Main Gantt chart (this doc explains it)</span><br>
+  &nbsp;&nbsp;<span class="file">device-services.html</span> <span class="note">&larr; Separate Device Services roadmap</span><br>
+  &nbsp;&nbsp;<span class="file">dashboard.html</span> <span class="note">&larr; Hub page linking to all views</span><br>
+  &nbsp;&nbsp;<span class="file">sync.py</span> <span class="note">&larr; Offline Asana sync script (updates embedded TASKS data)</span><br>
+  &nbsp;&nbsp;<span class="file">tasks.js</span> <span class="note">&larr; Shared task data (legacy)</span><br>
+  &nbsp;&nbsp;<span class="file">serve.py</span> <span class="note">&larr; Local dev server</span>
+</div>
+
+<p><code>index.html</code> is a single self-contained file: <strong>HTML + CSS + JavaScript</strong>, with no external dependencies. It renders a Gantt-style schedule from Asana project data.</p>
+
+<!-- ===== HIGH-LEVEL ARCHITECTURE ===== -->
+<h2>2. High-Level Architecture</h2>
+<p>The page is built around a <strong>two-source data pipeline</strong>: embedded fallback data that ships with the file, and a live Asana API fetch that replaces it on load.</p>
+
+<div class="flow">
+  <div class="flow-box">Asana API<small>Live fetch via PAT</small></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-box">parseAsanaData()<small>Normalize to TASKS[]</small></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-box" style="border-color:#39d2b4">TASKS[]<small>Shared data model</small></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-box">render()<small>Build Gantt HTML</small></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-box">DOM<small>#gantt + #gantt-legend</small></div>
+</div>
+
+<div class="flow">
+  <div class="flow-box">sync.py<small>Offline CLI script</small></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-box">@@TASKS_START/END@@<small>Markers in index.html</small></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-box" style="border-color:#39d2b4">TASKS[]<small>Embedded fallback</small></div>
+</div>
+
+<!-- ===== FILE STRUCTURE ===== -->
+<h2>3. File Structure (index.html)</h2>
+<p>The file has three main zones, all inline:</p>
+
+<table class="ref-table">
+  <tr><th>Zone</th><th>Lines</th><th>Purpose</th></tr>
+  <tr>
+    <td><strong>&lt;style&gt;</strong></td>
+    <td><span class="line-ref">L10&ndash;357</span></td>
+    <td>All CSS. Dark theme, Gantt grid layout, bars, tooltips, embed mode overrides.</td>
+  </tr>
+  <tr>
+    <td><strong>&lt;body&gt; HTML</strong></td>
+    <td><span class="line-ref">L359&ndash;384</span></td>
+    <td>Static skeleton: nav bar, page header, sync badge, empty <code>#gantt</code> and <code>#gantt-legend</code> containers, tooltip div.</td>
+  </tr>
+  <tr>
+    <td><strong>&lt;script&gt;</strong></td>
+    <td><span class="line-ref">L386&ndash;864</span></td>
+    <td>All JavaScript. Data, config, rendering, interaction, Asana sync. Broken down below.</td>
+  </tr>
+</table>
+
+<!-- ===== CSS ARCHITECTURE ===== -->
+<h2>4. CSS Architecture</h2>
+
+<h3>Layout System</h3>
+<p>The Gantt chart uses a <strong>3-column CSS Grid</strong> for every row, defined by CSS custom properties on <code>.gantt</code>:</p>
+
+<div class="diagram">
+  <div class="drow">
+    <div class="dbox hdr" style="flex:280">Activity<small>var(--act-col): 280px</small></div>
+    <div class="dbox hdr" style="flex:72">Progress<small>var(--prog-col): 72px</small></div>
+    <div class="dbox hdr" style="flex:600">Timeline Area<small>1fr (flexible)</small></div>
+  </div>
+</div>
+
+<p>The same 3-column grid is used by:</p>
+<div class="card">
+  <ul>
+    <li><code>.gantt-header-year</code> &mdash; Year row: "Activity" label | "Progress" label | Year bands (2026, 2027)</li>
+    <li><code>.gantt-header-month</code> &mdash; Month row: empty | empty | 12 month labels (Jul&ndash;Jun)</li>
+    <li><code>.gantt-row</code> &mdash; Each task: name cell | progress % | timeline cell with positioned bar</li>
+  </ul>
+</div>
+
+<p><strong>Section header rows</strong> (<code>.gantt-section</code>) break out of the 3-column grid and span full width with <code>grid-template-columns: 1fr</code>.</p>
+
+<h3>Gantt Header Color Bands</h3>
+<div class="diagram">
+  <div class="drow" style="min-height:36px">
+    <div class="dbox gray" style="flex:352">Activity + Progress headers<small>background: #21262d</small></div>
+    <div class="dbox red" style="flex:300">2026<small>#c23b34</small></div>
+    <div class="dbox blue" style="flex:300">2027<small>#1a5fc9</small></div>
+  </div>
+  <div class="drow" style="min-height:30px">
+    <div class="dbox gray" style="flex:352"><small>(empty cells)</small></div>
+    <div class="dbox" style="flex:50;background:rgba(194,59,52,0.35)"><small>Jul</small></div>
+    <div class="dbox" style="flex:50;background:rgba(194,59,52,0.35)"><small>Aug</small></div>
+    <div class="dbox" style="flex:50;background:rgba(194,59,52,0.35)"><small>Sep</small></div>
+    <div class="dbox" style="flex:50;background:rgba(194,59,52,0.35)"><small>Oct</small></div>
+    <div class="dbox" style="flex:50;background:rgba(194,59,52,0.35)"><small>Nov</small></div>
+    <div class="dbox" style="flex:50;background:rgba(194,59,52,0.35)"><small>Dec</small></div>
+    <div class="dbox" style="flex:50;background:rgba(26,95,201,0.35)"><small>Jan</small></div>
+    <div class="dbox" style="flex:50;background:rgba(26,95,201,0.35)"><small>Feb</small></div>
+    <div class="dbox" style="flex:50;background:rgba(26,95,201,0.35)"><small>Mar</small></div>
+    <div class="dbox" style="flex:50;background:rgba(26,95,201,0.35)"><small>Apr</small></div>
+    <div class="dbox" style="flex:50;background:rgba(26,95,201,0.35)"><small>May</small></div>
+    <div class="dbox" style="flex:50;background:rgba(26,95,201,0.35)"><small>Jun</small></div>
+  </div>
+</div>
+
+<h3>Timeline Cell Layering (z-index)</h3>
+<p>Inside each <code>.gr-timeline</code> cell, elements are stacked:</p>
+<table class="ref-table">
+  <tr><th>z-index</th><th>Element</th><th>Description</th></tr>
+  <tr><td>1</td><td><code>.grid-line</code></td><td>11 vertical month-boundary lines</td></tr>
+  <tr><td>3</td><td><code>.gantt-bar</code></td><td>Colored duration bar (20px tall, 3px radius)</td></tr>
+  <tr><td>4</td><td><code>.gantt-diamond</code></td><td>Milestone marker (14px rotated square)</td></tr>
+  <tr><td>8</td><td><code>.today-line</code></td><td>Dashed white vertical line at today's date</td></tr>
+</table>
+
+<h3>Collapse/Expand Mechanism</h3>
+<p>Uses a <strong>pure-CSS adjacent sibling selector</strong>, no JS state:</p>
+<div class="codeblock">
+<span class="cm">/* Tasks hidden by default */</span><br>
+<span class="kw">.section-tasks</span> { max-height: <span class="num">0</span>; overflow: hidden; transition: max-height <span class="num">0.3s</span>; }<br><br>
+<span class="cm">/* When previous sibling has .expanded, reveal tasks */</span><br>
+<span class="kw">.gantt-section.expanded + .section-tasks</span> { max-height: <span class="num">2000px</span>; }
+</div>
+<p>Clicking a section header calls <code>toggleSection(this)</code>, which toggles the <code>.expanded</code> class. The CSS <code>+</code> combinator does the rest.</p>
+
+<!-- ===== JAVASCRIPT MODULES ===== -->
+<h2>5. JavaScript Structure</h2>
+
+<table class="ref-table">
+  <tr><th>Block</th><th>Lines</th><th>What It Does</th></tr>
+  <tr>
+    <td><strong>TASKS[]</strong></td>
+    <td><span class="line-ref">L387&ndash;579</span></td>
+    <td>Embedded task data array. Wrapped in <code>@@TASKS_START@@</code> / <code>@@TASKS_END@@</code> markers so <code>sync.py</code> can replace it. Each entry is a section with <code>{ section, cat, tasks[] }</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>Config</strong></td>
+    <td><span class="line-ref">L581&ndash;607</span></td>
+    <td><code>MONTHS[]</code> (12-month range), <code>TL_START/TL_END</code> (timeline bounds), <code>SECTION_COLORS</code> (bar color per category).</td>
+  </tr>
+  <tr>
+    <td><strong>Utility functions</strong></td>
+    <td><span class="line-ref">L609&ndash;656</span></td>
+    <td><code>dateToPct()</code>, <code>todayPct()</code>, <code>calcProgress()</code>, <code>fmtDate()</code>, <code>esc()</code>, <code>gridLinesHTML()</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>render()</strong></td>
+    <td><span class="line-ref">L658&ndash;763</span></td>
+    <td>Main rendering function. Builds the entire Gantt chart as an HTML string and sets <code>#gantt.innerHTML</code>. Also renders the legend into <code>#gantt-legend</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>Tooltip</strong></td>
+    <td><span class="line-ref">L769&ndash;793</span></td>
+    <td>Event-delegated <code>mouseover</code>/<code>mousemove</code>/<code>mouseout</code> on <code>[data-tip]</code> elements. Shows a floating card with task name, dates, assignee, progress, section.</td>
+  </tr>
+  <tr>
+    <td><strong>Asana Sync</strong></td>
+    <td><span class="line-ref">L795&ndash;852</span></td>
+    <td>On page load, fetches live data from Asana REST API using a PAT. Parses response with <code>parseAsanaData()</code>, overwrites <code>TASKS[]</code>, re-calls <code>render()</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>Embed resize</strong></td>
+    <td><span class="line-ref">L854&ndash;863</span></td>
+    <td>When loaded in an iframe with <code>?embed</code> query param, posts <code>cfx-resize</code> messages to parent for auto-height.</td>
+  </tr>
+</table>
+
+<!-- ===== DATA MODEL ===== -->
+<h2>6. Data Model</h2>
+<p>The <code>TASKS[]</code> array is the single source of truth for rendering. It has the same shape whether from embedded data or live Asana fetch:</p>
+
+<div class="codeblock">
+TASKS = [<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"section"</span>: <span class="str">"OTA Releases"</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// Display name for section header</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"cat"</span>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"cat-ota"</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// Key into SECTION_COLORS for bar color</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"tasks"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"name"</span>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"Task title"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"completed"</span>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">false</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// strikethrough + 100% progress</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"assignee"</span>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"Winston Lee"</span>,&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// shown in tooltip</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"resource_subtype"</span>: <span class="str">"milestone"</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// "milestone" &rarr; diamond, else &rarr; bar</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"due"</span>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"2026-09-30"</span>,&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// end date (YYYY-MM-DD)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"start"</span>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"2026-07-01"</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// optional start date</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;}<br>
+];
+</div>
+
+<h3>How Tasks Render Differently</h3>
+<table class="ref-table">
+  <tr><th>Task Shape</th><th>Visual</th><th>Progress Calc</th></tr>
+  <tr>
+    <td><code>start</code> + <code>due</code></td>
+    <td>Colored bar spanning start&ndash;due</td>
+    <td><code>(today - start) / (due - start)</code> clamped 0&ndash;100%</td>
+  </tr>
+  <tr>
+    <td><code>due</code> only + <code>milestone</code></td>
+    <td>Colored diamond at due date</td>
+    <td>0% if future, 100% if past or completed</td>
+  </tr>
+  <tr>
+    <td><code>due</code> only + <code>default_task</code></td>
+    <td>Small 6px colored bar at due date</td>
+    <td>0% if future, 100% if past or completed</td>
+  </tr>
+  <tr>
+    <td>No dates</td>
+    <td>Italic "Dates TBD" label</td>
+    <td>0%</td>
+  </tr>
+  <tr>
+    <td><code>completed: true</code></td>
+    <td>Any of above + strikethrough name + gray text</td>
+    <td>Always 100%</td>
+  </tr>
+</table>
+
+<!-- ===== RENDER PIPELINE ===== -->
+<h2>7. Render Pipeline</h2>
+<p>The <code>render()</code> function builds the entire chart in a single pass as a string, then sets <code>innerHTML</code>. Here's the generation order:</p>
+
+<div class="diagram">
+  <div class="drow" style="min-height:40px">
+    <div class="dbox teal wide6">render()</div>
+  </div>
+  <div class="drow">
+    <div class="dbox gray">1. Year header row<small>Activity | Progress | 2026 | 2027</small></div>
+  </div>
+  <div class="drow">
+    <div class="dbox gray">2. Month header row<small>(empty) | (empty) | Jul Aug Sep ... Jun</small></div>
+  </div>
+  <div class="drow">
+    <div class="dbox amber">3. For each TASKS[] section:</div>
+  </div>
+  <div class="drow">
+    <div class="dbox" style="flex:1;background:transparent"></div>
+    <div class="dbox purple" style="flex:5">3a. Section header row<small>Clickable, shows collapse arrow + name + task count</small></div>
+  </div>
+  <div class="drow">
+    <div class="dbox" style="flex:1;background:transparent"></div>
+    <div class="dbox purple" style="flex:5">3b. Section tasks wrapper<small>&lt;div class="section-tasks"&gt; (collapsible)</small></div>
+  </div>
+  <div class="drow">
+    <div class="dbox" style="flex:2;background:transparent"></div>
+    <div class="dbox green" style="flex:4">3b-i. For each task: gantt-row<small>Activity cell + Progress cell + Timeline cell (grid lines + bar/diamond/tbd)</small></div>
+  </div>
+  <div class="drow" style="min-height:40px">
+    <div class="dbox teal wide6">+ Legend HTML into #gantt-legend</div>
+  </div>
+</div>
+
+<p>The <code>gridLinesHTML(tPct)</code> helper is called once and reused for every timeline cell &mdash; it generates the 11 month-boundary lines and the today marker.</p>
+
+<!-- ===== POSITIONING ===== -->
+<h2>8. Bar Positioning Math</h2>
+<p>All bars and markers are positioned using <strong>percentage offsets</strong> within the <code>.gr-timeline</code> cell (which fills the 3rd grid column).</p>
+
+<div class="codeblock">
+<span class="cm">// Timeline range: Jul 1, 2026 &rarr; Jul 1, 2027 (12 months)</span><br>
+<span class="kw">var</span> TL_START = <span class="kw">new</span> Date(<span class="num">2026</span>, <span class="num">6</span>, <span class="num">1</span>);<br>
+<span class="kw">var</span> TL_END&nbsp;&nbsp; = <span class="kw">new</span> Date(<span class="num">2027</span>, <span class="num">6</span>, <span class="num">1</span>);<br>
+<span class="kw">var</span> TL_MS&nbsp;&nbsp;&nbsp; = TL_END - TL_START;&nbsp;&nbsp;<span class="cm">// total milliseconds in range</span><br><br>
+
+<span class="cm">// Convert a date string to a left% value</span><br>
+<span class="kw">function</span> <span class="fn">dateToPct</span>(dateStr) {<br>
+&nbsp;&nbsp;<span class="kw">var</span> d = <span class="kw">new</span> Date(dateStr + <span class="str">"T00:00:00"</span>);<br>
+&nbsp;&nbsp;<span class="kw">return</span> clamp(<span class="num">0</span>, ((d - TL_START) / TL_MS) * <span class="num">100</span>, <span class="num">100</span>);<br>
+}<br><br>
+
+<span class="cm">// Bar: left = dateToPct(start), width = dateToPct(due) - dateToPct(start)</span><br>
+<span class="cm">// Diamond: left = calc(dateToPct(due)% - 7px) to center the 14px marker</span>
+</div>
+
+<p><strong>Note:</strong> Months don't have equal day counts, so the grid lines (at equal 1/12 intervals) don't perfectly match calendar month boundaries. The discrepancy is &lt;2px at typical widths &mdash; visually negligible.</p>
+
+<!-- ===== COLOR SYSTEM ===== -->
+<h2>9. Section Color System</h2>
+<p>Each Asana section maps to a category key, which maps to a bar color:</p>
+
+<div class="diagram">
+  <div class="drow">
+    <div class="dbox" style="background:#e5534b;flex:1">OTA Releases<small>cat-ota &rarr; #e5534b</small></div>
+    <div class="dbox" style="background:#a78bfa;flex:1">Factory Releases<small>cat-factory &rarr; #a78bfa</small></div>
+    <div class="dbox" style="background:#3b82f6;flex:1">In Progress<small>cat-progress &rarr; #3b82f6</small></div>
+    <div class="dbox" style="background:#f59e0b;flex:1;color:#000">Upcoming<small>cat-upcoming &rarr; #f59e0b</small></div>
+    <div class="dbox" style="background:#484f58;flex:1">Done<small>cat-done &rarr; #484f58</small></div>
+  </div>
+</div>
+
+<p>Colors are selected for hue separation across red/purple/blue/amber/gray to remain distinguishable under common color-vision deficiencies. Section labels provide secondary encoding.</p>
+
+<!-- ===== ASANA SYNC ===== -->
+<h2>10. Data Sync: Two Paths</h2>
+
+<h3>Path A: Live (browser-side)</h3>
+<div class="card">
+  <div class="card-title">Asana REST API Fetch</div>
+  <ul>
+    <li>On page load, <code>fetch()</code> calls Asana with an inline PAT</li>
+    <li>Requests: <code>name, completed, assignee.name, resource_subtype, due_on, start_on, memberships.section.name</code></li>
+    <li><code>parseAsanaData()</code> groups tasks by section using <code>SECTION_MAP</code></li>
+    <li>Overwrites global <code>TASKS[]</code>, calls <code>render()</code> again</li>
+    <li>Sync badge updates to <span style="color:#39d2b4">Live Data</span> on success, <span style="color:#e5534b">Sync error</span> on failure</li>
+  </ul>
+</div>
+
+<h3>Path B: Offline (sync.py)</h3>
+<div class="card">
+  <div class="card-title">sync.py &mdash; CLI Script</div>
+  <ul>
+    <li>Reads PAT from <code>ASANA_PAT</code> env var or <code>.asana_pat</code> file</li>
+    <li>Fetches tasks from Asana API (server-side, with subtask expansion)</li>
+    <li>Regex-replaces the block between <code>// @@TASKS_START@@</code> and <code>// @@TASKS_END@@</code> in <code>index.html</code></li>
+    <li>The updated embedded data is a fallback when the browser-side fetch fails (e.g., CORS, expired PAT, offline)</li>
+  </ul>
+</div>
+
+<!-- ===== EMBED MODE ===== -->
+<h2>11. Embed Mode</h2>
+<p>Adding <code>?embed</code> to the URL activates embed mode for iframe use inside <code>dashboard.html</code>:</p>
+<div class="card">
+  <ul>
+    <li>Nav bar hidden</li>
+    <li>Page header hidden</li>
+    <li>Card border/radius removed (flush with iframe)</li>
+    <li>Posts <code>{ type: "cfx-resize", height }</code> messages to parent window so the iframe auto-sizes</li>
+    <li>Uses <code>MutationObserver</code> on <code>#gantt</code> to detect content changes and re-notify height</li>
+  </ul>
+</div>
+
+<!-- ===== INTERACTION ===== -->
+<h2>12. Interaction Model</h2>
+
+<table class="ref-table">
+  <tr><th>Interaction</th><th>Mechanism</th><th>Target</th></tr>
+  <tr>
+    <td>Hover bar/diamond</td>
+    <td>Event-delegated <code>mouseover</code> on <code>[data-tip]</code></td>
+    <td>Floating tooltip with task name, dates, assignee, progress, section</td>
+  </tr>
+  <tr>
+    <td>Click section header</td>
+    <td><code>onclick="toggleSection(this)"</code></td>
+    <td>Toggles <code>.expanded</code> class; CSS <code>+</code> selector animates task rows in/out</td>
+  </tr>
+  <tr>
+    <td>Hover task row</td>
+    <td>CSS <code>.gantt-row:hover</code></td>
+    <td>Subtle background highlight</td>
+  </tr>
+  <tr>
+    <td>Horizontal scroll</td>
+    <td><code>.gantt-scroll { overflow-x: auto }</code></td>
+    <td>Activates when viewport narrower than <code>min-width: 960px</code></td>
+  </tr>
+</table>
+
+<!-- ===== KEY DECISIONS ===== -->
+<h2>13. Key Design Decisions</h2>
+
+<div class="card">
+  <ul>
+    <li><strong>Single-file architecture</strong> &mdash; no build step, no bundler. Can be served from any static host or opened as a local file. Asana PAT is inline (accepted tradeoff for simplicity).</li>
+    <li><strong>String-based rendering</strong> &mdash; <code>render()</code> builds HTML as a concatenated string, not DOM nodes. Fast for this data size (&lt;50 tasks) and makes the full re-render pattern trivial.</li>
+    <li><strong>CSS-only collapse</strong> &mdash; adjacent sibling selector avoids managing expand/collapse state in JS. The <code>max-height</code> transition provides animation.</li>
+    <li><strong>Two-source data</strong> &mdash; embedded TASKS[] (always available, possibly stale) + live Asana fetch (fresh, but may fail). Render fires twice: once immediately with embedded data, once after API response.</li>
+    <li><strong>No framework</strong> &mdash; vanilla JS + CSS. Zero dependencies keeps the page fast, portable, and easy to edit without tooling.</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

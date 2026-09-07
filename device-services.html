@@ -34,7 +34,12 @@ body {
 
 /* Page content */
 .page-content { padding: 24px; }
-.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
 .page-title { font-size: 20px; font-weight: 600; }
 .page-subtitle { font-size: 13px; color: #7d8590; margin-top: 2px; }
 
@@ -45,82 +50,262 @@ body {
 .sync-badge.loading { background: #2a2520; color: #e6a117; border: 1px solid #4a3510; }
 .sync-badge.embedded { background: #2a2520; color: #e6a117; border: 1px solid #4a3510; }
 
-/* Timeline card */
-.timeline-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; overflow: hidden; }
-.card-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 20px; border-bottom: 1px solid #30363d; }
-.card-title-group { display: flex; align-items: center; gap: 8px; }
-.card-title { font-size: 15px; font-weight: 600; }
-.card-subtitle { font-size: 12px; color: #7d8590; margin-top: 2px; }
+/* ---- Gantt chart ---- */
+.gantt-wrapper {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.gantt-scroll { overflow-x: auto; }
+.gantt {
+  min-width: 960px;
+  --act-col: 280px;
+  --prog-col: 72px;
+}
 
-.view-toggle { display: flex; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; }
-.view-btn { padding: 4px 14px; font-size: 12px; background: transparent; color: #7d8590; border: none; cursor: pointer; font-family: inherit; }
-.view-btn.active { background: #1f6feb; color: #fff; }
+/* ---- Header rows ---- */
+.gantt-header-year,
+.gantt-header-month {
+  display: grid;
+  grid-template-columns: var(--act-col) var(--prog-col) 1fr;
+}
 
-/* Timeline grid */
-.timeline-container { overflow-x: auto; }
-.timeline-grid { min-width: 1000px; position: relative; --label-col: 200px; }
+.gh-label,
+.gh-prog-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #e6edf3;
+  background: #21262d;
+  border-right: 1px solid #30363d;
+  border-bottom: 1px solid #30363d;
+  padding: 0 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.gh-label { justify-content: flex-start; padding-left: 16px; }
 
-.tl-header { display: grid; grid-template-columns: var(--label-col) 1fr; border-bottom: 1px solid #30363d; position: sticky; top: 0; z-index: 10; background: #161b22; }
-.tl-label-header { padding: 8px 16px; font-size: 11px; font-weight: 600; color: #7d8590; text-transform: uppercase; letter-spacing: 0.05em; border-right: 1px solid #30363d; display: flex; align-items: center; }
-.tl-months-header { display: grid; grid-template-columns: repeat(12, 1fr); }
-.tl-month-label { text-align: center; padding: 8px 0; font-size: 11px; font-weight: 600; color: #7d8590; text-transform: uppercase; letter-spacing: 0.05em; border-right: 1px solid #21262d; }
-.tl-month-label:last-child { border-right: none; }
+/* Year band */
+.gh-years {
+  display: flex;
+  border-bottom: 1px solid #30363d;
+}
+.gh-year-cell {
+  flex: 1;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.06em;
+}
+.gh-year-cell.y2026 { background: #1a5fc9; }
 
-/* Section group */
-.section-group { border-bottom: 1px solid #21262d; }
-.section-row { display: grid; grid-template-columns: var(--label-col) 1fr; cursor: pointer; transition: background 0.15s; }
-.section-row:hover { background: #1c2129; }
-.section-label { padding: 10px 16px; font-size: 13px; font-weight: 600; border-right: 1px solid #30363d; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-.collapse-icon { font-size: 8px; color: #7d8590; transition: transform 0.2s; display: inline-block; width: 12px; flex-shrink: 0; }
-.section-group.expanded .collapse-icon { transform: rotate(90deg); }
+/* Month band */
+.gh-months {
+  display: flex;
+  border-bottom: 1px solid #30363d;
+}
+.gh-month-cell {
+  flex: 1;
+  text-align: center;
+  padding: 5px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  background: rgba(26, 95, 201, 0.35);
+}
+.gh-month-cell:last-child { border-right: none; }
 
-/* Timeline area */
-.tl-area { position: relative; height: 36px; overflow: hidden; }
-.month-line { position: absolute; top: 0; bottom: 0; width: 1px; background: #21262d; z-index: 1; pointer-events: none; }
+/* Empty header cells for month row */
+.gh-empty {
+  background: #21262d;
+  border-right: 1px solid #30363d;
+  border-bottom: 1px solid #30363d;
+}
 
-/* Bar */
-.bar { position: absolute; height: 8px; top: 50%; transform: translateY(-50%); border-radius: 4px; background: linear-gradient(90deg, #2ea88a, #39d2b4); z-index: 3; min-width: 4px; }
-.bar.completed { background: #484f58; }
+/* ---- Section header row ---- */
+.gantt-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  background: #21262d;
+  border-bottom: 1px solid #30363d;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.gantt-section:hover { background: #272c35; }
+.gantt-section-inner {
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.collapse-icon {
+  font-size: 9px;
+  color: #7d8590;
+  transition: transform 0.2s;
+  display: inline-block;
+  width: 14px;
+  flex-shrink: 0;
+}
+.gantt-section.expanded .collapse-icon { transform: rotate(90deg); }
 
-/* Diamond milestone */
-.diamond { position: absolute; width: 10px; height: 10px; top: 50%; transform: translateY(-50%) rotate(45deg); background: #39d2b4; z-index: 4; cursor: default; }
-.diamond.completed { background: #7d8590; }
+/* ---- Task row ---- */
+.gantt-row {
+  display: grid;
+  grid-template-columns: var(--act-col) var(--prog-col) 1fr;
+  border-bottom: 1px solid #1c2129;
+  transition: background 0.1s;
+}
+.gantt-row:hover { background: #1c2129; }
 
-/* Date label */
-.date-label { position: absolute; font-size: 9px; color: #7d8590; top: calc(50% + 9px); transform: translateX(-50%); white-space: nowrap; z-index: 5; pointer-events: none; }
+.gr-activity {
+  padding: 10px 16px 10px 36px;
+  font-size: 13px;
+  border-right: 1px solid #30363d;
+  display: flex;
+  align-items: center;
+}
+.gr-activity.completed {
+  color: #484f58;
+  text-decoration: line-through;
+}
+.gr-activity.milestone::before {
+  content: "\25C6";
+  margin-right: 6px;
+  font-size: 9px;
+  color: #7d8590;
+  flex-shrink: 0;
+}
 
-/* Task rows */
-.section-tasks { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-.section-group.expanded .section-tasks { max-height: 5000px; }
-.task-row { display: grid; grid-template-columns: var(--label-col) 1fr; border-top: 1px solid #21262d; }
-.task-row:hover { background: #1c2129; }
-.task-label { padding: 8px 16px 8px 40px; font-size: 12px; border-right: 1px solid #30363d; white-space: nowrap; display: flex; align-items: center; }
-.task-label.completed { color: #484f58; text-decoration: line-through; }
+.gr-progress {
+  padding: 10px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  border-right: 1px solid #30363d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7d8590;
+}
 
-/* Today line */
-.today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #e5534b; z-index: 6; pointer-events: none; }
+/* ---- Timeline cell ---- */
+.gr-timeline {
+  position: relative;
+  height: 40px;
+  overflow: hidden;
+}
+
+.grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #21262d;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.today-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  z-index: 8;
+  pointer-events: none;
+  border-left: 2px dashed rgba(255,255,255,0.45);
+}
+
+.gantt-bar {
+  position: absolute;
+  height: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 3px;
+  z-index: 3;
+  min-width: 6px;
+  cursor: default;
+}
+
+.gantt-diamond {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  border-radius: 2px;
+  z-index: 4;
+  cursor: default;
+}
+
+.tbd-label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: #484f58;
+  font-style: italic;
+}
+
+/* Section tasks container */
+.section-tasks {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.gantt-section.expanded + .section-tasks {
+  max-height: 5000px;
+}
 
 /* Legend */
-.legend { display: flex; align-items: center; gap: 16px; padding: 10px 20px; font-size: 11px; color: #7d8590; border-top: 1px solid #21262d; }
+.gantt-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 10px 20px;
+  font-size: 11px;
+  color: #7d8590;
+  border-top: 1px solid #21262d;
+}
 .legend-item { display: flex; align-items: center; gap: 6px; }
-.legend-bar { width: 24px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #2ea88a, #39d2b4); }
-.legend-diamond { width: 8px; height: 8px; transform: rotate(45deg); background: #39d2b4; }
-.legend-today { width: 2px; height: 14px; background: #e5534b; }
+.legend-swatch { width: 20px; height: 10px; border-radius: 2px; }
+.legend-today-swatch { width: 0; height: 14px; border-left: 2px dashed rgba(255,255,255,0.45); }
 .legend-sep { color: #30363d; }
 
 /* Tooltip */
-.tip { display: none; position: fixed; background: #1c2129; border: 1px solid #30363d; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #e6edf3; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 100; pointer-events: none; max-width: 320px; line-height: 1.6; }
+.tip {
+  display: none;
+  position: fixed;
+  background: #1c2129;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #e6edf3;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  z-index: 100;
+  pointer-events: none;
+  max-width: 320px;
+  line-height: 1.6;
+}
 .tip.visible { display: block; }
 .tip-title { font-weight: 600; margin-bottom: 4px; }
 .tip-meta { color: #7d8590; font-size: 11px; }
-
-.tbd-label { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #7d8590; font-style: italic; }
 
 /* Embed mode */
 body.embed .nav-bar { display: none; }
 body.embed .page-content { padding: 0; }
 body.embed .page-header { display: none; }
-body.embed .timeline-card { border: none; border-radius: 0; }
+body.embed .gantt-wrapper { border: none; border-radius: 0; }
 </style>
 </head>
 <body>
@@ -140,32 +325,11 @@ body.embed .timeline-card { border: none; border-radius: 0; }
     <span id="sync-status" class="sync-badge loading">Loading&hellip;</span>
   </div>
 
-  <div class="timeline-card">
-    <div class="card-header">
-      <div>
-        <div class="card-title-group">
-          <span class="card-title">SW &mdash; Device Services Roadmap</span>
-        </div>
-        <div class="card-subtitle">CY2026 &middot; Grouped by initiative</div>
-      </div>
-      <div class="view-toggle">
-        <button class="view-btn active">Month</button>
-        <button class="view-btn">Quarter</button>
-      </div>
+  <div class="gantt-wrapper">
+    <div class="gantt-scroll">
+      <div class="gantt" id="gantt"></div>
     </div>
-
-    <div class="timeline-container">
-      <div class="timeline-grid" id="timeline-grid"></div>
-    </div>
-
-    <div class="legend">
-      <div class="legend-item"><div class="legend-bar"></div> Active span</div>
-      <div class="legend-item"><div class="legend-diamond"></div> Milestone</div>
-      <div class="legend-sep">|</div>
-      <div class="legend-item"><div class="legend-today"></div> Today</div>
-      <div class="legend-sep">&middot;</div>
-      <span>Click group row to expand &middot; click title to collapse</span>
-    </div>
+    <div class="gantt-legend" id="gantt-legend"></div>
   </div>
 </div>
 
@@ -176,170 +340,189 @@ var TASKS = [];
 
 // --- Timeline: JAN 2026 – DEC 2026 ---
 var MONTHS = [
-  { label: "JAN", year: 2026, month: 0 },
-  { label: "FEB", year: 2026, month: 1 },
-  { label: "MAR", year: 2026, month: 2 },
-  { label: "APR", year: 2026, month: 3 },
-  { label: "MAY", year: 2026, month: 4 },
-  { label: "JUN", year: 2026, month: 5 },
-  { label: "JUL", year: 2026, month: 6 },
-  { label: "AUG", year: 2026, month: 7 },
-  { label: "SEP", year: 2026, month: 8 },
-  { label: "OCT", year: 2026, month: 9 },
-  { label: "NOV", year: 2026, month: 10 },
-  { label: "DEC", year: 2026, month: 11 }
+  { label: "Jan", year: 2026, month: 0 },
+  { label: "Feb", year: 2026, month: 1 },
+  { label: "Mar", year: 2026, month: 2 },
+  { label: "Apr", year: 2026, month: 3 },
+  { label: "May", year: 2026, month: 4 },
+  { label: "Jun", year: 2026, month: 5 },
+  { label: "Jul", year: 2026, month: 6 },
+  { label: "Aug", year: 2026, month: 7 },
+  { label: "Sep", year: 2026, month: 8 },
+  { label: "Oct", year: 2026, month: 9 },
+  { label: "Nov", year: 2026, month: 10 },
+  { label: "Dec", year: 2026, month: 11 }
 ];
 var TL_START = new Date(2026, 0, 1);
-var TL_END = new Date(2027, 0, 1);
-var TL_MS = TL_END - TL_START;
+var TL_END   = new Date(2027, 0, 1);
+var TL_MS    = TL_END - TL_START;
+
+var SECTION_COLORS = {
+  "cat-progress": "#3b82f6",
+  "cat-launch":   "#e5534b",
+  "cat-design":   "#a78bfa",
+  "cat-intake":   "#f59e0b",
+  "cat-next":     "#2ea88a",
+  "cat-backlog":  "#6b7280",
+  "cat-done":     "#484f58"
+};
 
 function dateToPct(dateStr) {
   if (!dateStr) return null;
   var d = new Date(dateStr + "T00:00:00");
   return Math.max(0, Math.min(100, ((d - TL_START) / TL_MS) * 100));
 }
-function dateToPctRaw(d) {
-  return Math.max(0, Math.min(100, ((d - TL_START) / TL_MS) * 100));
-}
-function fmtDate(dateStr) {
-  if (!dateStr) return "TBD";
-  var d = new Date(dateStr + "T00:00:00");
-  return String(d.getMonth()+1).padStart(2,"0") + "/" + String(d.getDate()).padStart(2,"0") + "/" + String(d.getFullYear()).slice(2);
-}
-function dateToStr(d) {
-  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
-}
-function encodeAttr(s) {
-  return s.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
-}
-function monthLinesPcts() {
-  var lines = [];
-  for (var i = 1; i < MONTHS.length; i++) {
-    var d = new Date(MONTHS[i].year, MONTHS[i].month, 1);
-    lines.push(((d - TL_START) / TL_MS) * 100);
-  }
-  return lines;
-}
-function monthLinesHTML() {
-  return monthLinesPcts().map(function(p) { return '<div class="month-line" style="left:'+p+'%"></div>'; }).join("");
-}
+
 function todayPct() {
   return Math.max(0, Math.min(100, ((new Date() - TL_START) / TL_MS) * 100));
 }
-function getSectionRange(section) {
-  var earliest = null, latest = null;
-  section.tasks.forEach(function(t) {
-    var dates = [];
-    if (t.start) dates.push(new Date(t.start + "T00:00:00"));
-    if (t.due) dates.push(new Date(t.due + "T00:00:00"));
-    dates.forEach(function(d) {
-      if (!earliest || d < earliest) earliest = d;
-      if (!latest || d > latest) latest = d;
-    });
-  });
-  return { earliest: earliest, latest: latest };
+
+function calcProgress(task) {
+  if (task.completed) return 100;
+  var now = new Date();
+  if (task.start && task.due) {
+    var s = new Date(task.start + "T00:00:00");
+    var e = new Date(task.due + "T00:00:00");
+    if (e <= s) return 0;
+    if (now >= e) return 100;
+    if (now <= s) return 0;
+    return Math.round(((now - s) / (e - s)) * 100);
+  }
+  if (task.due) {
+    return now >= new Date(task.due + "T00:00:00") ? 100 : 0;
+  }
+  return 0;
 }
-function areaHTML(mLines, tPct) {
-  return mLines + '<div class="today-line" style="left:'+tPct+'%"></div>';
+
+function fmtDate(dateStr) {
+  if (!dateStr) return "TBD";
+  var d = new Date(dateStr + "T00:00:00");
+  return String(d.getMonth() + 1).padStart(2, "0") + "/" +
+         String(d.getDate()).padStart(2, "0") + "/" +
+         String(d.getFullYear()).slice(2);
+}
+
+function esc(s) {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+function gridLinesHTML(tPct) {
+  var html = "";
+  for (var i = 1; i < 12; i++) {
+    var pct = (i / 12) * 100;
+    html += '<div class="grid-line" style="left:' + pct + '%"></div>';
+  }
+  html += '<div class="today-line" style="left:' + tPct + '%"></div>';
+  return html;
 }
 
 function render() {
-  var grid = document.getElementById("timeline-grid");
-  var mLines = monthLinesHTML();
+  var gantt = document.getElementById("gantt");
   var tPct = todayPct();
-  var html = "";
+  var gl = gridLinesHTML(tPct);
+  var h = "";
 
-  html += '<div class="tl-header">';
-  html += '<div class="tl-label-header">PROGRAM</div>';
-  html += '<div class="tl-months-header">';
-  MONTHS.forEach(function(m) { html += '<div class="tl-month-label">'+m.label+'</div>'; });
-  html += '</div></div>';
+  // --- Header: year row ---
+  h += '<div class="gantt-header-year">';
+  h += '<div class="gh-label">Activity</div>';
+  h += '<div class="gh-prog-label">Progress</div>';
+  h += '<div class="gh-years">';
+  h += '<div class="gh-year-cell y2026">2026</div>';
+  h += '</div></div>';
 
+  // --- Header: month row ---
+  h += '<div class="gantt-header-month">';
+  h += '<div class="gh-empty"></div>';
+  h += '<div class="gh-empty"></div>';
+  h += '<div class="gh-months">';
+  MONTHS.forEach(function(m) {
+    h += '<div class="gh-month-cell">' + m.label + '</div>';
+  });
+  h += '</div></div>';
+
+  // --- Sections & tasks ---
   TASKS.forEach(function(section, si) {
-    var isCompleted = section.cat === "cat-done";
-    var expandedCls = isCompleted ? "" : " expanded";
+    var isDone = section.cat === "cat-done";
+    var expanded = !isDone;
+    var color = SECTION_COLORS[section.cat] || "#39d2b4";
 
-    html += '<div class="section-group'+expandedCls+'" data-index="'+si+'">';
-    html += '<div class="section-row" onclick="toggleSection(this)">';
-    html += '<div class="section-label"><span class="collapse-icon">&#9654;</span>'+section.section+'</div>';
-    html += '<div class="tl-area">'+areaHTML(mLines, tPct);
+    // Section header
+    h += '<div class="gantt-section' + (expanded ? " expanded" : "") + '" onclick="toggleSection(this)" data-index="' + si + '">';
+    h += '<div class="gantt-section-inner">';
+    h += '<span class="collapse-icon">&#9654;</span>';
+    h += '<span>' + section.section + '</span>';
+    h += '<span style="font-size:11px;color:#7d8590;font-weight:400;margin-left:4px">(' + section.tasks.length + ')</span>';
+    h += '</div></div>';
 
-    var range = getSectionRange(section);
-    if (range.earliest && range.latest) {
-      var startPct = dateToPctRaw(range.earliest);
-      var endPct = dateToPctRaw(range.latest);
-      var barCls = isCompleted ? " completed" : "";
-      var barWidth = Math.max(0.3, endPct - startPct);
-      html += '<div class="bar'+barCls+'" style="left:'+startPct+'%;width:'+barWidth+'%"></div>';
-
-      section.tasks.forEach(function(t) {
-        if (t.resource_subtype === "milestone" && t.due) {
-          var pct = dateToPct(t.due);
-          var dCls = t.completed ? " completed" : "";
-          html += '<div class="diamond'+dCls+'" style="left:calc('+pct+'% - 5px)"';
-          html += ' data-tip="'+encodeAttr(t.name)+'" data-dates="Due: '+fmtDate(t.due)+'"';
-          html += ' data-assignee="'+(t.assignee||"Unassigned")+'" data-section="'+section.section+'"';
-          html += ' data-status="'+(t.completed?"Completed":"Upcoming")+'"></div>';
-          html += '<span class="date-label" style="left:'+pct+'%">'+fmtDate(t.due)+'</span>';
-        }
-      });
-
-      var hasStartMs = section.tasks.some(function(t) { return t.resource_subtype==="milestone"&&t.due&&Math.abs(dateToPct(t.due)-startPct)<1; });
-      var hasEndMs = section.tasks.some(function(t) { return t.resource_subtype==="milestone"&&t.due&&Math.abs(dateToPct(t.due)-endPct)<1; });
-      if (!hasStartMs) html += '<span class="date-label" style="left:'+startPct+'%">'+fmtDate(dateToStr(range.earliest))+'</span>';
-      if (!hasEndMs && barWidth > 3) html += '<span class="date-label" style="left:'+endPct+'%">'+fmtDate(dateToStr(range.latest))+'</span>';
-    }
-    html += '</div></div>';
-
-    html += '<div class="section-tasks">';
+    // Task rows
+    h += '<div class="section-tasks">';
     section.tasks.forEach(function(t) {
+      var prog = calcProgress(t);
+      var isMilestone = t.resource_subtype === "milestone";
       var completedCls = t.completed ? " completed" : "";
-      html += '<div class="task-row">';
-      html += '<div class="task-label'+completedCls+'" title="'+encodeAttr(t.name)+'">'+t.name+'</div>';
-      html += '<div class="tl-area">'+areaHTML(mLines, tPct);
+
+      h += '<div class="gantt-row">';
+
+      // Activity cell
+      h += '<div class="gr-activity' + completedCls + (isMilestone ? " milestone" : "") + '" title="' + esc(t.name) + '">' + t.name + '</div>';
+
+      // Progress cell
+      h += '<div class="gr-progress">' + prog + '%</div>';
+
+      // Timeline cell
+      h += '<div class="gr-timeline">' + gl;
 
       if (t.start && t.due) {
         var sPct = dateToPct(t.start);
         var ePct = dateToPct(t.due);
-        var bCls = t.completed ? " completed" : "";
-        var w = Math.max(0.3, ePct - sPct);
-        html += '<div class="bar'+bCls+'" style="left:'+sPct+'%;width:'+w+'%"';
-        html += ' data-tip="'+encodeAttr(t.name)+'" data-dates="'+fmtDate(t.start)+' – '+fmtDate(t.due)+'"';
-        html += ' data-assignee="'+(t.assignee||"Unassigned")+'" data-section="'+section.section+'"';
-        html += ' data-status="'+(t.completed?"Completed":"In progress")+'"></div>';
-        html += '<div class="diamond'+bCls+'" style="left:calc('+sPct+'% - 5px)"></div>';
-        if (w > 1) html += '<div class="diamond'+bCls+'" style="left:calc('+ePct+'% - 5px)"></div>';
-        html += '<span class="date-label" style="left:'+sPct+'%">'+fmtDate(t.start)+'</span>';
-        if (w > 3) html += '<span class="date-label" style="left:'+ePct+'%">'+fmtDate(t.due)+'</span>';
+        var w = Math.max(0.4, ePct - sPct);
+        h += '<div class="gantt-bar" style="left:' + sPct + '%;width:' + w + '%;background:' + color + '"';
+        h += ' data-tip="' + esc(t.name) + '"';
+        h += ' data-dates="' + fmtDate(t.start) + ' – ' + fmtDate(t.due) + '"';
+        h += ' data-assignee="' + (t.assignee || "Unassigned") + '"';
+        h += ' data-section="' + section.section + '"';
+        h += ' data-progress="' + prog + '%"';
+        h += '></div>';
       } else if (t.due) {
         var pct = dateToPct(t.due);
-        var dCls = t.completed ? " completed" : "";
-        html += '<div class="diamond'+dCls+'" style="left:calc('+pct+'% - 5px)"';
-        html += ' data-tip="'+encodeAttr(t.name)+'" data-dates="Due: '+fmtDate(t.due)+'"';
-        html += ' data-assignee="'+(t.assignee||"Unassigned")+'" data-section="'+section.section+'"';
-        html += ' data-status="'+(t.completed?"Completed":"Upcoming")+'"></div>';
-        html += '<span class="date-label" style="left:'+pct+'%">'+fmtDate(t.due)+'</span>';
+        if (isMilestone) {
+          h += '<div class="gantt-diamond" style="left:calc(' + pct + '% - 7px);background:' + color + '"';
+        } else {
+          h += '<div class="gantt-bar" style="left:calc(' + pct + '% - 3px);width:6px;background:' + color + '"';
+        }
+        h += ' data-tip="' + esc(t.name) + '"';
+        h += ' data-dates="Due: ' + fmtDate(t.due) + '"';
+        h += ' data-assignee="' + (t.assignee || "Unassigned") + '"';
+        h += ' data-section="' + section.section + '"';
+        h += ' data-progress="' + prog + '%"';
+        h += '></div>';
       } else {
-        html += '<span class="tbd-label">Dates TBD</span>';
+        h += '<span class="tbd-label">Dates TBD</span>';
       }
-      html += '</div></div>';
+
+      h += '</div></div>';
     });
-    html += '</div></div>';
+    h += '</div>';
   });
 
-  grid.innerHTML = html;
-}
+  gantt.innerHTML = h;
 
-function fitLabelColumn() {
-  var grid = document.getElementById("timeline-grid");
-  var labels = grid.querySelectorAll(".section-label, .task-label");
-  var max = 0;
-  labels.forEach(function(el) { if (el.scrollWidth > max) max = el.scrollWidth; });
-  if (max > 0) grid.style.setProperty("--label-col", (max + 16) + "px");
+  // --- Legend ---
+  var legend = document.getElementById("gantt-legend");
+  var lh = "";
+  TASKS.forEach(function(section) {
+    var c = SECTION_COLORS[section.cat] || "#39d2b4";
+    lh += '<div class="legend-item"><div class="legend-swatch" style="background:' + c + '"></div>' + section.section + '</div>';
+  });
+  lh += '<span class="legend-sep">|</span>';
+  lh += '<div class="legend-item"><div class="legend-today-swatch"></div> Today</div>';
+  lh += '<span class="legend-sep">&middot;</span>';
+  lh += '<span>Click section to expand/collapse</span>';
+  legend.innerHTML = lh;
 }
 
 function toggleSection(el) {
-  el.closest(".section-group").classList.toggle("expanded");
+  el.classList.toggle("expanded");
 }
 
 // --- Tooltip ---
@@ -347,11 +530,12 @@ var tipEl = document.getElementById("tip");
 document.addEventListener("mouseover", function(e) {
   var el = e.target.closest("[data-tip]");
   if (!el) { tipEl.classList.remove("visible"); return; }
-  tipEl.innerHTML = '<div class="tip-title">'+el.dataset.tip+'</div>'
-    +'<div class="tip-meta">'+el.dataset.dates+'</div>'
-    +'<div class="tip-meta">Assignee: '+el.dataset.assignee+'</div>'
-    +'<div class="tip-meta">Status: '+el.dataset.status+'</div>'
-    +'<div class="tip-meta" style="font-weight:500">'+el.dataset.section+'</div>';
+  tipEl.innerHTML =
+    '<div class="tip-title">' + el.dataset.tip + '</div>' +
+    '<div class="tip-meta">' + el.dataset.dates + '</div>' +
+    '<div class="tip-meta">Assignee: ' + el.dataset.assignee + '</div>' +
+    '<div class="tip-meta">Progress: ' + el.dataset.progress + '</div>' +
+    '<div class="tip-meta" style="font-weight:500">' + el.dataset.section + '</div>';
   tipEl.classList.add("visible");
 });
 document.addEventListener("mousemove", function(e) {
@@ -360,7 +544,8 @@ document.addEventListener("mousemove", function(e) {
   var r = tipEl.getBoundingClientRect();
   if (x + r.width > window.innerWidth - 12) x = e.clientX - r.width - 12;
   if (y + r.height > window.innerHeight - 12) y = e.clientY - r.height - 12;
-  tipEl.style.left = x + "px"; tipEl.style.top = y + "px";
+  tipEl.style.left = x + "px";
+  tipEl.style.top = y + "px";
 });
 document.addEventListener("mouseout", function(e) {
   if (e.target.closest("[data-tip]")) tipEl.classList.remove("visible");
@@ -370,13 +555,13 @@ document.addEventListener("mouseout", function(e) {
 var ASANA_PAT = "2/1208717380462980/1218142428533819:12448cbda0fbf36a8831453b49b12d65";
 var PROJECT_GID = "1205153226090474";
 var SECTION_MAP = {
-  "Improve Member Outcomes":  "cat-outcomes",
-  "Meet Members Everywhere":  "cat-reach",
-  "CFX + Platform":           "cat-cfx",
-  "WeatherTop Foundation":    "cat-weather",
-  "BAU/KTLO":                 "cat-ktlo",
-  "Deployment":               "cat-deploy",
-  "Done":                     "cat-done"
+  "In Progress":        "cat-progress",
+  "Launch":             "cat-launch",
+  "In Design":          "cat-design",
+  "Intake Requests":    "cat-intake",
+  "Next":               "cat-next",
+  "Backlog":            "cat-backlog",
+  "Done":               "cat-done"
 };
 var SECTION_ORDER = Object.keys(SECTION_MAP);
 
@@ -390,7 +575,8 @@ function parseAsanaData(allItems) {
     var item = allItems[i];
     if (seen[item.gid]) continue;
     seen[item.gid] = true;
-    var mem = (item.memberships || []).find(function(m) { return SECTION_MAP[m.section.name]; });
+    if (!item.name || !item.name.trim()) continue;
+    var mem = (item.memberships || []).find(function(m) { return m.section && SECTION_MAP[m.section.name]; });
     if (!mem) continue;
     var t = {
       name: item.name.trim(),
@@ -419,7 +605,6 @@ function fetchAllTasks() {
   var allData = [];
 
   function fetchPage(url) {
-    console.log("[ds-sync] Fetching page…", url.substring(0, 80));
     return fetch(url, { headers: { "Authorization": "Bearer " + ASANA_PAT } })
       .then(function(r) {
         if (!r.ok) throw new Error("HTTP " + r.status);
@@ -443,10 +628,8 @@ setStatus("Loading…", "loading");
 if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
   fetchAllTasks()
     .then(function(allData) {
-      console.log("[ds-sync] Got", allData.length, "total tasks");
       TASKS = parseAsanaData(allData);
       render();
-      fitLabelColumn();
       setStatus("Live Data (" + allData.length + " tasks)", "live");
     })
     .catch(function(e) {
@@ -462,7 +645,7 @@ if (document.body.classList.contains("embed") && window.parent !== window) {
   function notifyHeight() {
     window.parent.postMessage({ type: "cfx-resize", height: document.documentElement.scrollHeight }, "*");
   }
-  new MutationObserver(notifyHeight).observe(document.getElementById("timeline-grid"), { childList: true, subtree: true });
+  new MutationObserver(notifyHeight).observe(document.getElementById("gantt"), { childList: true, subtree: true });
   window.addEventListener("resize", notifyHeight);
   setTimeout(notifyHeight, 200);
   setTimeout(notifyHeight, 1500);
