@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-import json, os, urllib.request, sys
+"""Sync CFX-System tasks from Asana into index.html as embedded data.
+
+Usage:
+    python sync.py              # fetches and embeds tasks
+
+The PAT is read from ASANA_PAT env var or .asana_pat file.
+"""
+import json, os, re, sys, urllib.request, urllib.parse
 from datetime import datetime
 
 PROJECT_GID = "1218045518949399"
@@ -11,23 +18,42 @@ SECTION_CONFIG = {
     "Done":                {"cat": "cat-done",      "order": 4},
 }
 
+BASE = os.path.dirname(os.path.abspath(__file__))
+
 def get_pat():
     pat = os.environ.get("ASANA_PAT", "").strip()
     if pat:
         return pat
-    pat_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".asana_pat")
+    pat_file = os.path.join(BASE, ".asana_pat")
     if os.path.exists(pat_file):
         with open(pat_file) as f:
             return f.read().strip()
     print("No Asana PAT found. Set ASANA_PAT env var or create .asana_pat file.", file=sys.stderr)
     sys.exit(1)
 
-def fetch_tasks(pat):
-    url = (f"https://app.asana.com/api/1.0/projects/{PROJECT_GID}/tasks"
-           f"?opt_pretty&opt_expand=(this%7Csubtasks%2B)")
-    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {pat}"})
-    with urllib.request.urlopen(req) as resp:
-        return json.loads(resp.read())["data"]
+def fetch_all_tasks(pat):
+    params = urllib.parse.urlencode({
+        "completed_since": "2026-01-01T00:00:00Z",
+        "opt_fields": "name,completed,assignee.name,resource_subtype,due_on,start_on,memberships.section.name,subtasks.name,subtasks.completed,subtasks.assignee.name,subtasks.due_on,subtasks.start_on",
+        "limit": "100",
+    })
+    url = f"https://app.asana.com/api/1.0/projects/{PROJECT_GID}/tasks?{params}"
+    all_data = []
+
+    while url:
+        req = urllib.request.Request(url, headers={
+            "Authorization": f"Bearer {pat}",
+            "Accept": "application/json",
+        })
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            body = json.loads(resp.read())
+        all_data.extend(body.get("data", []))
+        nxt = body.get("next_page")
+        url = nxt["uri"] if nxt else None
+        if url:
+            print(f"  Page fetched, {len(all_data)} tasks so far...")
+
+    return all_data
 
 def parse_subtasks(subtasks):
     result = []
@@ -38,9 +64,6 @@ def parse_subtasks(subtasks):
             t["due"] = s["due_on"]
         if s.get("start_on"):
             t["start"] = s["start_on"]
-        children = parse_subtasks(s.get("subtasks"))
-        if children:
-            t["subtasks"] = children
         result.append(t)
     return result
 
@@ -48,7 +71,16 @@ def parse_tasks(data):
     buckets = {}
     for name, cfg in SECTION_CONFIG.items():
         buckets[name] = {"section": name, "cat": cfg["cat"], "order": cfg["order"], "tasks": []}
+
+    seen_gids = set()
     for item in data:
+        if item["gid"] in seen_gids:
+            continue
+        seen_gids.add(item["gid"])
+
+        if not item.get("name") or not item["name"].strip():
+            continue
+
         section_name = None
         for m in item.get("memberships", []):
             sn = m.get("section", {}).get("name", "")
@@ -57,7 +89,10 @@ def parse_tasks(data):
                 break
         if not section_name:
             continue
-        t = {"name": item["name"], "completed": item["completed"],
+
+        t = {"gid": item["gid"],
+             "name": item["name"].strip(),
+             "completed": item["completed"],
              "assignee": (item.get("assignee") or {}).get("name"),
              "resource_subtype": item.get("resource_subtype", "default_task")}
         if item.get("due_on"):
@@ -68,27 +103,43 @@ def parse_tasks(data):
         if subtasks:
             t["subtasks"] = subtasks
         buckets[section_name]["tasks"].append(t)
+
     result = sorted(buckets.values(), key=lambda b: b["order"])
     return [{"section": b["section"], "cat": b["cat"], "tasks": b["tasks"]} for b in result]
 
 def main():
     pat = get_pat()
-    print("Fetching from Asana...")
-    data = fetch_tasks(pat)
+    print(f"Fetching CFX-System tasks (project {PROJECT_GID})...")
+    data = fetch_all_tasks(pat)
+    print(f"  Fetched {len(data)} total items from Asana")
+
     tasks = parse_tasks(data)
-    base = os.path.dirname(os.path.abspath(__file__))
+    count = sum(len(s["tasks"]) for s in tasks)
+    print(f"  Parsed {count} tasks across {len(tasks)} sections")
+
     now = datetime.now().isoformat(timespec="seconds")
-    inject = f"// @@TASKS_START@@\n// Auto-synced from Asana: {now}\nvar TASKS = {json.dumps(tasks, indent=2)};\n// @@TASKS_END@@"
-    html_path = os.path.join(base, "index.html")
+    inject = (
+        f"// @@TASKS_START@@\n"
+        f"// Auto-synced from Asana: {now}\n"
+        f"var TASKS = {json.dumps(tasks, indent=2)};\n"
+        f"// @@TASKS_END@@"
+    )
+
+    html_path = os.path.join(BASE, "index.html")
     with open(html_path) as f:
         html = f.read()
-    import re
-    updated = re.sub(r"// @@TASKS_START@@.*?// @@TASKS_END@@", inject, html, flags=re.DOTALL)
-    # Also inject PAT so the committed file has it (pton.me serves raw repo, not GH Pages artifact)
+
+    updated = re.sub(
+        r"// @@TASKS_START@@.*?// @@TASKS_END@@",
+        inject,
+        html,
+        flags=re.DOTALL,
+    )
     updated = re.sub(r'const ASANA_PAT = "@@ASANA_PAT@@"', f'const ASANA_PAT = "{pat}"', updated)
+
     with open(html_path, "w") as f:
         f.write(updated)
-    count = sum(len(s["tasks"]) for s in tasks)
+
     print(f"Wrote {count} tasks across {len(tasks)} sections into index.html")
 
 if __name__ == "__main__":
