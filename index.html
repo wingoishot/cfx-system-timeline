@@ -383,7 +383,7 @@ body.embed .gantt-wrapper { border: none; border-radius: 0; }
 
 <script>
 // @@TASKS_START@@
-// Auto-synced from Asana: 2026-09-08T10:17:19
+// Auto-synced from Asana: 2026-09-08T18:37:03
 var TASKS = [
   {
     "section": "OTA Releases",
@@ -430,6 +430,13 @@ var TASKS = [
         "assignee": "Winston Lee",
         "resource_subtype": "milestone",
         "due": "2026-12-01"
+      },
+      {
+        "name": "test sync",
+        "completed": false,
+        "assignee": null,
+        "resource_subtype": "default_task",
+        "due": "2026-09-25"
       }
     ]
   },
@@ -827,28 +834,35 @@ function setStatus(text, cls) {
   statusEl.className = "sync-badge " + cls;
 }
 
-render();
-setStatus("Loading…", "loading");
+var HAS_EMBEDDED = TASKS.length > 0;
 
-if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
-  var apiUrl = "https://app.asana.com/api/1.0/projects/" + PROJECT_GID
-    + "/tasks?opt_fields=name,completed,assignee.name,resource_subtype,due_on,start_on,memberships.section.name&limit=100";
-  fetch(apiUrl, { headers: { "Authorization": "Bearer " + ASANA_PAT } })
-    .then(function(r) {
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
-    })
-    .then(function(json) {
-      TASKS = parseAsanaData(json.data);
-      render();
-      setStatus("Live Data (" + json.data.length + " tasks)", "live");
-    })
-    .catch(function(e) {
-      console.error("[cfx-sync] Error:", e);
-      setStatus("Sync error: " + e.message, "error");
-    });
+if (HAS_EMBEDDED) {
+  render();
+  var embeddedCount = TASKS.reduce(function(s, sec) { return s + sec.tasks.length; }, 0);
+  setStatus("Embedded (" + embeddedCount + " tasks)", "embedded");
 } else {
-  setStatus("Embedded data only", "embedded");
+  render();
+  setStatus("Loading…", "loading");
+  if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
+    var apiUrl = "https://app.asana.com/api/1.0/projects/" + PROJECT_GID
+      + "/tasks?opt_fields=name,completed,assignee.name,resource_subtype,due_on,start_on,memberships.section.name&limit=100";
+    fetch(apiUrl, { headers: { "Authorization": "Bearer " + ASANA_PAT } })
+      .then(function(r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function(json) {
+        TASKS = parseAsanaData(json.data);
+        render();
+        setStatus("Live Data (" + json.data.length + " tasks)", "live");
+      })
+      .catch(function(e) {
+        console.error("[cfx-sync] Error:", e);
+        setStatus("Sync error: " + e.message, "error");
+      });
+  } else {
+    setStatus("No PAT configured", "embedded");
+  }
 }
 
 // Notify parent frame of content height for auto-resize

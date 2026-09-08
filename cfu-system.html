@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>CFU-System Roadmap</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: #0d1117;
+  color: #e6edf3;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Nav bar */
+.nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 24px;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+  font-size: 14px;
+}
+.nav-brand { font-weight: 700; color: #39d2b4; font-size: 15px; }
+.nav-link { color: #7d8590; cursor: default; text-decoration: none; }
+.nav-link.active { background: #30363d; color: #e6edf3; padding: 4px 12px; border-radius: 6px; font-weight: 500; }
+
+/* Page content */
+.page-content { padding: 24px; }
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.page-title { font-size: 20px; font-weight: 600; }
+.page-subtitle { font-size: 13px; color: #7d8590; margin-top: 2px; }
+
+/* Sync badge */
+.sync-badge { font-size: 12px; padding: 4px 12px; border-radius: 4px; font-weight: 500; white-space: nowrap; }
+.sync-badge.live { background: #1a3a2a; color: #39d2b4; border: 1px solid #26563b; }
+.sync-badge.error { background: #3b1c1c; color: #e5534b; border: 1px solid #5b2c2c; }
+.sync-badge.loading { background: #2a2520; color: #e6a117; border: 1px solid #4a3510; }
+.sync-badge.embedded { background: #2a2520; color: #e6a117; border: 1px solid #4a3510; }
+
+/* ---- Gantt chart ---- */
+.gantt-wrapper {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.gantt-scroll { overflow-x: auto; }
+.gantt {
+  min-width: 960px;
+  --act-col: 320px;
+  --prog-col: 72px;
+}
+
+/* ---- Header rows ---- */
+.gantt-header-year,
+.gantt-header-month {
+  display: grid;
+  grid-template-columns: var(--act-col) var(--prog-col) 1fr;
+}
+
+.gh-label,
+.gh-prog-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #e6edf3;
+  background: #21262d;
+  border-right: 1px solid #30363d;
+  border-bottom: 1px solid #30363d;
+  padding: 0 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.gh-label { justify-content: flex-start; padding-left: 16px; }
+
+/* Year band */
+.gh-years {
+  display: flex;
+  border-bottom: 1px solid #30363d;
+}
+.gh-year-cell {
+  text-align: center;
+  padding: 6px 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.06em;
+  border-right: 1px solid rgba(255,255,255,0.15);
+}
+.gh-year-cell:last-child { border-right: none; }
+.gh-year-cell.y2026 { background: #c23b34; }
+.gh-year-cell.y2027 { background: #1a5fc9; }
+
+/* Month band */
+.gh-months {
+  display: flex;
+  border-bottom: 1px solid #30363d;
+}
+.gh-month-cell {
+  flex: 1;
+  text-align: center;
+  padding: 5px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+.gh-month-cell:last-child { border-right: none; }
+.gh-month-cell.m2026 { background: rgba(194, 59, 52, 0.35); }
+.gh-month-cell.m2027 { background: rgba(26, 95, 201, 0.35); }
+
+/* Empty header cells for month row */
+.gh-empty {
+  background: #21262d;
+  border-right: 1px solid #30363d;
+  border-bottom: 1px solid #30363d;
+}
+
+/* ---- Section header row ---- */
+.gantt-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  background: #21262d;
+  border-bottom: 1px solid #30363d;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.gantt-section:hover { background: #272c35; }
+.gantt-section-inner {
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.collapse-icon {
+  font-size: 9px;
+  color: #7d8590;
+  transition: transform 0.2s;
+  display: inline-block;
+  width: 14px;
+  flex-shrink: 0;
+}
+.gantt-section.expanded .collapse-icon { transform: rotate(90deg); }
+
+/* ---- Task row ---- */
+.gantt-row {
+  display: grid;
+  grid-template-columns: var(--act-col) var(--prog-col) 1fr;
+  border-bottom: 1px solid #1c2129;
+  transition: background 0.1s;
+}
+.gantt-row:hover { background: #1c2129; }
+
+.gr-activity {
+  padding: 10px 16px 10px 36px;
+  font-size: 13px;
+  border-right: 1px solid #30363d;
+  display: flex;
+  align-items: center;
+  word-break: break-word;
+}
+.gr-activity.completed {
+  color: #484f58;
+  text-decoration: line-through;
+}
+.gr-activity.milestone::before {
+  content: "\25C6";
+  margin-right: 6px;
+  font-size: 9px;
+  color: #7d8590;
+  flex-shrink: 0;
+}
+
+.gr-progress {
+  padding: 10px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  border-right: 1px solid #30363d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7d8590;
+}
+
+/* ---- Timeline cell ---- */
+.gr-timeline {
+  position: relative;
+  height: 40px;
+  overflow: hidden;
+}
+
+.grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #21262d;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.today-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  z-index: 8;
+  pointer-events: none;
+  border-left: 2px dashed rgba(255,255,255,0.45);
+}
+
+.gantt-bar {
+  position: absolute;
+  height: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 3px;
+  z-index: 3;
+  min-width: 6px;
+  cursor: default;
+}
+
+.gantt-diamond {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  border-radius: 2px;
+  z-index: 4;
+  cursor: default;
+}
+
+.tbd-label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: #484f58;
+  font-style: italic;
+}
+
+/* Section tasks container */
+.section-tasks {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.gantt-section.expanded + .section-tasks {
+  max-height: 5000px;
+}
+
+/* Legend */
+.gantt-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 10px 20px;
+  font-size: 11px;
+  color: #7d8590;
+  border-top: 1px solid #21262d;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-swatch { width: 20px; height: 10px; border-radius: 2px; }
+.legend-today-swatch { width: 0; height: 14px; border-left: 2px dashed rgba(255,255,255,0.45); }
+.legend-sep { color: #30363d; }
+
+/* Tooltip */
+.tip {
+  display: none;
+  position: fixed;
+  background: #1c2129;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #e6edf3;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  z-index: 100;
+  pointer-events: none;
+  max-width: 400px;
+  line-height: 1.6;
+}
+.tip.visible { display: block; }
+.tip-title { font-weight: 600; margin-bottom: 4px; }
+.tip-meta { color: #7d8590; font-size: 11px; }
+.tip-desc {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #30363d;
+  color: #b1bac4;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Embed mode */
+body.embed .nav-bar { display: none; }
+body.embed .page-content { padding: 0; }
+body.embed .page-header { display: none; }
+body.embed .gantt-wrapper { border: none; border-radius: 0; }
+</style>
+</head>
+<body>
+<script>if(location.search.indexOf('embed')>-1)document.body.classList.add('embed');</script>
+
+<div class="nav-bar">
+  <span class="nav-brand">CFX Timeline</span>
+  <a class="nav-link active" href="https://pton.me/s/cfx-system-dashboard">Home</a>
+</div>
+
+<div class="page-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">CFU-System</div>
+      <div class="page-subtitle">Systems Roadmap &mdash; FY27 Schedule &mdash; Katie Bruce</div>
+    </div>
+    <span id="sync-status" class="sync-badge loading">Loading&hellip;</span>
+  </div>
+
+  <div class="gantt-wrapper">
+    <div class="gantt-scroll">
+      <div class="gantt" id="gantt"></div>
+    </div>
+    <div class="gantt-legend" id="gantt-legend"></div>
+  </div>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+// @@TASKS_START@@
+// Auto-synced from Asana: 2026-09-08T18:37:06
+var TASKS = [
+  {
+    "section": "Upcoming Launches [To be updated]",
+    "cat": "cat-launches",
+    "tasks": [
+      {
+        "gid": "1218123029652340",
+        "name": "Tread Lite International | MCB 220V",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2027-03-26",
+        "start": "2026-08-31"
+      }
+    ]
+  },
+  {
+    "section": "New Asks / Triage",
+    "cat": "cat-triage",
+    "tasks": [
+      {
+        "gid": "1214905069065481",
+        "name": "Hardware Error | Incline Calibration Tread",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-09-25",
+        "start": "2026-08-03"
+      },
+      {
+        "gid": "1216073056920322",
+        "name": "Tread | Update EOL Incline Zero",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      }
+    ]
+  },
+  {
+    "section": "In Progress / Committed Development - FY26 Q4",
+    "cat": "cat-progress",
+    "tasks": [
+      {
+        "gid": "1213426698118551",
+        "name": "Telemetry | CFU Apps",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-07-31",
+        "start": "2026-06-29"
+      }
+    ]
+  },
+  {
+    "section": "Next - FY27",
+    "cat": "cat-next",
+    "tasks": [
+      {
+        "gid": "1216172779437180",
+        "name": "Echo | EOL Support PVT",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2027-09-06"
+      },
+      {
+        "gid": "1216172779437187",
+        "name": "Echo | EOL Support DVT",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2027-02-15"
+      },
+      {
+        "gid": "1216120472426376",
+        "name": "Blizzard | CFU Systems Comms - Alpha",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-12-11",
+        "start": "2026-11-02"
+      },
+      {
+        "gid": "1212061010198013",
+        "name": "Tread Portfolio | Home Installer - OOBE",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-07-03",
+        "start": "2026-06-15"
+      },
+      {
+        "gid": "1216072957116985",
+        "name": "Blender | CFU Systems Comms",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-11-11",
+        "start": "2026-06-12"
+      },
+      {
+        "gid": "1216072957117011",
+        "name": "Phoenix | CFU Systems Communication - Alpha",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-12-11",
+        "start": "2026-06-15"
+      },
+      {
+        "gid": "1216072957117039",
+        "name": "Tread Lite | CFU Systems Communication - PVT+",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-10-01",
+        "start": "2026-06-24"
+      },
+      {
+        "gid": "1216072957117048",
+        "name": "Treadstone | CFU Systems Communication - PVT+",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-10-01",
+        "start": "2026-06-29"
+      },
+      {
+        "gid": "1216072957117050",
+        "name": "Tread+ | Systems Communication - PVT+",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-10-01",
+        "start": "2026-07-13"
+      },
+      {
+        "gid": "1216072957117051",
+        "name": "Tread+ | Serviceability - Systems Comms",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2027-03-30",
+        "start": "2026-08-03"
+      },
+      {
+        "gid": "1216120472426358",
+        "name": "Iris | CFU Systems Communication",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1216082276788610",
+        "name": "Tread Lock | SSI to Lock Service Migration",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-11-30",
+        "start": "2026-07-06"
+      },
+      {
+        "gid": "1216072957117061",
+        "name": "Tread+ | Serviceability - Home Installer Updates",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-11-27",
+        "start": "2026-11-02"
+      },
+      {
+        "gid": "1216072957117020",
+        "name": "Phoenix | CFU Systems Communication - EVT",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2027-03-12",
+        "start": "2026-12-14"
+      },
+      {
+        "gid": "1216072957117062",
+        "name": "Sled Mode | Affernet / FW",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-09-14",
+        "start": "2026-06-29"
+      },
+      {
+        "gid": "1216072957117026",
+        "name": "Blender | CFU Systems Communication - Beta",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-09-21",
+        "start": "2026-07-17"
+      },
+      {
+        "gid": "1216072957117106",
+        "name": "Flatiron | CFU Systems Communication - Beta",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-09-21",
+        "start": "2026-07-17"
+      },
+      {
+        "gid": "1216072957117035",
+        "name": "Blender | CFU Systems Communication - Pilot",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-11-09",
+        "start": "2026-09-21"
+      },
+      {
+        "gid": "1216072957117037",
+        "name": "Flatiron | CFU Systems Communication -  Pilot",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-11-09",
+        "start": "2026-09-21"
+      },
+      {
+        "gid": "1212061010528145",
+        "name": "Blender | Home Installer - OOBE",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-07-03",
+        "start": "2026-06-22"
+      },
+      {
+        "gid": "1216770140296887",
+        "name": "Flatiron | Home Installer - OOBE",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-09-25",
+        "start": "2026-07-06"
+      },
+      {
+        "gid": "1212061010528305",
+        "name": "Phoenix | Home Installer - OOBE / OTA",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2027-01-22",
+        "start": "2026-08-24"
+      }
+    ]
+  },
+  {
+    "section": "Backlog",
+    "cat": "cat-backlog",
+    "tasks": [
+      {
+        "gid": "1216120472426351",
+        "name": "Home Installer | Commercial (Blender / Flatiron)",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2027-01-01",
+        "start": "2026-11-01"
+      },
+      {
+        "gid": "1215942504075568",
+        "name": "Tread+ Pro Series (Commercial) | Refine Home Installer",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1216072957116951",
+        "name": "Tread | HW Configurations",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-12-04",
+        "start": "2026-11-02"
+      },
+      {
+        "gid": "1210173364680133",
+        "name": "Home Installer | UXR Feedback - Removing Handle Bar / Bike Fit",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1207704489942810",
+        "name": "[SCS-2956] HI | Update Member Flow Content for all CFUs to Use Template",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1211143356738738",
+        "name": "Home Installer | Bike/+ Self Assembly",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      }
+    ]
+  },
+  {
+    "section": "Ice Box",
+    "cat": "cat-icebox",
+    "tasks": [
+      {
+        "gid": "1213426692136534",
+        "name": "Home Installer | Bike/+ Self Assembly",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1213426705116266",
+        "name": "Home Installer | Define",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1213426700777400",
+        "name": "Tread/+ | Reduce Start Speed to 0.5",
+        "completed": false,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      }
+    ]
+  },
+  {
+    "section": "Done",
+    "cat": "cat-done",
+    "tasks": [
+      {
+        "gid": "1216072957116998",
+        "name": "Flatiron | CFU Systems Communication - Alpha 2.0",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-07-16",
+        "start": "2026-06-12"
+      },
+      {
+        "gid": "1215212807395035",
+        "name": "Blender - Error Codes",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1215453054472031",
+        "name": "Error code widget tool in salesforce",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1213813126101060",
+        "name": "Flatiron | Affernet Improvements for next build",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1214099088875917",
+        "name": "FWupdater | Blender Firmware Updates (Pop-up) - 100%",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "milestone",
+        "due": "2026-06-10"
+      },
+      {
+        "gid": "1214099088875921",
+        "name": "Affernet | Bitdrift Migration - 100%",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "milestone",
+        "due": "2026-05-20"
+      },
+      {
+        "gid": "1213813126101056",
+        "name": "Blender | Firmware Improvements for next build",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1214099088742271",
+        "name": "Blender | Firmware - Update Popup Flow",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-06-05"
+      },
+      {
+        "gid": "1213418720146192",
+        "name": "Migrate Bugsnag and New Relic to Bitdrift In Affernet",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-05-11",
+        "start": "2026-04-10"
+      },
+      {
+        "gid": "1212386328754179",
+        "name": "SSI Telemetry - Bitdrift",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-05-08",
+        "start": "2026-04-13"
+      },
+      {
+        "gid": "1210048761316263",
+        "name": "[SCS-4576] Home Installer | Errors in Salesforce Amplitude",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1212007574828950",
+        "name": "Tread Lite | Error Handling",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1210639206616872",
+        "name": "[SCS-4312] Sustain FW",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1213419137055252",
+        "name": "Systems Comms (Flatiron)",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1212061010198028",
+        "name": "DVT | Systems Comms (Tread Lite)",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1212061010528128",
+        "name": "EVT | Systems Comms (Treadstone)",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1212061010528205",
+        "name": "Tread/+ Lock Resiliency Audit",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-04-03",
+        "start": "2025-12-01"
+      },
+      {
+        "gid": "1210559571285881",
+        "name": "Aurora Emulator QA Support",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-04-03",
+        "start": "2025-12-01"
+      },
+      {
+        "gid": "1212061010528233",
+        "name": "Audio / Camera KTLO FY26 Q3",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-03-31",
+        "start": "2026-01-01"
+      },
+      {
+        "gid": "1211065893269582",
+        "name": "Tremain | algorithms, data collection and validation | FY26Q3",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1211065893269589",
+        "name": "Radar vendor exploration  | FY26Q3",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1213418720149856",
+        "name": "FW updates - Stable and Rollout Version - Dev handoff to QA",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-12-08",
+        "start": "2026-09-09"
+      },
+      {
+        "gid": "1213418720149865",
+        "name": "Concept | Systems Comms (Phoenix)",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-12-30",
+        "start": "2026-10-12"
+      },
+      {
+        "gid": "1213426697147752",
+        "name": "Commercial Tread+ Refresh Launch - FY26Q3",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-11-02",
+        "start": "2026-10-12"
+      },
+      {
+        "gid": "1213426698118560",
+        "name": "Button & Knob Safety (Prism FW)",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-12-22",
+        "start": "2026-10-12"
+      },
+      {
+        "gid": "1213426692138849",
+        "name": "Faster Lock Tread FW",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-12-22",
+        "start": "2026-10-12"
+      },
+      {
+        "gid": "1213426705116276",
+        "name": "Prism Run Speed Changes (PRQ-14) FW",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-12-22",
+        "start": "2026-10-12"
+      },
+      {
+        "gid": "1211065893270849",
+        "name": "Tremain | algorithms, data collection and validation - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1211065893270847",
+        "name": "Radar vendor exploration  - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1213426692756854",
+        "name": "Improving Firmware Update Reliability- FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1213426698096626",
+        "name": "Commercial Rugged Bike FW | System comms for prototype - FY26",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-10-13",
+        "start": "2026-06-10"
+      },
+      {
+        "gid": "1213426698435481",
+        "name": "FWupdater | Memory optimization - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1213426706565564",
+        "name": "Phoenix | System comms for concept prototype - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-12-30",
+        "start": "2026-07-10"
+      },
+      {
+        "gid": "1212061010528137",
+        "name": "Alpha | System Comms (Blender)",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1213426692403895",
+        "name": "Home Installer | Quality Improvements - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-09-22",
+        "start": "2026-07-08"
+      },
+      {
+        "gid": "1212156272330944",
+        "name": "Tread+ Refresh Commercial",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-01-23",
+        "start": "2025-10-02"
+      },
+      {
+        "gid": "1215783149337611",
+        "name": "Commercial Tread+ Refresh Launch - FY26",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-01-22",
+        "start": "2026-01-01"
+      },
+      {
+        "gid": "1211336531287459",
+        "name": "FW Aurora | Emulator - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-12-31",
+        "start": "2025-10-01"
+      },
+      {
+        "gid": "1211346634094390",
+        "name": "Fan FW | OTA Notification updates / Fan FW - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-12-16",
+        "start": "2025-12-10"
+      },
+      {
+        "gid": "1211065893269569",
+        "name": "Redstone / Amber | EFFA - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1210559571285694",
+        "name": "Titan FW  | Homing/Calibration v2.0 - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1210563976634972",
+        "name": "Commercial Tread (Blender) | System comms for Alpha - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-12-31",
+        "start": "2025-10-01"
+      },
+      {
+        "gid": "1210689116066421",
+        "name": "Commercial Tread+ Refresh Lock Swipe - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2026-01-22",
+        "start": "2025-10-01"
+      },
+      {
+        "gid": "1210676157976440",
+        "name": "Tread Lite | System comms for Alpha - FY26Q2",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1215783216715767",
+        "name": "AXON | Systems Feasibility - FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-10-03",
+        "start": "2025-08-04"
+      },
+      {
+        "gid": "1215783390758544",
+        "name": "Tremain | Exploration / Demo - FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1215797125003167",
+        "name": "FWupdater Memory Optimization - phase 1 (V1) - FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1215783270237004",
+        "name": "[Affernet] [Cleanup!] Move all platforms to use UsbSerialNative",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-10-03",
+        "start": "2025-07-01"
+      },
+      {
+        "gid": "1215783123456894",
+        "name": "Commercial Tread (blender) | FW Exploration - FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-09-30",
+        "start": "2025-07-01"
+      },
+      {
+        "gid": "1215783424668063",
+        "name": "Tread Lite | FW Exploration - FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-09-30",
+        "start": "2025-07-01"
+      },
+      {
+        "gid": "1215783007562710",
+        "name": "Strength | FW prototype - FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-09-30",
+        "start": "2025-07-01"
+      },
+      {
+        "gid": "1215783483763878",
+        "name": "Keygaurd | swipe default for all members",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1215783387112947",
+        "name": "Redstone PVT | On-boarding of alternate external tuning house - FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1215783545952393",
+        "name": "Redstone PVT | Audio Evaluation of new tuning - FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1215783122880793",
+        "name": "Redstone | Camera Zoom Optimization",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task"
+      },
+      {
+        "gid": "1215783482973491",
+        "name": "Tremain | NPI features demo (CFU Team) - FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-08-29",
+        "start": "2025-07-01"
+      },
+      {
+        "gid": "1215783424642786",
+        "name": "Fan | FW Control for DVT / FW updates- FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-07-31",
+        "start": "2025-07-01"
+      },
+      {
+        "gid": "1215783216569928",
+        "name": "Self Install Tread | Member Flow  - FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-07-31",
+        "start": "2025-07-01"
+      },
+      {
+        "gid": "1215783390753884",
+        "name": "Tread+ Refresh | Smartcard / Systems - FY26Q1",
+        "completed": true,
+        "assignee": "Katie Bruce",
+        "resource_subtype": "default_task",
+        "due": "2025-07-31",
+        "start": "2025-07-01"
+      }
+    ]
+  }
+];
+// @@TASKS_END@@
+
+var MONTHS = [
+  { label: "Jul", year: 2026, month: 6 },
+  { label: "Aug", year: 2026, month: 7 },
+  { label: "Sep", year: 2026, month: 8 },
+  { label: "Oct", year: 2026, month: 9 },
+  { label: "Nov", year: 2026, month: 10 },
+  { label: "Dec", year: 2026, month: 11 },
+  { label: "Jan", year: 2027, month: 0 },
+  { label: "Feb", year: 2027, month: 1 },
+  { label: "Mar", year: 2027, month: 2 },
+  { label: "Apr", year: 2027, month: 3 },
+  { label: "May", year: 2027, month: 4 },
+  { label: "Jun", year: 2027, month: 5 }
+];
+var TL_START = new Date(2026, 6, 1);
+var TL_END   = new Date(2027, 6, 1);
+var TL_MS    = TL_END - TL_START;
+
+var SECTION_COLORS = {
+  "cat-launches":  "#e5534b",
+  "cat-triage":    "#f59e0b",
+  "cat-progress":  "#3b82f6",
+  "cat-next":      "#a78bfa",
+  "cat-backlog":   "#2ea88a",
+  "cat-icebox":    "#6b7280",
+  "cat-done":      "#484f58"
+};
+
+function dateToPct(dateStr) {
+  if (!dateStr) return null;
+  var d = new Date(dateStr + "T00:00:00");
+  return Math.max(0, Math.min(100, ((d - TL_START) / TL_MS) * 100));
+}
+
+function todayPct() {
+  return Math.max(0, Math.min(100, ((new Date() - TL_START) / TL_MS) * 100));
+}
+
+function calcProgress(task) {
+  if (task.completed) return 100;
+  var now = new Date();
+  if (task.start && task.due) {
+    var s = new Date(task.start + "T00:00:00");
+    var e = new Date(task.due + "T00:00:00");
+    if (e <= s) return 0;
+    if (now >= e) return 100;
+    if (now <= s) return 0;
+    return Math.round(((now - s) / (e - s)) * 100);
+  }
+  if (task.due) {
+    return now >= new Date(task.due + "T00:00:00") ? 100 : 0;
+  }
+  return 0;
+}
+
+function fmtDate(dateStr) {
+  if (!dateStr) return "TBD";
+  var d = new Date(dateStr + "T00:00:00");
+  return String(d.getMonth() + 1).padStart(2, "0") + "/" +
+         String(d.getDate()).padStart(2, "0") + "/" +
+         String(d.getFullYear()).slice(2);
+}
+
+function esc(s) {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+function gridLinesHTML(tPct) {
+  var html = "";
+  for (var i = 1; i < 12; i++) {
+    var pct = (i / 12) * 100;
+    html += '<div class="grid-line" style="left:' + pct + '%"></div>';
+  }
+  html += '<div class="today-line" style="left:' + tPct + '%"></div>';
+  return html;
+}
+
+function render() {
+  var gantt = document.getElementById("gantt");
+  var tPct = todayPct();
+  var gl = gridLinesHTML(tPct);
+  var h = "";
+
+  // --- Header: year row ---
+  var m2026 = MONTHS.filter(function(m) { return m.year === 2026; }).length;
+  var m2027 = MONTHS.filter(function(m) { return m.year === 2027; }).length;
+
+  h += '<div class="gantt-header-year">';
+  h += '<div class="gh-label">Activity</div>';
+  h += '<div class="gh-prog-label">Progress</div>';
+  h += '<div class="gh-years">';
+  h += '<div class="gh-year-cell y2026" style="flex:' + m2026 + '">2026</div>';
+  h += '<div class="gh-year-cell y2027" style="flex:' + m2027 + '">2027</div>';
+  h += '</div></div>';
+
+  // --- Header: month row ---
+  h += '<div class="gantt-header-month">';
+  h += '<div class="gh-empty"></div>';
+  h += '<div class="gh-empty"></div>';
+  h += '<div class="gh-months">';
+  MONTHS.forEach(function(m) {
+    var cls = m.year === 2026 ? "m2026" : "m2027";
+    h += '<div class="gh-month-cell ' + cls + '">' + m.label + '</div>';
+  });
+  h += '</div></div>';
+
+  // --- Sections & tasks ---
+  TASKS.forEach(function(section, si) {
+    var isDone = section.cat === "cat-done";
+    var isIcebox = section.cat === "cat-icebox";
+    var expanded = !isDone && !isIcebox;
+    var color = SECTION_COLORS[section.cat] || "#39d2b4";
+
+    h += '<div class="gantt-section' + (expanded ? " expanded" : "") + '" onclick="toggleSection(this)" data-index="' + si + '">';
+    h += '<div class="gantt-section-inner">';
+    h += '<span class="collapse-icon">&#9654;</span>';
+    h += '<span>' + section.section + '</span>';
+    h += '<span style="font-size:11px;color:#7d8590;font-weight:400;margin-left:4px">(' + section.tasks.length + ')</span>';
+    h += '</div></div>';
+
+    h += '<div class="section-tasks">';
+    section.tasks.forEach(function(t) {
+      var prog = calcProgress(t);
+      var isMilestone = t.resource_subtype === "milestone";
+      var completedCls = t.completed ? " completed" : "";
+
+      h += '<div class="gantt-row">';
+      h += '<div class="gr-activity' + completedCls + (isMilestone ? " milestone" : "") + '"';
+      h += ' data-tip="' + esc(t.name) + '"';
+      h += ' data-dates="' + fmtDate(t.start) + ' – ' + fmtDate(t.due) + '"';
+      h += ' data-assignee="' + (t.assignee || "Unassigned") + '"';
+      h += ' data-section="' + section.section + '"';
+      h += ' data-progress="' + prog + '%"';
+      h += ' data-gid="' + t.gid + '"';
+      h += '>' + t.name + '</div>';
+      h += '<div class="gr-progress">' + prog + '%</div>';
+      h += '<div class="gr-timeline">' + gl;
+
+      if (t.start && t.due) {
+        var sPct = dateToPct(t.start);
+        var ePct = dateToPct(t.due);
+        var w = Math.max(0.4, ePct - sPct);
+        h += '<div class="gantt-bar" style="left:' + sPct + '%;width:' + w + '%;background:' + color + '"';
+        h += ' data-tip="' + esc(t.name) + '"';
+        h += ' data-dates="' + fmtDate(t.start) + ' – ' + fmtDate(t.due) + '"';
+        h += ' data-assignee="' + (t.assignee || "Unassigned") + '"';
+        h += ' data-section="' + section.section + '"';
+        h += ' data-progress="' + prog + '%"';
+        h += '></div>';
+      } else if (t.due) {
+        var pct = dateToPct(t.due);
+        if (isMilestone) {
+          h += '<div class="gantt-diamond" style="left:calc(' + pct + '% - 7px);background:' + color + '"';
+        } else {
+          h += '<div class="gantt-bar" style="left:calc(' + pct + '% - 3px);width:6px;background:' + color + '"';
+        }
+        h += ' data-tip="' + esc(t.name) + '"';
+        h += ' data-dates="Due: ' + fmtDate(t.due) + '"';
+        h += ' data-assignee="' + (t.assignee || "Unassigned") + '"';
+        h += ' data-section="' + section.section + '"';
+        h += ' data-progress="' + prog + '%"';
+        h += '></div>';
+      } else {
+        h += '<span class="tbd-label">Dates TBD</span>';
+      }
+
+      h += '</div></div>';
+    });
+    h += '</div>';
+  });
+
+  gantt.innerHTML = h;
+
+  // --- Legend ---
+  var legend = document.getElementById("gantt-legend");
+  var lh = "";
+  TASKS.forEach(function(section) {
+    var c = SECTION_COLORS[section.cat] || "#39d2b4";
+    lh += '<div class="legend-item"><div class="legend-swatch" style="background:' + c + '"></div>' + section.section + '</div>';
+  });
+  lh += '<span class="legend-sep">|</span>';
+  lh += '<div class="legend-item"><div class="legend-today-swatch"></div> Today</div>';
+  lh += '<span class="legend-sep">&middot;</span>';
+  lh += '<span>Click section to expand/collapse</span>';
+  legend.innerHTML = lh;
+}
+
+function toggleSection(el) {
+  el.classList.toggle("expanded");
+}
+
+// --- Tooltip with lazy description fetch ---
+var tipEl = document.getElementById("tip");
+var notesCache = {};
+document.addEventListener("mouseover", function(e) {
+  var el = e.target.closest("[data-tip]");
+  if (!el) { tipEl.classList.remove("visible"); return; }
+  var tipHTML =
+    '<div class="tip-title">' + el.dataset.tip + '</div>' +
+    '<div class="tip-meta">' + el.dataset.dates + '</div>' +
+    '<div class="tip-meta">Assignee: ' + el.dataset.assignee + '</div>' +
+    '<div class="tip-meta">Progress: ' + el.dataset.progress + '</div>' +
+    '<div class="tip-meta" style="font-weight:500">' + el.dataset.section + '</div>';
+  var gid = el.dataset.gid;
+  if (gid && notesCache[gid]) {
+    tipHTML += '<div class="tip-desc">' + esc(notesCache[gid]).replace(/\n/g, '<br>') + '</div>';
+  }
+  tipEl.innerHTML = tipHTML;
+  if (gid && !notesCache.hasOwnProperty(gid)) {
+    notesCache[gid] = "";
+    fetch(asanaUrl("/tasks/" + gid, { opt_fields: "notes" }), {
+      headers: asanaHeaders()
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      var notes = (json.data && json.data.notes) ? json.data.notes.substring(0, 300) : "";
+      notesCache[gid] = notes;
+      if (tipEl.classList.contains("visible") && el.matches(":hover") && notes) {
+        var descEl = tipEl.querySelector(".tip-desc");
+        if (!descEl) {
+          descEl = document.createElement("div");
+          descEl.className = "tip-desc";
+          tipEl.appendChild(descEl);
+        }
+        descEl.innerHTML = esc(notes).replace(/\n/g, '<br>');
+      }
+    })
+    .catch(function() {});
+  }
+  tipEl.classList.add("visible");
+});
+document.addEventListener("mousemove", function(e) {
+  if (!tipEl.classList.contains("visible")) return;
+  var x = e.clientX + 12, y = e.clientY + 12;
+  var r = tipEl.getBoundingClientRect();
+  if (x + r.width > window.innerWidth - 12) x = e.clientX - r.width - 12;
+  if (y + r.height > window.innerHeight - 12) y = e.clientY - r.height - 12;
+  tipEl.style.left = x + "px";
+  tipEl.style.top = y + "px";
+});
+document.addEventListener("mouseout", function(e) {
+  if (e.target.closest("[data-tip]")) tipEl.classList.remove("visible");
+});
+
+// --- Asana live sync ---
+var ASANA_PAT = "2/1208717380462980/1218142428533819:12448cbda0fbf36a8831453b49b12d65";
+var PROJECT_GID = "1206116040205927";
+var SECTION_MAP = {
+  "Upcoming Launches [To be updated]":               "cat-launches",
+  "New Asks / Triage":                                "cat-triage",
+  "In Progress / Committed Development - FY26 Q4":   "cat-progress",
+  "Next - FY27":                                      "cat-next",
+  "Backlog":                                           "cat-backlog",
+  "Ice Box":                                           "cat-icebox",
+  "Done":                                              "cat-done"
+};
+var SECTION_ORDER = Object.keys(SECTION_MAP);
+
+function parseAsanaData(allItems) {
+  var buckets = {};
+  for (var name in SECTION_MAP)
+    buckets[name] = { section: name, cat: SECTION_MAP[name], tasks: [] };
+
+  var seen = {};
+  for (var i = 0; i < allItems.length; i++) {
+    var item = allItems[i];
+    if (seen[item.gid]) continue;
+    seen[item.gid] = true;
+    if (!item.name || !item.name.trim()) continue;
+    if (!item.assignee || item.assignee.name !== "Katie Bruce") continue;
+    var mem = (item.memberships || []).find(function(m) { return m.section && SECTION_MAP[m.section.name]; });
+    if (!mem) continue;
+    var tName = item.name.trim();
+    var sectionName = mem.section.name;
+    var bucket = buckets[sectionName];
+    var isDupe = bucket.tasks.some(function(existing) { return existing.name === tName; });
+    if (isDupe) continue;
+    var t = {
+      gid: item.gid,
+      name: tName,
+      completed: item.completed,
+      assignee: (item.assignee || {}).name || null,
+      resource_subtype: item.resource_subtype || "default_task"
+    };
+    if (item.due_on) t.due = item.due_on;
+    if (item.start_on) t.start = item.start_on;
+    bucket.tasks.push(t);
+  }
+  return SECTION_ORDER.map(function(s) { return buckets[s]; }).filter(function(s) { return s.tasks.length > 0; });
+}
+
+var statusEl;
+function setStatus(text, cls) {
+  if (!statusEl) statusEl = document.getElementById("sync-status");
+  statusEl.textContent = text;
+  statusEl.className = "sync-badge " + cls;
+}
+
+var USE_PROXY = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+
+function asanaUrl(path, params) {
+  if (USE_PROXY) {
+    return "/api/asana" + path + "?" + new URLSearchParams(params).toString();
+  }
+  return "https://app.asana.com/api/1.0" + path + "?" + new URLSearchParams(params).toString();
+}
+
+function asanaHeaders() {
+  if (USE_PROXY) return {};
+  return { "Authorization": "Bearer " + ASANA_PAT };
+}
+
+function fetchAllTasks() {
+  if (USE_PROXY) {
+    var url = asanaUrl("/projects/" + PROJECT_GID + "/tasks", {
+      completed_since: "2026-01-01T00:00:00Z",
+      opt_fields: "name,completed,assignee.name,resource_subtype,due_on,start_on,memberships.section.name",
+      limit: "100"
+    });
+    return fetch(url)
+      .then(function(r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function(json) { return json.data; });
+  }
+
+  var baseUrl = "https://app.asana.com/api/1.0/projects/" + PROJECT_GID
+    + "/tasks?completed_since=2026-01-01T00:00:00Z&opt_fields=name,completed,assignee.name,resource_subtype,due_on,start_on,memberships.section.name&limit=100";
+  var allData = [];
+
+  function fetchPage(url) {
+    return fetch(url, { headers: { "Authorization": "Bearer " + ASANA_PAT } })
+      .then(function(r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function(json) {
+        allData = allData.concat(json.data);
+        if (json.next_page && json.next_page.uri) {
+          return fetchPage(json.next_page.uri);
+        }
+        return allData;
+      });
+  }
+
+  return fetchPage(baseUrl);
+}
+
+var HAS_EMBEDDED = TASKS.length > 0;
+
+if (HAS_EMBEDDED) {
+  render();
+  var embeddedCount = TASKS.reduce(function(s, sec) { return s + sec.tasks.length; }, 0);
+  setStatus("Embedded (" + embeddedCount + " tasks)", "embedded");
+} else {
+  render();
+  setStatus("Loading…", "loading");
+  if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
+    fetchAllTasks()
+      .then(function(allData) {
+        TASKS = parseAsanaData(allData);
+        render();
+        setStatus("Live Data (" + allData.length + " tasks)", "live");
+      })
+      .catch(function(e) {
+        console.error("[cfu-sync] Error:", e);
+        setStatus("Sync error: " + e.message, "error");
+      });
+  } else {
+    setStatus("No PAT configured", "embedded");
+  }
+}
+
+// Notify parent frame of content height for auto-resize
+if (document.body.classList.contains("embed") && window.parent !== window) {
+  function notifyHeight() {
+    window.parent.postMessage({ type: "cfx-resize", height: document.documentElement.scrollHeight }, "*");
+  }
+  new MutationObserver(notifyHeight).observe(document.getElementById("gantt"), { childList: true, subtree: true });
+  window.addEventListener("resize", notifyHeight);
+  setTimeout(notifyHeight, 200);
+  setTimeout(notifyHeight, 1500);
+}
+</script>
+</body>
+</html>

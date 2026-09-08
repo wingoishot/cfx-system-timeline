@@ -281,17 +281,34 @@ body {
         <div class="card-header-row">
           <span class="card-icon">&#128260;</span>
           <div style="flex:1">
-            <div class="card-name">Device Services</div>
+            <a class="card-name" href="https://pton.me/s/cfx-system-dss" style="text-decoration:none;color:inherit">Device Services</a>
           </div>
           <span class="badge badge-live">LIVE</span>
         </div>
-        <a class="sub-card" href="device-services.html" style="margin-bottom:8px">
+        <a class="sub-card" href="https://pton.me/s/cfx-system-dss" style="margin-bottom:8px">
           <span class="sub-icon">&#128640;</span>
           <div>
             <div class="sub-label">Upcoming Launches</div>
           </div>
         </a>
         <div id="ds-launches" style="font-size:12px;color:#7d8590">Loading...</div>
+      </div>
+
+      <div class="card card-wide" style="max-width:340px;min-width:300px">
+        <div class="card-header-row">
+          <span class="card-icon">&#9881;&#65039;</span>
+          <div style="flex:1">
+            <a class="card-name" href="https://pton.me/s/cfx-system-cfu" style="text-decoration:none;color:inherit">CFU-System</a>
+          </div>
+          <span class="badge badge-live">LIVE</span>
+        </div>
+        <a class="sub-card" href="https://pton.me/s/cfx-system-cfu" style="margin-bottom:8px">
+          <span class="sub-icon">&#128203;</span>
+          <div>
+            <div class="sub-label">Upcoming Launches</div>
+          </div>
+        </a>
+        <div id="cfu-launches" style="font-size:12px;color:#7d8590">Loading...</div>
       </div>
 
       <a class="card" href="#">
@@ -419,6 +436,47 @@ if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
   })
   .catch(function() {
     document.getElementById("ds-launches").textContent = "Failed to load";
+  });
+
+  // Fetch CFU-System upcoming launches due within 2 weeks
+  var CFU_PROJECT = "1206116040205927";
+  var CFU_SECTIONS = { "Upcoming Launches [To be updated]": "launch" };
+  fetch("https://app.asana.com/api/1.0/projects/" + CFU_PROJECT +
+    "/tasks?opt_fields=name,due_on,completed,assignee.name,memberships.section.name&limit=100", {
+    headers: { "Authorization": "Bearer " + ASANA_PAT }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(json) {
+    var items = (json.data || []).filter(function(t) {
+      if (!t.name || !t.name.trim() || t.completed || !t.due_on) return false;
+      if (!t.assignee || t.assignee.name !== "Katie Bruce") return false;
+      var due = new Date(t.due_on + "T00:00:00");
+      if (due < today || due > twoWeeks) return false;
+      return (t.memberships || []).some(function(m) {
+        return m.section && CFU_SECTIONS[m.section.name];
+      });
+    }).map(function(t) {
+      var d = new Date(t.due_on + "T00:00:00");
+      var label = String(d.getMonth() + 1).padStart(2, "0") + "/" +
+                  String(d.getDate()).padStart(2, "0");
+      return { name: t.name, due: t.due_on, dueLabel: label };
+    }).sort(function(a, b) { return a.due < b.due ? -1 : 1; });
+
+    var el = document.getElementById("cfu-launches");
+    if (items.length === 0) {
+      el.textContent = "No launches in the next 2 weeks";
+      return;
+    }
+    el.innerHTML = items.map(function(m) {
+      return '<div class="ms-item">' +
+        '<div class="ms-dot launch"></div>' +
+        '<span class="ms-name">' + m.name + '</span>' +
+        '<span class="ms-due">' + m.dueLabel + '</span>' +
+        '</div>';
+    }).join("");
+  })
+  .catch(function() {
+    document.getElementById("cfu-launches").textContent = "Failed to load";
   });
 }
 </script>
