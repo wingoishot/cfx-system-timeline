@@ -107,6 +107,51 @@ def parse_tasks(data):
     result = sorted(buckets.values(), key=lambda b: b["order"])
     return [{"section": b["section"], "cat": b["cat"], "tasks": b["tasks"]} for b in result]
 
+OTA_S3_PATHS = [
+    "production.system-eng-builds/g700/product/user/OTAConfig_v2.json",
+    "production.system-eng-builds/g700/commercial/user/OTAConfig_v2.json",
+    "production.system-eng-builds/TTR01/product/user/OTAConfig_v2.json",
+    "production.system-eng-builds/TTR01/commercial/user/OTAConfig_v2.json",
+    "production.system-eng-builds/RB1VQ/product/user/OTAConfig_v2.json",
+    "production.system-eng-builds/RB1VQ/commercial/user/OTAConfig_v2.json",
+    "production.system-eng-builds/RB1VO/product/user/OTAConfig_v2.json",
+    "production.system-eng-builds/RB1VO/commercial/user/OTAConfig_v2.json",
+]
+
+def fetch_ota_cache():
+    cache = {}
+    for s3path in OTA_S3_PATHS:
+        url = f"https://s3.us-east-1.amazonaws.com/{s3path}"
+        try:
+            req = urllib.request.Request(url, headers={"Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read())
+            cache[s3path] = data
+            ota = (data.get("fullOTA") or [{}])[0]
+            print(f"  {s3path}: {ota.get('version', 'N/A')} @ {ota.get('percentage', 0)}%")
+        except Exception as e:
+            print(f"  {s3path}: fetch failed ({e})", file=sys.stderr)
+    return cache
+
+def sync_ota_cache(cache):
+    inject = (
+        f"// @@OTA_CACHE_START@@\n"
+        f"var OTA_CACHE = {json.dumps(cache)};\n"
+        f"// @@OTA_CACHE_END@@"
+    )
+    html_path = os.path.join(BASE, "dashboard.html")
+    with open(html_path) as f:
+        html = f.read()
+    updated = re.sub(
+        r"// @@OTA_CACHE_START@@.*?// @@OTA_CACHE_END@@",
+        inject,
+        html,
+        flags=re.DOTALL,
+    )
+    with open(html_path, "w") as f:
+        f.write(updated)
+    print(f"  Wrote {len(cache)} OTA configs into dashboard.html")
+
 def main():
     pat = get_pat()
     print(f"Fetching CFX-System tasks (project {PROJECT_GID})...")
@@ -141,6 +186,10 @@ def main():
         f.write(updated)
 
     print(f"Wrote {count} tasks across {len(tasks)} sections into index.html")
+
+    print("Fetching OTA configs from S3...")
+    cache = fetch_ota_cache()
+    sync_ota_cache(cache)
 
 if __name__ == "__main__":
     main()

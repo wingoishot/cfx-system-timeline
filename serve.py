@@ -117,6 +117,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._handle_asana_proxy(parsed)
             return
 
+        # Proxy: /api/s3/<bucket-path>
+        if parsed.path.startswith("/api/s3/"):
+            self._handle_s3_proxy(parsed)
+            return
+
         # Cache status
         if parsed.path == "/api/cache-status":
             self._handle_cache_status()
@@ -153,6 +158,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
             cache_set(cache_key, result)
             self._json_response(result, from_cache=False)
+        except HTTPError as e:
+            self._json_error(e.code, str(e))
+        except Exception as e:
+            self._json_error(502, str(e))
+
+    def _handle_s3_proxy(self, parsed):
+        s3_path = parsed.path.replace("/api/s3/", "", 1)
+        s3_url = "https://s3.us-east-1.amazonaws.com/" + s3_path
+
+        cached = cache_get(s3_url)
+        if cached is not None:
+            self._json_response(cached, from_cache=True)
+            return
+
+        try:
+            req = urllib.request.Request(s3_url, headers={"Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read())
+            cache_set(s3_url, data)
+            self._json_response(data, from_cache=False)
         except HTTPError as e:
             self._json_error(e.code, str(e))
         except Exception as e:

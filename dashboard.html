@@ -220,6 +220,123 @@ body {
 .ms-dot.launch { background: #e5534b; }
 .ms-section-tag.launch { background: rgba(229,83,75,0.2); color: #e5534b; }
 
+/* ---- OTA rollout card ---- */
+.ota-project {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #21262d;
+}
+.ota-project:last-child { border-bottom: none; }
+.ota-project-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e6edf3;
+  min-width: 48px;
+}
+.ota-version {
+  font-size: 12px;
+  color: #7d8590;
+  font-family: "SF Mono", SFMono-Regular, Consolas, monospace;
+}
+.ota-pct-bar {
+  flex: 1;
+  height: 6px;
+  background: #21262d;
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+.ota-pct-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.ota-pct-label {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ---- OTA popover ---- */
+.ota-project { position: relative; cursor: default; }
+.ota-popover {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 200;
+  background: #1c2129;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 14px 16px;
+  min-width: 360px;
+  max-width: 440px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  font-size: 12px;
+  color: #e6edf3;
+  line-height: 1.5;
+}
+.ota-project:hover .ota-popover { display: block; }
+.ota-popover.pop-above {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+.ota-pop-section {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7d8590;
+  margin-bottom: 6px;
+}
+.ota-pop-section:not(:first-child) { margin-top: 12px; }
+.ota-pop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+.ota-pop-ver {
+  font-family: "SF Mono", SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+  color: #e6edf3;
+  white-space: nowrap;
+}
+.ota-pop-arrow {
+  color: #484f58;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.ota-pop-bar {
+  flex: 1;
+  height: 5px;
+  background: #21262d;
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 40px;
+}
+.ota-pop-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+.ota-pop-pct {
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 32px;
+  text-align: right;
+  white-space: nowrap;
+}
+.ota-pop-platforms {
+  font-size: 10px;
+  color: #484f58;
+  margin-top: 2px;
+  padding-left: 2px;
+}
+
 /* ---- Footer ---- */
 .footer {
   text-align: center;
@@ -252,6 +369,26 @@ body {
         <div class="card-desc">Committed dates &amp; decision gates only</div>
         <span class="card-link-icon">&#128279;</span>
       </a>
+
+      <div class="card card-wide" style="max-width:380px;min-width:340px">
+        <div class="card-header-row">
+          <span class="card-icon">&#128674;</span>
+          <div style="flex:1">
+            <div class="card-name">CFX consoles OTA rollout status (Consumer)</div>
+          </div>
+        </div>
+        <div id="ota-rollout-consumer" style="font-size:12px;color:#7d8590">Loading...</div>
+      </div>
+
+      <div class="card card-wide" style="max-width:380px;min-width:340px">
+        <div class="card-header-row">
+          <span class="card-icon">&#128674;</span>
+          <div style="flex:1">
+            <div class="card-name">CFX consoles OTA rollout status (Commercial)</div>
+          </div>
+        </div>
+        <div id="ota-rollout-commercial" style="font-size:12px;color:#7d8590">Loading...</div>
+      </div>
     </div>
   </div>
 
@@ -332,6 +469,114 @@ body {
 </div>
 
 <script>
+// ---- OTA Rollout Status ----
+var OTA_CONSUMER = [
+  { name: "G700", s3Path: "production.system-eng-builds/g700/product/user/OTAConfig_v2.json" },
+  { name: "Topaz", s3Path: "production.system-eng-builds/TTR01/product/user/OTAConfig_v2.json" },
+  { name: "Qbert", s3Path: "production.system-eng-builds/RB1VQ/product/user/OTAConfig_v2.json" },
+  { name: "Obsidian", s3Path: "production.system-eng-builds/RB1VO/product/user/OTAConfig_v2.json" }
+];
+var OTA_COMMERCIAL = [
+  { name: "G700", s3Path: "production.system-eng-builds/g700/commercial/user/OTAConfig_v2.json" },
+  { name: "Topaz", s3Path: "production.system-eng-builds/TTR01/commercial/user/OTAConfig_v2.json" },
+  { name: "Qbert", s3Path: "production.system-eng-builds/RB1VQ/commercial/user/OTAConfig_v2.json" },
+  { name: "Obsidian", s3Path: "production.system-eng-builds/RB1VO/commercial/user/OTAConfig_v2.json" }
+];
+// @@OTA_CACHE_START@@
+var OTA_CACHE = {"production.system-eng-builds/g700/product/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "TA.260520.D", "otaImage": "TA.260520.D-474.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/product/user", "description": "Bug fixes and new features", "mandatory": false, "platforms": ["titan", "prism", "caesar", "v1", "aurora"], "percentage": 100}], "incremental": [{"version": "TA.250910.B", "from": "TA.250120.E", "otaImage": "TA.250120.E-329_TA.250910.B-405.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/product/user", "description": "Bug fixes and new features", "mandatory": false, "platforms": ["prism", "titan", "v1", "caesar", "aurora"], "percentage": 100}, {"version": "TA.250910.B", "from": "TA.250326.B", "otaImage": "TA.250326.B-352_TA.250910.B-405.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/product/user", "description": "Bug fixes and new features", "mandatory": false, "platforms": ["prism", "titan", "v1", "caesar", "aurora"], "percentage": 100}]}, "production.system-eng-builds/g700/commercial/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "TA.260526.B", "otaImage": "TA.260526.B.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/commercial/user", "description": "Commercial image release", "mandatory": true, "platforms": ["titan", "caesar", "v1", "aurora"], "percentage": 100}, {"version": "TA.250911.B", "otaImage": "TA.250911.B-407.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/commercial/user", "description": "Commercial image release", "mandatory": true, "platforms": ["titan", "caesar", "v1"], "percentage": 100}, {"version": "TA.251218.A", "otaImage": "TA.251218.A-434.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/commercial/user", "description": "Commercial image release", "mandatory": true, "platforms": ["aurora"], "percentage": 100}], "incremental": []}, "production.system-eng-builds/TTR01/product/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "QT.250804.A", "otaImage": "QT.250804.A-256_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/TTR01/product/user", "description": "This update primarily includes bug fixes, which should improve your experience", "mandatory": false, "platforms": ["titan", "prism", "caesar"], "percentage": 100}], "incremental": [{"version": "QT.250804.A", "from": "QT.231113.B", "otaImage": "QT.231113.B-203_QT.250804.A-256_ota.zip", "description": "This is an incremental OTA, from QT.231113.B to QT.250804.A", "fullPath": "https://delivery.akamaized.net/systems/ota/TTR01/product/user", "mandatory": false, "platforms": ["titan", "prism", "caesar"], "percentage": 100}]}, "production.system-eng-builds/TTR01/commercial/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "QT.251009.B", "otaImage": "QT.251009.B-56_commercial_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/TTR01/commercial/user", "description": "Commercial build", "mandatory": true, "platforms": ["titan", "caesar"], "percentage": 100}], "incremental": [{"version": "QT.251009.B", "from": "QT.240607.B", "otaImage": "QT.240607.B-53-commercial_QT.251009.B-56-commercial_ota.zip", "description": "Hotfix release for external headphone issue", "fullPath": "https://delivery.akamaized.net/systems/ota/TTR01/commercial/user", "mandatory": true, "platforms": ["titan", "caesar"], "percentage": 100}]}, "production.system-eng-builds/RB1VQ/product/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "RQ.260424.A", "otaImage": "RQ.260424.A-333_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/product/user", "description": "Android 11 update", "mandatory": false, "platforms": ["v1"], "percentage": 50}, {"version": "RQ.250113.A", "otaImage": "RQ.250113.A_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/product/user", "description": "Android 11 update", "mandatory": false, "platforms": ["v1"], "percentage": 100}], "incremental": [{"version": "RQ.260424.A", "from": "RQ.250113.A", "otaImage": "RQ.250113.A_RQ.260424.A_ota.zip", "description": "This update primarily includes bug fixes, which should improve your experience", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/product/user", "mandatory": false, "platforms": ["v1"], "percentage": 50}, {"version": "RQ.250113.A", "from": "RQ.230927.G", "otaImage": "RQ.230927.G_RQ.250113.A_ota.zip", "description": "This update primarily includes bug fixes, which should improve your experience", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/product/user", "mandatory": false, "platforms": ["v1"], "percentage": 100}]}, "production.system-eng-builds/RB1VQ/commercial/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "RQ.260523.A", "otaImage": "RQ.260523.A_commercial_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/commercial/user", "description": "Commercial build", "mandatory": true, "platforms": ["v1"], "percentage": 100}], "incremental": [{"version": "RQ.260523.A", "from": "RQ.250205.A", "otaImage": "RQ.250205.A_RQ.260523.A_commercial_ota.zip", "description": "Commercial build", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/commercial/user", "mandatory": true, "platforms": ["v1"], "percentage": 100}]}, "production.system-eng-builds/RB1VO/product/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "RO.250111.A", "otaImage": "RO.250111.A_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VO/product/user", "description": "Android 11 update", "mandatory": false, "platforms": ["v1"], "percentage": 100}], "incremental": [{"version": "RO.250111.A", "from": "RO.230711.G", "otaImage": "RO.230711.G_RO.250111.A_ota.zip", "description": "This is an incremental OTA, from RO.230711.G to RO.250111.A", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VO/product/user", "mandatory": false, "platforms": ["v1"], "percentage": 100}]}, "production.system-eng-builds/RB1VO/commercial/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "RO.250209.A", "otaImage": "RO.250209.A_commercial_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VO/commercial/user", "description": "Commercial build", "mandatory": true, "platforms": ["v1"], "percentage": 100}], "incremental": [{"version": "RO.250209.A", "from": "RO.240605.D", "otaImage": "RO.240605.D_RO.250209.A_commercial_ota.zip", "description": "Commercial build", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VO/commercial/user", "mandatory": true, "platforms": ["v1"], "percentage": 100}]}};
+// @@OTA_CACHE_END@@
+
+(function() {
+  function pctColor(pct, err) {
+    if (err) return "#e5534b";
+    return pct >= 100 ? "#3fb950" : pct >= 50 ? "#e6a117" : "#3b82f6";
+  }
+
+  function popBarHTML(pct, err) {
+    var c = pctColor(pct, err);
+    return '<div class="ota-pop-bar"><div class="ota-pop-bar-fill" style="width:' + pct + '%;background:' + c + '"></div></div>' +
+      '<span class="ota-pop-pct" style="color:' + c + '">' + pct + '%</span>';
+  }
+
+  function renderPopover(name, json) {
+    var h = '<div style="text-align:center;font-size:13px;font-weight:700;color:#e6edf3;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #30363d">' + name + '</div>';
+    var full = json.fullOTA || [];
+    if (full.length) {
+      h += '<div class="ota-pop-section">Full OTA</div>';
+      full.forEach(function(o) {
+        h += '<div class="ota-pop-row">' +
+          '<span class="ota-pop-ver">' + o.version + '</span>' +
+          popBarHTML(o.percentage) +
+          '</div>';
+        if (o.platforms && o.platforms.length) {
+          h += '<div class="ota-pop-platforms">Platforms: ' + o.platforms.join(", ") + '</div>';
+        }
+      });
+    }
+    var inc = json.incremental || [];
+    h += '<div class="ota-pop-section">Incremental</div>';
+    if (inc.length) {
+      inc.forEach(function(o) {
+        h += '<div class="ota-pop-row">' +
+          '<span class="ota-pop-ver">' + o.from + '</span>' +
+          '<span class="ota-pop-arrow">&rarr;</span>' +
+          '<span class="ota-pop-ver">' + o.version + '</span>' +
+          popBarHTML(o.percentage) +
+          '</div>';
+      });
+    } else {
+      h += '<div style="color:#484f58;font-size:11px;font-style:italic;padding:2px 0">None</div>';
+    }
+    return h;
+  }
+
+  function renderRow(r, idx) {
+    var c = pctColor(r.percentage, r.error);
+    var popCls = idx > 0 ? "ota-popover pop-above" : "ota-popover";
+    return '<div class="ota-project">' +
+      '<span class="ota-project-name">' + r.name + '</span>' +
+      '<span class="ota-version">' + r.version + '</span>' +
+      '<div class="ota-pct-bar"><div class="ota-pct-fill" style="width:' + r.percentage + '%;background:' + c + '"></div></div>' +
+      '<span class="ota-pct-label" style="color:' + c + '">' + r.percentage + '%</span>' +
+      (r.popoverHTML ? '<div class="' + popCls + '">' + r.popoverHTML + '</div>' : '') +
+      '</div>';
+  }
+
+  function fetchOTA(proj) {
+    return fetch("/api/s3/" + proj.s3Path)
+      .then(function(r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .catch(function() {
+        if (OTA_CACHE[proj.s3Path]) return OTA_CACHE[proj.s3Path];
+        return null;
+      });
+  }
+
+  function loadCard(projects, containerId) {
+    var container = document.getElementById(containerId);
+    Promise.all(projects.map(function(proj) {
+      return fetchOTA(proj).then(function(json) {
+        if (!json) return { name: proj.name, version: "Error", percentage: 0, error: true };
+        var ota = (json.fullOTA || [])[0];
+        return {
+          name: proj.name,
+          version: ota ? ota.version : "N/A",
+          percentage: ota ? ota.percentage : 0,
+          popoverHTML: renderPopover(proj.name, json)
+        };
+      });
+    }))
+    .then(function(results) {
+      container.innerHTML = results.map(renderRow).join("");
+    });
+  }
+
+  loadCard(OTA_CONSUMER, "ota-rollout-consumer");
+  loadCard(OTA_COMMERCIAL, "ota-rollout-commercial");
+})();
+
 var ASANA_PAT = "2/1208717380462980/1218142428533819:12448cbda0fbf36a8831453b49b12d65";
 if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
   fetch("https://app.asana.com/api/1.0/users/me?opt_fields=name", {
