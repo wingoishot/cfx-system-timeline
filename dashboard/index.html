@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Program Hub</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: #0d1117;
+  color: #e6edf3;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Page layout ---- */
+.page { flex: 1; padding: 32px 40px 24px; max-width: 1440px; margin: 0 auto; width: 100%; }
+
+/* ---- Page header ---- */
+.page-title { font-size: 26px; font-weight: 700; color: #e6edf3; }
+.page-subtitle { font-size: 14px; color: #7d8590; margin-top: 2px; }
+
+/* ---- Section ---- */
+.section { margin-top: 32px; }
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7d8590;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+/* ---- Card grid ---- */
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ---- Card ---- */
+.card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 18px 20px;
+  min-width: 160px;
+  max-width: 200px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  position: relative;
+}
+.card:hover {
+  border-color: #484f58;
+  background: #1c2129;
+}
+
+.card-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+  display: block;
+  line-height: 1;
+}
+.card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin-bottom: 4px;
+}
+.card-desc {
+  font-size: 12px;
+  color: #7d8590;
+  line-height: 1.45;
+}
+.card-link-icon {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  font-size: 14px;
+  color: #30363d;
+}
+.card:hover .card-link-icon { color: #484f58; }
+
+/* ---- Badge ---- */
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 10px;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+.badge-live { background: #1a3a2a; color: #39d2b4; }
+.badge-new { background: #143324; color: #3fb950; }
+.badge-count { background: #272135; color: #a78bfa; }
+
+/* ---- Wide card (SW-style with sub-links) ---- */
+.card-wide {
+  max-width: 640px;
+  min-width: 600px;
+  flex: 0 0 auto;
+}
+.card-wide .card-header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.card-wide .card-header-row .card-icon { margin-bottom: 0; }
+.card-wide .view-all {
+  color: #39d2b4;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.card-wide .view-all:hover { text-decoration: underline; }
+
+.sub-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+.sub-card {
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.sub-card:hover {
+  border-color: #30363d;
+  background: #161b22;
+}
+.sub-icon { font-size: 18px; flex-shrink: 0; }
+.sub-label { font-size: 12px; font-weight: 500; color: #e6edf3; line-height: 1.3; }
+.sub-desc { font-size: 10px; color: #7d8590; }
+
+/* ---- Placeholder card ---- */
+.card-placeholder {
+  background: transparent;
+  border: 1px dashed #30363d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  cursor: default;
+}
+.card-placeholder:hover {
+  border-color: #484f58;
+  background: rgba(22, 27, 34, 0.4);
+}
+.placeholder-inner {
+  text-align: center;
+  color: #484f58;
+}
+.placeholder-plus {
+  font-size: 24px;
+  font-weight: 300;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ---- Milestone list ---- */
+.ms-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #21262d;
+}
+.ms-item:last-child { border-bottom: none; }
+.ms-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+.ms-dot.ota { background: #e5534b; }
+.ms-dot.factory { background: #a78bfa; }
+.ms-name {
+  flex: 1;
+  font-size: 12px;
+  color: #e6edf3;
+  line-height: 1.3;
+}
+.ms-due {
+  font-size: 11px;
+  color: #7d8590;
+  white-space: nowrap;
+}
+.ms-section-tag {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.ms-section-tag.ota { background: rgba(229,83,75,0.2); color: #e5534b; }
+.ms-section-tag.factory { background: rgba(167,139,250,0.2); color: #a78bfa; }
+.ms-dot.launch { background: #e5534b; }
+.ms-section-tag.launch { background: rgba(229,83,75,0.2); color: #e5534b; }
+
+/* ---- OTA rollout card ---- */
+.ota-project {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #21262d;
+}
+.ota-project:last-child { border-bottom: none; }
+.ota-project-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e6edf3;
+  min-width: 48px;
+}
+.ota-version {
+  font-size: 12px;
+  color: #7d8590;
+  font-family: "SF Mono", SFMono-Regular, Consolas, monospace;
+}
+.ota-pct-bar {
+  flex: 1;
+  height: 6px;
+  background: #21262d;
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+.ota-pct-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.ota-pct-label {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ---- OTA popover ---- */
+.ota-project { position: relative; cursor: default; }
+.ota-popover {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 200;
+  background: #1c2129;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 14px 16px;
+  min-width: 360px;
+  max-width: 440px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  font-size: 12px;
+  color: #e6edf3;
+  line-height: 1.5;
+}
+.ota-project:hover .ota-popover { display: block; }
+.ota-popover.pop-above {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+.ota-pop-section {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7d8590;
+  margin-bottom: 6px;
+}
+.ota-pop-section:not(:first-child) { margin-top: 12px; }
+.ota-pop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+.ota-pop-ver {
+  font-family: "SF Mono", SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+  color: #e6edf3;
+  white-space: nowrap;
+}
+.ota-pop-arrow {
+  color: #484f58;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.ota-pop-bar {
+  flex: 1;
+  height: 5px;
+  background: #21262d;
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 40px;
+}
+.ota-pop-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+.ota-pop-pct {
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 32px;
+  text-align: right;
+  white-space: nowrap;
+}
+.ota-pop-platforms {
+  font-size: 10px;
+  color: #484f58;
+  margin-top: 2px;
+  padding-left: 2px;
+}
+
+/* ---- Footer ---- */
+.footer {
+  text-align: center;
+  padding: 24px 40px;
+  font-size: 12px;
+  color: #484f58;
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="page-title">Welcome, <span id="user-name">...</span></div>
+  <div class="page-subtitle">FY27 Strategic Dashboard &mdash; <span id="today-date"></span></div>
+  <script>
+  (function() {
+    var d = new Date();
+    var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    document.getElementById("today-date").textContent = months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+  })();
+  </script>
+
+  <!-- PORTFOLIO VIEWS -->
+  <div class="section">
+    <div class="section-label">Portfolio Views</div>
+    <div class="card-grid">
+      <a class="card" href="dashboard-roadmaps.html">
+        <span class="card-icon">&#127919;</span>
+        <div class="card-name">Company-Wide Timeline</div>
+        <div class="card-desc">Committed dates &amp; decision gates only</div>
+        <span class="card-link-icon">&#128279;</span>
+      </a>
+
+      <div class="card card-wide" style="max-width:380px;min-width:340px">
+        <div class="card-header-row">
+          <span class="card-icon">&#128674;</span>
+          <div style="flex:1">
+            <div class="card-name">CFX consoles OTA rollout status (Consumer)</div>
+          </div>
+        </div>
+        <div id="ota-rollout-consumer" style="font-size:12px;color:#7d8590">Loading...</div>
+      </div>
+
+      <div class="card card-wide" style="max-width:380px;min-width:340px">
+        <div class="card-header-row">
+          <span class="card-icon">&#128674;</span>
+          <div style="flex:1">
+            <div class="card-name">CFX consoles OTA rollout status (Commercial)</div>
+          </div>
+        </div>
+        <div id="ota-rollout-commercial" style="font-size:12px;color:#7d8590">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FUNCTIONAL ROADMAPS -->
+  <div class="section">
+    <div class="section-label">Functional Roadmaps</div>
+    <div class="card-grid">
+
+      <div class="card card-wide" style="max-width:340px;min-width:300px">
+        <div class="card-header-row">
+          <span class="card-icon">&#129302;</span>
+          <div style="flex:1">
+            <a class="card-name" href="https://pton.me/s/cfx-system" style="text-decoration:none;color:inherit">CFX-System</a>
+          </div>
+          <span class="badge badge-live">LIVE</span>
+        </div>
+        <a class="sub-card" href="https://pton.me/s/cfx-system" style="margin-bottom:8px">
+          <span class="sub-icon">&#128203;</span>
+          <div>
+            <div class="sub-label">Upcoming Milestones</div>
+          </div>
+        </a>
+        <div id="cfx-milestones" style="font-size:12px;color:#7d8590">Loading...</div>
+      </div>
+
+      <div class="card card-wide" style="max-width:340px;min-width:300px">
+        <div class="card-header-row">
+          <span class="card-icon">&#128260;</span>
+          <div style="flex:1">
+            <a class="card-name" href="https://pton.me/s/cfx-system-dss" style="text-decoration:none;color:inherit">Device Services</a>
+          </div>
+          <span class="badge badge-live">LIVE</span>
+        </div>
+        <a class="sub-card" href="https://pton.me/s/cfx-system-dss" style="margin-bottom:8px">
+          <span class="sub-icon">&#128640;</span>
+          <div>
+            <div class="sub-label">Upcoming Launches</div>
+          </div>
+        </a>
+        <div id="ds-launches" style="font-size:12px;color:#7d8590">Loading...</div>
+      </div>
+
+      <div class="card card-wide" style="max-width:340px;min-width:300px">
+        <div class="card-header-row">
+          <span class="card-icon">&#9881;&#65039;</span>
+          <div style="flex:1">
+            <a class="card-name" href="https://pton.me/s/cfx-system-cfu" style="text-decoration:none;color:inherit">CFU-System</a>
+          </div>
+          <span class="badge badge-live">LIVE</span>
+        </div>
+        <a class="sub-card" href="https://pton.me/s/cfx-system-cfu" style="margin-bottom:8px">
+          <span class="sub-icon">&#128203;</span>
+          <div>
+            <div class="sub-label">Upcoming Launches</div>
+          </div>
+        </a>
+        <div id="cfu-launches" style="font-size:12px;color:#7d8590">Loading...</div>
+      </div>
+
+      <a class="card" href="#">
+        <span class="card-icon">&#128295;</span>
+        <div class="card-name">HW</div>
+        <div class="card-desc">CFU programs</div>
+      </a>
+
+      <div class="card card-placeholder">
+        <div class="placeholder-inner">
+          <span class="placeholder-plus">+</span>
+          <div class="card-desc">Add Roadmap</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Program Management Team &middot; FY27 &middot; Last updated September 2026
+</div>
+
+<script>
+// ---- OTA Rollout Status ----
+var OTA_CONSUMER = [
+  { name: "G700", s3Path: "production.system-eng-builds/g700/product/user/OTAConfig_v2.json" },
+  { name: "Topaz", s3Path: "production.system-eng-builds/TTR01/product/user/OTAConfig_v2.json" },
+  { name: "Qbert", s3Path: "production.system-eng-builds/RB1VQ/product/user/OTAConfig_v2.json" },
+  { name: "Obsidian", s3Path: "production.system-eng-builds/RB1VO/product/user/OTAConfig_v2.json" }
+];
+var OTA_COMMERCIAL = [
+  { name: "G700", s3Path: "production.system-eng-builds/g700/commercial/user/OTAConfig_v2.json" },
+  { name: "Topaz", s3Path: "production.system-eng-builds/TTR01/commercial/user/OTAConfig_v2.json" },
+  { name: "Qbert", s3Path: "production.system-eng-builds/RB1VQ/commercial/user/OTAConfig_v2.json" },
+  { name: "Obsidian", s3Path: "production.system-eng-builds/RB1VO/commercial/user/OTAConfig_v2.json" }
+];
+// @@OTA_CACHE_START@@
+var OTA_CACHE = {"production.system-eng-builds/g700/product/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "TA.260520.D", "otaImage": "TA.260520.D-474.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/product/user", "description": "Bug fixes and new features", "mandatory": false, "platforms": ["titan", "prism", "caesar", "v1", "aurora"], "percentage": 100}], "incremental": [{"version": "TA.250910.B", "from": "TA.250120.E", "otaImage": "TA.250120.E-329_TA.250910.B-405.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/product/user", "description": "Bug fixes and new features", "mandatory": false, "platforms": ["prism", "titan", "v1", "caesar", "aurora"], "percentage": 100}, {"version": "TA.250910.B", "from": "TA.250326.B", "otaImage": "TA.250326.B-352_TA.250910.B-405.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/product/user", "description": "Bug fixes and new features", "mandatory": false, "platforms": ["prism", "titan", "v1", "caesar", "aurora"], "percentage": 100}]}, "production.system-eng-builds/g700/commercial/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "TA.260526.B", "otaImage": "TA.260526.B.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/commercial/user", "description": "Commercial image release", "mandatory": true, "platforms": ["titan", "caesar", "v1", "aurora"], "percentage": 100}, {"version": "TA.250911.B", "otaImage": "TA.250911.B-407.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/commercial/user", "description": "Commercial image release", "mandatory": true, "platforms": ["titan", "caesar", "v1"], "percentage": 100}, {"version": "TA.251218.A", "otaImage": "TA.251218.A-434.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/g700/commercial/user", "description": "Commercial image release", "mandatory": true, "platforms": ["aurora"], "percentage": 100}], "incremental": []}, "production.system-eng-builds/TTR01/product/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "QT.250804.A", "otaImage": "QT.250804.A-256_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/TTR01/product/user", "description": "This update primarily includes bug fixes, which should improve your experience", "mandatory": false, "platforms": ["titan", "prism", "caesar"], "percentage": 100}], "incremental": [{"version": "QT.250804.A", "from": "QT.231113.B", "otaImage": "QT.231113.B-203_QT.250804.A-256_ota.zip", "description": "This is an incremental OTA, from QT.231113.B to QT.250804.A", "fullPath": "https://delivery.akamaized.net/systems/ota/TTR01/product/user", "mandatory": false, "platforms": ["titan", "prism", "caesar"], "percentage": 100}]}, "production.system-eng-builds/TTR01/commercial/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "QT.251009.B", "otaImage": "QT.251009.B-56_commercial_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/TTR01/commercial/user", "description": "Commercial build", "mandatory": true, "platforms": ["titan", "caesar"], "percentage": 100}], "incremental": [{"version": "QT.251009.B", "from": "QT.240607.B", "otaImage": "QT.240607.B-53-commercial_QT.251009.B-56-commercial_ota.zip", "description": "Hotfix release for external headphone issue", "fullPath": "https://delivery.akamaized.net/systems/ota/TTR01/commercial/user", "mandatory": true, "platforms": ["titan", "caesar"], "percentage": 100}]}, "production.system-eng-builds/RB1VQ/product/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "RQ.260424.A", "otaImage": "RQ.260424.A-333_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/product/user", "description": "Android 11 update", "mandatory": false, "platforms": ["v1"], "percentage": 50}, {"version": "RQ.250113.A", "otaImage": "RQ.250113.A_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/product/user", "description": "Android 11 update", "mandatory": false, "platforms": ["v1"], "percentage": 100}], "incremental": [{"version": "RQ.260424.A", "from": "RQ.250113.A", "otaImage": "RQ.250113.A_RQ.260424.A_ota.zip", "description": "This update primarily includes bug fixes, which should improve your experience", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/product/user", "mandatory": false, "platforms": ["v1"], "percentage": 50}, {"version": "RQ.250113.A", "from": "RQ.230927.G", "otaImage": "RQ.230927.G_RQ.250113.A_ota.zip", "description": "This update primarily includes bug fixes, which should improve your experience", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/product/user", "mandatory": false, "platforms": ["v1"], "percentage": 100}]}, "production.system-eng-builds/RB1VQ/commercial/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "RQ.260523.A", "otaImage": "RQ.260523.A_commercial_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/commercial/user", "description": "Commercial build", "mandatory": true, "platforms": ["v1"], "percentage": 100}], "incremental": [{"version": "RQ.260523.A", "from": "RQ.250205.A", "otaImage": "RQ.250205.A_RQ.260523.A_commercial_ota.zip", "description": "Commercial build", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VQ/commercial/user", "mandatory": true, "platforms": ["v1"], "percentage": 100}]}, "production.system-eng-builds/RB1VO/product/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "RO.250111.A", "otaImage": "RO.250111.A_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VO/product/user", "description": "Android 11 update", "mandatory": false, "platforms": ["v1"], "percentage": 100}], "incremental": [{"version": "RO.250111.A", "from": "RO.230711.G", "otaImage": "RO.230711.G_RO.250111.A_ota.zip", "description": "This is an incremental OTA, from RO.230711.G to RO.250111.A", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VO/product/user", "mandatory": false, "platforms": ["v1"], "percentage": 100}]}, "production.system-eng-builds/RB1VO/commercial/user/OTAConfig_v2.json": {"version": 2, "fullOTA": [{"version": "RO.250209.A", "otaImage": "RO.250209.A_commercial_ota.zip", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VO/commercial/user", "description": "Commercial build", "mandatory": true, "platforms": ["v1"], "percentage": 100}], "incremental": [{"version": "RO.250209.A", "from": "RO.240605.D", "otaImage": "RO.240605.D_RO.250209.A_commercial_ota.zip", "description": "Commercial build", "fullPath": "https://delivery.akamaized.net/systems/ota/RB1VO/commercial/user", "mandatory": true, "platforms": ["v1"], "percentage": 100}]}};
+// @@OTA_CACHE_END@@
+
+(function() {
+  function pctColor(pct, err) {
+    if (err) return "#e5534b";
+    return pct >= 100 ? "#3fb950" : pct >= 50 ? "#e6a117" : "#3b82f6";
+  }
+
+  function popBarHTML(pct, err) {
+    var c = pctColor(pct, err);
+    return '<div class="ota-pop-bar"><div class="ota-pop-bar-fill" style="width:' + pct + '%;background:' + c + '"></div></div>' +
+      '<span class="ota-pop-pct" style="color:' + c + '">' + pct + '%</span>';
+  }
+
+  function renderPopover(name, json) {
+    var h = '<div style="text-align:center;font-size:13px;font-weight:700;color:#e6edf3;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #30363d">' + name + '</div>';
+    var full = json.fullOTA || [];
+    if (full.length) {
+      h += '<div class="ota-pop-section">Full OTA</div>';
+      full.forEach(function(o) {
+        h += '<div class="ota-pop-row">' +
+          '<span class="ota-pop-ver">' + o.version + '</span>' +
+          popBarHTML(o.percentage) +
+          '</div>';
+        if (o.platforms && o.platforms.length) {
+          h += '<div class="ota-pop-platforms">Platforms: ' + o.platforms.join(", ") + '</div>';
+        }
+      });
+    }
+    var inc = json.incremental || [];
+    h += '<div class="ota-pop-section">Incremental</div>';
+    if (inc.length) {
+      inc.forEach(function(o) {
+        h += '<div class="ota-pop-row">' +
+          '<span class="ota-pop-ver">' + o.from + '</span>' +
+          '<span class="ota-pop-arrow">&rarr;</span>' +
+          '<span class="ota-pop-ver">' + o.version + '</span>' +
+          popBarHTML(o.percentage) +
+          '</div>';
+      });
+    } else {
+      h += '<div style="color:#484f58;font-size:11px;font-style:italic;padding:2px 0">None</div>';
+    }
+    return h;
+  }
+
+  function renderRow(r, idx) {
+    var c = pctColor(r.percentage, r.error);
+    var popCls = idx > 0 ? "ota-popover pop-above" : "ota-popover";
+    return '<div class="ota-project">' +
+      '<span class="ota-project-name">' + r.name + '</span>' +
+      '<span class="ota-version">' + r.version + '</span>' +
+      '<div class="ota-pct-bar"><div class="ota-pct-fill" style="width:' + r.percentage + '%;background:' + c + '"></div></div>' +
+      '<span class="ota-pct-label" style="color:' + c + '">' + r.percentage + '%</span>' +
+      (r.popoverHTML ? '<div class="' + popCls + '">' + r.popoverHTML + '</div>' : '') +
+      '</div>';
+  }
+
+  function fetchOTA(proj) {
+    return fetch("/api/s3/" + proj.s3Path)
+      .then(function(r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .catch(function() {
+        if (OTA_CACHE[proj.s3Path]) return OTA_CACHE[proj.s3Path];
+        return null;
+      });
+  }
+
+  function loadCard(projects, containerId) {
+    var container = document.getElementById(containerId);
+    Promise.all(projects.map(function(proj) {
+      return fetchOTA(proj).then(function(json) {
+        if (!json) return { name: proj.name, version: "Error", percentage: 0, error: true };
+        var ota = (json.fullOTA || [])[0];
+        return {
+          name: proj.name,
+          version: ota ? ota.version : "N/A",
+          percentage: ota ? ota.percentage : 0,
+          popoverHTML: renderPopover(proj.name, json)
+        };
+      });
+    }))
+    .then(function(results) {
+      container.innerHTML = results.map(renderRow).join("");
+    });
+  }
+
+  loadCard(OTA_CONSUMER, "ota-rollout-consumer");
+  loadCard(OTA_COMMERCIAL, "ota-rollout-commercial");
+})();
+
+var ASANA_PAT = "2/1208717380462980/1218142428533819:12448cbda0fbf36a8831453b49b12d65";
+if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
+  fetch("https://app.asana.com/api/1.0/users/me?opt_fields=name", {
+    headers: { "Authorization": "Bearer " + ASANA_PAT }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(json) {
+    if (json.data && json.data.name) {
+      var first = json.data.name.split(" ")[0];
+      document.getElementById("user-name").textContent = first;
+    }
+  })
+  .catch(function() {
+    document.getElementById("user-name").textContent = "User";
+  });
+
+  // Fetch CFX-System milestones due within 2 weeks
+  var CFX_PROJECT = "1218045518949399";
+  var TARGET_SECTIONS = { "OTA Releases": "ota", "Factory Releases": "factory" };
+  var twoWeeks = new Date();
+  twoWeeks.setDate(twoWeeks.getDate() + 14);
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  fetch("https://app.asana.com/api/1.0/projects/" + CFX_PROJECT +
+    "/tasks?opt_fields=name,due_on,completed,memberships.section.name&limit=100", {
+    headers: { "Authorization": "Bearer " + ASANA_PAT }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(json) {
+    var items = (json.data || []).filter(function(t) {
+      if (!t.name || !t.name.trim() || t.completed || !t.due_on) return false;
+      var due = new Date(t.due_on + "T00:00:00");
+      if (due < today || due > twoWeeks) return false;
+      var mem = (t.memberships || []).find(function(m) {
+        return m.section && TARGET_SECTIONS[m.section.name];
+      });
+      return !!mem;
+    }).map(function(t) {
+      var sec = (t.memberships || []).find(function(m) {
+        return m.section && TARGET_SECTIONS[m.section.name];
+      });
+      var cls = TARGET_SECTIONS[sec.section.name];
+      var d = new Date(t.due_on + "T00:00:00");
+      var label = String(d.getMonth() + 1).padStart(2, "0") + "/" +
+                  String(d.getDate()).padStart(2, "0");
+      return { name: t.name, due: t.due_on, dueLabel: label, cls: cls, section: sec.section.name };
+    }).sort(function(a, b) { return a.due < b.due ? -1 : 1; });
+
+    var el = document.getElementById("cfx-milestones");
+    if (items.length === 0) {
+      el.textContent = "No milestones in the next 2 weeks";
+      return;
+    }
+    el.innerHTML = items.map(function(m) {
+      return '<div class="ms-item">' +
+        '<div class="ms-dot ' + m.cls + '"></div>' +
+        '<span class="ms-name">' + m.name + '</span>' +
+        '<span class="ms-section-tag ' + m.cls + '">' + m.section.replace(" Releases", "") + '</span>' +
+        '<span class="ms-due">' + m.dueLabel + '</span>' +
+        '</div>';
+    }).join("");
+  })
+  .catch(function() {
+    document.getElementById("cfx-milestones").textContent = "Failed to load";
+  });
+
+  // Fetch Device Services launches due within 2 weeks
+  var DS_PROJECT = "1205153226090474";
+  fetch("https://app.asana.com/api/1.0/projects/" + DS_PROJECT +
+    "/tasks?opt_fields=name,due_on,completed,memberships.section.name&limit=100", {
+    headers: { "Authorization": "Bearer " + ASANA_PAT }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(json) {
+    var items = (json.data || []).filter(function(t) {
+      if (!t.name || !t.name.trim() || t.completed || !t.due_on) return false;
+      var due = new Date(t.due_on + "T00:00:00");
+      if (due < today || due > twoWeeks) return false;
+      return (t.memberships || []).some(function(m) {
+        return m.section && m.section.name === "Launch";
+      });
+    }).map(function(t) {
+      var d = new Date(t.due_on + "T00:00:00");
+      var label = String(d.getMonth() + 1).padStart(2, "0") + "/" +
+                  String(d.getDate()).padStart(2, "0");
+      return { name: t.name, due: t.due_on, dueLabel: label };
+    }).sort(function(a, b) { return a.due < b.due ? -1 : 1; });
+
+    var el = document.getElementById("ds-launches");
+    if (items.length === 0) {
+      el.textContent = "No launches in the next 2 weeks";
+      return;
+    }
+    el.innerHTML = items.map(function(m) {
+      return '<div class="ms-item">' +
+        '<div class="ms-dot launch"></div>' +
+        '<span class="ms-name">' + m.name + '</span>' +
+        '<span class="ms-due">' + m.dueLabel + '</span>' +
+        '</div>';
+    }).join("");
+  })
+  .catch(function() {
+    document.getElementById("ds-launches").textContent = "Failed to load";
+  });
+
+  // Fetch CFU-System upcoming launches due within 2 weeks
+  var CFU_PROJECT = "1206116040205927";
+  var CFU_SECTIONS = { "Upcoming Launches [To be updated]": "launch" };
+  fetch("https://app.asana.com/api/1.0/projects/" + CFU_PROJECT +
+    "/tasks?opt_fields=name,due_on,completed,assignee.name,memberships.section.name&limit=100", {
+    headers: { "Authorization": "Bearer " + ASANA_PAT }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(json) {
+    var items = (json.data || []).filter(function(t) {
+      if (!t.name || !t.name.trim() || t.completed || !t.due_on) return false;
+      if (!t.assignee || t.assignee.name !== "Katie Bruce") return false;
+      var due = new Date(t.due_on + "T00:00:00");
+      if (due < today || due > twoWeeks) return false;
+      return (t.memberships || []).some(function(m) {
+        return m.section && CFU_SECTIONS[m.section.name];
+      });
+    }).map(function(t) {
+      var d = new Date(t.due_on + "T00:00:00");
+      var label = String(d.getMonth() + 1).padStart(2, "0") + "/" +
+                  String(d.getDate()).padStart(2, "0");
+      return { name: t.name, due: t.due_on, dueLabel: label };
+    }).sort(function(a, b) { return a.due < b.due ? -1 : 1; });
+
+    var el = document.getElementById("cfu-launches");
+    if (items.length === 0) {
+      el.textContent = "No launches in the next 2 weeks";
+      return;
+    }
+    el.innerHTML = items.map(function(m) {
+      return '<div class="ms-item">' +
+        '<div class="ms-dot launch"></div>' +
+        '<span class="ms-name">' + m.name + '</span>' +
+        '<span class="ms-due">' + m.dueLabel + '</span>' +
+        '</div>';
+    }).join("");
+  })
+  .catch(function() {
+    document.getElementById("cfu-launches").textContent = "Failed to load";
+  });
+}
+</script>
+</body>
+</html>
