@@ -118,6 +118,21 @@ OTA_S3_PATHS = [
     "production.system-eng-builds/RB1VO/commercial/user/OTAConfig_v2.json",
 ]
 
+def strip_ota(data):
+    """Keep only fields used by the dashboard JS rendering."""
+    result = {}
+    if "fullOTA" in data:
+        result["fullOTA"] = [
+            {k: o[k] for k in ("version", "percentage", "platforms") if k in o}
+            for o in data["fullOTA"]
+        ]
+    if "incremental" in data:
+        result["incremental"] = [
+            {k: o[k] for k in ("version", "from", "percentage", "platforms") if k in o}
+            for o in data["incremental"]
+        ]
+    return result
+
 def fetch_ota_cache():
     cache = {}
     for s3path in OTA_S3_PATHS:
@@ -126,7 +141,7 @@ def fetch_ota_cache():
             req = urllib.request.Request(url, headers={"Accept": "application/json"})
             with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.loads(resp.read())
-            cache[s3path] = data
+            cache[s3path] = strip_ota(data)
             ota = (data.get("fullOTA") or [{}])[0]
             print(f"  {s3path}: {ota.get('version', 'N/A')} @ {ota.get('percentage', 0)}%")
         except Exception as e:
