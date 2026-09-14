@@ -474,7 +474,8 @@ var OTA_CONSUMER = [
   { name: "G700", s3Path: "production.system-eng-builds/g700/product/user/OTAConfig_v2.json" },
   { name: "Topaz", s3Path: "production.system-eng-builds/TTR01/product/user/OTAConfig_v2.json" },
   { name: "Qbert", s3Path: "production.system-eng-builds/RB1VQ/product/user/OTAConfig_v2.json" },
-  { name: "Obsidian", s3Path: "production.system-eng-builds/RB1VO/product/user/OTAConfig_v2.json" }
+  { name: "Obsidian", s3Path: "production.system-eng-builds/RB1VO/product/user/OTAConfig_v2.json" },
+  { name: "Sapphire", s3Path: "production.system-eng-builds/sapphire/product/user/OTAConfig_v2.json" }
 ];
 var OTA_COMMERCIAL = [
   { name: "G700", s3Path: "production.system-eng-builds/g700/commercial/user/OTAConfig_v2.json" },
@@ -483,7 +484,7 @@ var OTA_COMMERCIAL = [
   { name: "Obsidian", s3Path: "production.system-eng-builds/RB1VO/commercial/user/OTAConfig_v2.json" }
 ];
 // @@OTA_CACHE_START@@
-var OTA_CACHE = {"production.system-eng-builds/g700/product/user/OTAConfig_v2.json": {"fullOTA": [{"version": "TA.260520.D", "percentage": 100, "platforms": ["titan", "prism", "caesar", "v1", "aurora"]}], "incremental": [{"version": "TA.250910.B", "from": "TA.250120.E", "percentage": 100, "platforms": ["prism", "titan", "v1", "caesar", "aurora"]}, {"version": "TA.250910.B", "from": "TA.250326.B", "percentage": 100, "platforms": ["prism", "titan", "v1", "caesar", "aurora"]}]}, "production.system-eng-builds/g700/commercial/user/OTAConfig_v2.json": {"fullOTA": [{"version": "TA.260526.B", "percentage": 100, "platforms": ["titan", "caesar", "v1", "aurora"]}, {"version": "TA.250911.B", "percentage": 100, "platforms": ["titan", "caesar", "v1"]}, {"version": "TA.251218.A", "percentage": 100, "platforms": ["aurora"]}], "incremental": []}, "production.system-eng-builds/TTR01/product/user/OTAConfig_v2.json": {"fullOTA": [{"version": "QT.250804.A", "percentage": 100, "platforms": ["titan", "prism", "caesar"]}], "incremental": [{"version": "QT.250804.A", "from": "QT.231113.B", "percentage": 100, "platforms": ["titan", "prism", "caesar"]}]}, "production.system-eng-builds/TTR01/commercial/user/OTAConfig_v2.json": {"fullOTA": [{"version": "QT.251009.B", "percentage": 100, "platforms": ["titan", "caesar"]}], "incremental": [{"version": "QT.251009.B", "from": "QT.240607.B", "percentage": 100, "platforms": ["titan", "caesar"]}]}, "production.system-eng-builds/RB1VQ/product/user/OTAConfig_v2.json": {"fullOTA": [{"version": "RQ.260424.A", "percentage": 50, "platforms": ["v1"]}, {"version": "RQ.250113.A", "percentage": 100, "platforms": ["v1"]}], "incremental": [{"version": "RQ.260424.A", "from": "RQ.250113.A", "percentage": 50, "platforms": ["v1"]}, {"version": "RQ.250113.A", "from": "RQ.230927.G", "percentage": 100, "platforms": ["v1"]}]}, "production.system-eng-builds/RB1VQ/commercial/user/OTAConfig_v2.json": {"fullOTA": [{"version": "RQ.260523.A", "percentage": 100, "platforms": ["v1"]}], "incremental": [{"version": "RQ.260523.A", "from": "RQ.250205.A", "percentage": 100, "platforms": ["v1"]}]}, "production.system-eng-builds/RB1VO/product/user/OTAConfig_v2.json": {"fullOTA": [{"version": "RO.250111.A", "percentage": 100, "platforms": ["v1"]}], "incremental": [{"version": "RO.250111.A", "from": "RO.230711.G", "percentage": 100, "platforms": ["v1"]}]}, "production.system-eng-builds/RB1VO/commercial/user/OTAConfig_v2.json": {"fullOTA": [{"version": "RO.250209.A", "percentage": 100, "platforms": ["v1"]}], "incremental": [{"version": "RO.250209.A", "from": "RO.240605.D", "percentage": 100, "platforms": ["v1"]}]}};
+var OTA_CACHE = {"production.system-eng-builds/g700/product/user/OTAConfig_v2.json": {"fullOTA": [{"version": "TA.260520.D", "percentage": 100, "platforms": ["titan", "prism", "caesar", "v1", "aurora"]}], "incremental": [{"version": "TA.250910.B", "from": "TA.250120.E", "percentage": 100, "platforms": ["prism", "titan", "v1", "caesar", "aurora"]}, {"version": "TA.250910.B", "from": "TA.250326.B", "percentage": 100, "platforms": ["prism", "titan", "v1", "caesar", "aurora"]}]}, "production.system-eng-builds/g700/commercial/user/OTAConfig_v2.json": {"fullOTA": [{"version": "TA.260526.B", "percentage": 100, "platforms": ["titan", "caesar", "v1", "aurora"]}, {"version": "TA.250911.B", "percentage": 100, "platforms": ["titan", "caesar", "v1"]}, {"version": "TA.251218.A", "percentage": 100, "platforms": ["aurora"]}], "incremental": []}, "production.system-eng-builds/TTR01/product/user/OTAConfig_v2.json": {"fullOTA": [{"version": "QT.250804.A", "percentage": 100, "platforms": ["titan", "prism", "caesar"]}], "incremental": [{"version": "QT.250804.A", "from": "QT.231113.B", "percentage": 100, "platforms": ["titan", "prism", "caesar"]}]}, "production.system-eng-builds/TTR01/commercial/user/OTAConfig_v2.json": {"fullOTA": [{"version": "QT.251009.B", "percentage": 100, "platforms": ["titan", "caesar"]}], "incremental": [{"version": "QT.251009.B", "from": "QT.240607.B", "percentage": 100, "platforms": ["titan", "caesar"]}]}, "production.system-eng-builds/RB1VQ/product/user/OTAConfig_v2.json": {"fullOTA": [{"version": "RQ.260424.A", "percentage": 50, "platforms": ["v1"]}, {"version": "RQ.250113.A", "percentage": 100, "platforms": ["v1"]}], "incremental": [{"version": "RQ.260424.A", "from": "RQ.250113.A", "percentage": 50, "platforms": ["v1"]}, {"version": "RQ.250113.A", "from": "RQ.230927.G", "percentage": 100, "platforms": ["v1"]}]}, "production.system-eng-builds/RB1VQ/commercial/user/OTAConfig_v2.json": {"fullOTA": [{"version": "RQ.260523.A", "percentage": 100, "platforms": ["v1"]}], "incremental": [{"version": "RQ.260523.A", "from": "RQ.250205.A", "percentage": 100, "platforms": ["v1"]}]}, "production.system-eng-builds/RB1VO/product/user/OTAConfig_v2.json": {"fullOTA": [{"version": "RO.250111.A", "percentage": 100, "platforms": ["v1"]}], "incremental": [{"version": "RO.250111.A", "from": "RO.230711.G", "percentage": 100, "platforms": ["v1"]}]}, "production.system-eng-builds/RB1VO/commercial/user/OTAConfig_v2.json": {"fullOTA": [{"version": "RO.250209.A", "percentage": 100, "platforms": ["v1"]}], "incremental": [{"version": "RO.250209.A", "from": "RO.240605.D", "percentage": 100, "platforms": ["v1"]}]}, "production.system-eng-builds/sapphire/product/user/OTAConfig_v2.json": {"fullOTA": [{"version": "RS.240718.D", "percentage": 100, "platforms": ["aurora"]}, {"version": "RS.240718.D", "percentage": 100, "platforms": ["aurora"]}], "incremental": [{"version": "RS.240718.D", "from": "RS.240718.A", "percentage": 100, "platforms": ["aurora"]}]}};
 // @@OTA_CACHE_END@@
 
 (function() {
@@ -647,7 +648,7 @@ if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
   // Fetch Device Services launches due within 2 weeks
   var DS_PROJECT = "1205153226090474";
   fetch("https://app.asana.com/api/1.0/projects/" + DS_PROJECT +
-    "/tasks?opt_fields=name,due_on,completed,memberships.section.name&limit=100", {
+    "/tasks?opt_fields=name,due_on,completed&limit=100", {
     headers: { "Authorization": "Bearer " + ASANA_PAT }
   })
   .then(function(r) { return r.json(); })
@@ -656,9 +657,7 @@ if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
       if (!t.name || !t.name.trim() || t.completed || !t.due_on) return false;
       var due = new Date(t.due_on + "T00:00:00");
       if (due < today || due > twoWeeks) return false;
-      return (t.memberships || []).some(function(m) {
-        return m.section && m.section.name === "Launch";
-      });
+      return true;
     }).map(function(t) {
       var d = new Date(t.due_on + "T00:00:00");
       var label = String(d.getMonth() + 1).padStart(2, "0") + "/" +
@@ -685,21 +684,17 @@ if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
 
   // Fetch CFU-System upcoming launches due within 2 weeks
   var CFU_PROJECT = "1206116040205927";
-  var CFU_SECTIONS = { "Upcoming Launches [To be updated]": "launch" };
   fetch("https://app.asana.com/api/1.0/projects/" + CFU_PROJECT +
-    "/tasks?opt_fields=name,due_on,completed,assignee.name,memberships.section.name&limit=100", {
+    "/tasks?opt_fields=name,due_on,completed&limit=100", {
     headers: { "Authorization": "Bearer " + ASANA_PAT }
   })
   .then(function(r) { return r.json(); })
   .then(function(json) {
     var items = (json.data || []).filter(function(t) {
       if (!t.name || !t.name.trim() || t.completed || !t.due_on) return false;
-      if (!t.assignee || t.assignee.name !== "Katie Bruce") return false;
       var due = new Date(t.due_on + "T00:00:00");
       if (due < today || due > twoWeeks) return false;
-      return (t.memberships || []).some(function(m) {
-        return m.section && CFU_SECTIONS[m.section.name];
-      });
+      return true;
     }).map(function(t) {
       var d = new Date(t.due_on + "T00:00:00");
       var label = String(d.getMonth() + 1).padStart(2, "0") + "/" +

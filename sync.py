@@ -116,6 +116,7 @@ OTA_S3_PATHS = [
     "production.system-eng-builds/RB1VQ/commercial/user/OTAConfig_v2.json",
     "production.system-eng-builds/RB1VO/product/user/OTAConfig_v2.json",
     "production.system-eng-builds/RB1VO/commercial/user/OTAConfig_v2.json",
+    "production.system-eng-builds/sapphire/product/user/OTAConfig_v2.json",
 ]
 
 def strip_ota(data):
