@@ -178,7 +178,6 @@ body {
 }
 .gr-activity.completed {
   color: #484f58;
-  text-decoration: line-through;
 }
 .gr-activity.milestone::before {
   content: "\25C6";
@@ -247,6 +246,22 @@ body {
   border-radius: 2px;
   z-index: 4;
   cursor: default;
+}
+.gantt-diamond.completed {
+  background: #238636 !important;
+}
+.gantt-diamond.completed::after {
+  content: "\2713";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: rotate(-45deg);
+  margin-top: -6px;
+  margin-left: -4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
 }
 
 .tbd-label {
@@ -1320,7 +1335,7 @@ function render() {
       } else if (t.due) {
         var pct = dateToPct(t.due);
         if (isMilestone) {
-          h += '<div class="gantt-diamond" style="left:calc(' + pct + '% - 7px);background:' + color + '"';
+          h += '<div class="gantt-diamond' + (t.completed ? ' completed' : '') + '" style="left:calc(' + pct + '% - 7px);background:' + color + '"';
         } else {
           h += '<div class="gantt-bar" style="left:calc(' + pct + '% - 3px);width:6px;background:' + color + '"';
         }
