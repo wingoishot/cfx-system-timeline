@@ -648,7 +648,7 @@ if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
   // Fetch Device Services launches due within 2 weeks
   var DS_PROJECT = "1205153226090474";
   fetch("https://app.asana.com/api/1.0/projects/" + DS_PROJECT +
-    "/tasks?opt_fields=name,due_on,completed&limit=100", {
+    "/tasks?opt_fields=name,due_on,completed&completed_since=now&limit=100", {
     headers: { "Authorization": "Bearer " + ASANA_PAT }
   })
   .then(function(r) { return r.json(); })
