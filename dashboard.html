@@ -337,6 +337,43 @@ body {
   padding-left: 2px;
 }
 
+/* ---- Bar gauge (device distribution) ---- */
+.bar-gauge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+.bar-gauge-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e6edf3;
+  min-width: 64px;
+  white-space: nowrap;
+}
+.bar-gauge-track {
+  flex: 1;
+  height: 18px;
+  background: #21262d;
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 80px;
+}
+.bar-gauge-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+.bar-gauge-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e6edf3;
+  min-width: 52px;
+  text-align: right;
+  white-space: nowrap;
+  font-family: "SF Mono", SFMono-Regular, Consolas, monospace;
+}
+
 /* ---- Footer ---- */
 .footer {
   text-align: center;
@@ -363,13 +400,6 @@ body {
   <div class="section">
     <div class="section-label">Portfolio Views</div>
     <div class="card-grid">
-      <a class="card" href="dashboard-roadmaps.html">
-        <span class="card-icon">&#127919;</span>
-        <div class="card-name">Company-Wide Timeline</div>
-        <div class="card-desc">Committed dates &amp; decision gates only</div>
-        <span class="card-link-icon">&#128279;</span>
-      </a>
-
       <div class="card card-wide" style="max-width:380px;min-width:340px">
         <div class="card-header-row">
           <span class="card-icon">&#128674;</span>
@@ -388,6 +418,17 @@ body {
           </div>
         </div>
         <div id="ota-rollout-commercial" style="font-size:12px;color:#7d8590">Loading...</div>
+      </div>
+
+      <div class="card card-wide" style="max-width:380px;min-width:340px">
+        <div class="card-header-row">
+          <span class="card-icon">&#128202;</span>
+          <div style="flex:1">
+            <div class="card-name">CFX Tablet Distribution</div>
+          </div>
+        </div>
+        <div class="card-desc" style="margin-bottom:10px">Unique devices per model &mdash; last 7 days</div>
+        <div id="device-distribution" style="font-size:12px;color:#7d8590">Loading...</div>
       </div>
     </div>
   </div>
@@ -448,18 +489,6 @@ body {
         <div id="cfu-launches" style="font-size:12px;color:#7d8590">Loading...</div>
       </div>
 
-      <a class="card" href="#">
-        <span class="card-icon">&#128295;</span>
-        <div class="card-name">HW</div>
-        <div class="card-desc">CFU programs</div>
-      </a>
-
-      <div class="card card-placeholder">
-        <div class="placeholder-inner">
-          <span class="placeholder-plus">+</span>
-          <div class="card-desc">Add Roadmap</div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -719,6 +748,50 @@ if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
     document.getElementById("cfu-launches").textContent = "Failed to load";
   });
 }
+
+// ---- Device Distribution (bar gauge) ----
+(function() {
+  var DIPLOMAT_URL = "https://diplomat.ge-internal-h1.prod.k8s.pelotime.com/query";
+  var QUERY = "SELECT CASE WHEN model = 'g700' THEN 'G700' WHEN model IN ('PLTN-TTR01', 'PLTN-TTR01-2') THEN 'Topaz' WHEN model IN ('PLTN-RB1VO', 'PLTN-RB1VO-2') THEN 'Obsidian' WHEN model = 'PLTN-RB1VQ' THEN 'Qbert' WHEN model IN ('PLTN-TC1VS', 'PLTN-TC1VS-2') THEN 'Sapphire' WHEN model = 'Ruby' THEN 'Ruby' END AS model_group, COUNT(DISTINCT tablet_serial) AS unique_tablet_count, ROUND(COUNT(DISTINCT tablet_serial) * 100 / SUM(COUNT(DISTINCT tablet_serial)) OVER (), 2) AS percentage FROM `et-prod-data-store.weather_top.log_cfx` WHERE model IN ('g700', 'PLTN-TTR01', 'PLTN-TTR01-2', 'PLTN-RB1VO', 'PLTN-RB1VO-2', 'PLTN-RB1VQ', 'PLTN-TC1VS', 'PLTN-TC1VS-2', 'Ruby') AND partitionDt >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY) GROUP BY 1 ORDER BY unique_tablet_count DESC";
+  var GAUGE_COLORS = ["#73BF69","#FADE2A","#FF9830","#F2495C","#5794F2","#B877D9"];
+
+  // @@DEVICE_DIST_CACHE_START@@
+  var DEVICE_DIST_CACHE = null;
+  // @@DEVICE_DIST_CACHE_END@@
+
+  function formatCount(n) {
+    if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K";
+    return String(n);
+  }
+
+  function renderGauges(data) {
+    var el = document.getElementById("device-distribution");
+    if (!data || !data.length) { el.textContent = "No data"; return; }
+    var maxVal = data[0].unique_tablet_count;
+    el.innerHTML = data.map(function(row, i) {
+      var pct = Math.round((row.unique_tablet_count / maxVal) * 100);
+      var color = GAUGE_COLORS[i % GAUGE_COLORS.length];
+      return '<div class="bar-gauge-row">' +
+        '<span class="bar-gauge-label">' + row.model_group + '</span>' +
+        '<div class="bar-gauge-track"><div class="bar-gauge-fill" style="width:' + pct + '%;background:linear-gradient(90deg,' + color + '88,' + color + ')"></div></div>' +
+        '<span class="bar-gauge-value">' + formatCount(row.unique_tablet_count) + '</span>' +
+        '</div>';
+    }).join("");
+  }
+
+  fetch(DIPLOMAT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ command: QUERY, name: "bigquery_weather_top_prod" })
+  })
+  .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+  .then(function(json) { renderGauges(json.results || json); })
+  .catch(function() {
+    if (DEVICE_DIST_CACHE) { renderGauges(DEVICE_DIST_CACHE); return; }
+    document.getElementById("device-distribution").textContent = "Failed to load";
+  });
+})();
 </script>
 </body>
 </html>
