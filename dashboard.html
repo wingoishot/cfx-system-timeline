@@ -343,6 +343,7 @@ body {
   align-items: center;
   gap: 10px;
   padding: 5px 0;
+  position: relative;
 }
 .bar-gauge-label {
   font-size: 12px;
@@ -372,6 +373,74 @@ body {
   text-align: right;
   white-space: nowrap;
   font-family: "SF Mono", SFMono-Regular, Consolas, monospace;
+}
+
+/* ---- Build distribution popover ---- */
+.build-popover {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 200;
+  background: #1c2129;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 14px 16px;
+  min-width: 340px;
+  max-width: 420px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  font-size: 12px;
+  color: #e6edf3;
+  line-height: 1.5;
+}
+.bar-gauge-row:hover .build-popover { display: block; }
+.build-popover-title {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #30363d;
+}
+.build-pop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+}
+.build-pop-name {
+  font-family: "SF Mono", SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+  color: #e6edf3;
+  white-space: nowrap;
+  min-width: 100px;
+}
+.build-pop-bar {
+  flex: 1;
+  height: 5px;
+  background: #21262d;
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 40px;
+}
+.build-pop-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+.build-pop-pct {
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 44px;
+  text-align: right;
+  white-space: nowrap;
+}
+.build-pop-count {
+  font-size: 10px;
+  color: #7d8590;
+  min-width: 44px;
+  text-align: right;
+  white-space: nowrap;
 }
 
 /* ---- Footer ---- */
@@ -424,7 +493,7 @@ body {
         <div class="card-header-row">
           <span class="card-icon">&#128202;</span>
           <div style="flex:1">
-            <div class="card-name">CFX Tablet Distribution</div>
+            <a class="card-name" href="https://g-8ca636ed42.grafana-workspace.us-east-1.amazonaws.com/d/bq-android-core-device/androidcore-device-build-distribution?orgId=1&from=now-7d&to=now&viewPanel=3" style="text-decoration:none;color:inherit">CFX Tablet Distribution</a>
           </div>
         </div>
         <div class="card-desc" style="margin-bottom:10px">Unique devices per model &mdash; last 7 days</div>
@@ -751,18 +820,59 @@ if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
 
 // ---- Device Distribution (bar gauge) ----
 (function() {
-  var DIPLOMAT_URL = "https://diplomat.ge-internal-h1.prod.k8s.pelotime.com/query";
-  var QUERY = "SELECT CASE WHEN model = 'g700' THEN 'G700' WHEN model IN ('PLTN-TTR01', 'PLTN-TTR01-2') THEN 'Topaz' WHEN model IN ('PLTN-RB1VO', 'PLTN-RB1VO-2') THEN 'Obsidian' WHEN model = 'PLTN-RB1VQ' THEN 'Qbert' WHEN model IN ('PLTN-TC1VS', 'PLTN-TC1VS-2') THEN 'Sapphire' WHEN model = 'Ruby' THEN 'Ruby' END AS model_group, COUNT(DISTINCT tablet_serial) AS unique_tablet_count, ROUND(COUNT(DISTINCT tablet_serial) * 100 / SUM(COUNT(DISTINCT tablet_serial)) OVER (), 2) AS percentage FROM `et-prod-data-store.weather_top.log_cfx` WHERE model IN ('g700', 'PLTN-TTR01', 'PLTN-TTR01-2', 'PLTN-RB1VO', 'PLTN-RB1VO-2', 'PLTN-RB1VQ', 'PLTN-TC1VS', 'PLTN-TC1VS-2', 'Ruby') AND partitionDt >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY) GROUP BY 1 ORDER BY unique_tablet_count DESC";
+  var SNAPSHOT_KEY = "Pvg0i7KFkA01jUlsaXzVN5MwnXwKhTKn";
+  var SNAPSHOT_URL = "https://g-8ca636ed42.grafana-workspace.us-east-1.amazonaws.com/api/snapshots/" + SNAPSHOT_KEY;
   var GAUGE_COLORS = ["#73BF69","#FADE2A","#FF9830","#F2495C","#5794F2","#B877D9"];
 
+  var BUILD_SNAPSHOTS = {
+    "G700": "uFXyVFsHHXOiDIyw275kN0JiRDjswcTs",
+    "Topaz": "bdIoXoSQVTG1WUKQIKeZ7BY7aH59pbyM",
+    "Qbert": "n6NUantW5Ba1H6RQFyXi7iom9iSGHaum",
+    "Obsidian": "DlA5prjbKHvXGEPpXHTZdCncnp5kgSUI",
+    "Sapphire": "oiQFgXMvayJAdT2UZ1xsAjANwpkF8639"
+  };
+
   // @@DEVICE_DIST_CACHE_START@@
-  var DEVICE_DIST_CACHE = null;
+  var DEVICE_DIST_CACHE = [{"model_group":"Topaz","unique_tablet_count":654674},{"model_group":"Qbert","unique_tablet_count":374929},{"model_group":"Obsidian","unique_tablet_count":296682},{"model_group":"G700","unique_tablet_count":78595},{"model_group":"Sapphire","unique_tablet_count":61860},{"model_group":"Ruby","unique_tablet_count":51305}];
   // @@DEVICE_DIST_CACHE_END@@
+
+  // @@BUILD_DIST_CACHE_START@@
+  var BUILD_DIST_CACHE = {"G700":[{"build":"TA.260520.D","count":70500},{"build":"TA.260520.H","count":13185},{"build":"TA.250910.B","count":4726},{"build":"TA.250326.B","count":1921},{"build":"TA.260526.B","count":1099},{"build":"TA.260526.E","count":526}],"Topaz":[{"build":"QT.250804.A","count":623595},{"build":"QT.231113.B","count":23132},{"build":"QT.251009.B","count":3364},{"build":"QT.231113.A","count":3036},{"build":"QT.230615.A","count":853},{"build":"PTY64A","count":441},{"build":"QT.221130.A","count":422},{"build":"QT.230306.A","count":343}],"Qbert":[{"build":"RQ.250113.A","count":53.55},{"build":"RQ.260424.A","count":41.37},{"build":"RQ.230927.G","count":2.08},{"build":"RQ.260523.A","count":1.38},{"build":"RQ.230927.D","count":0.34},{"build":"RQ.260424.A-333","count":0.29},{"build":"RQ.250205.A","count":0.23},{"build":"NQ.220527.A","count":0.21}],"Obsidian":[{"build":"RO.250111.A","count":92.65},{"build":"RO.230711.G","count":3.12},{"build":"RO.250209.A","count":2.85},{"build":"RO.230711.E","count":0.5},{"build":"NOZ42A","count":0.25},{"build":"NOZ43B","count":0.23},{"build":"NOZ43A","count":0.18},{"build":"RO.230711.B","count":0.08}],"Sapphire":[{"build":"RS.240718.D","count":61532},{"build":"NS.230801.A","count":172},{"build":"RS.240718.A","count":141},{"build":"NS.220407.A","count":51},{"build":"RS.260629.A","count":5},{"build":"NSV69B","count":4},{"build":"NSZ24A","count":3},{"build":"RS.240110.A","count":1}]};
+  // @@BUILD_DIST_CACHE_END@@
 
   function formatCount(n) {
     if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
     if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K";
     return String(n);
+  }
+
+  function buildPopoverHTML(modelName, builds) {
+    if (!builds || !builds.length) return "";
+    var total = builds.reduce(function(s, b) { return s + b.count; }, 0);
+    var top = builds.slice(0, 8);
+    var h = '<div class="build-popover">' +
+      '<div class="build-popover-title">' + modelName + ' — Build Share</div>';
+    top.forEach(function(b) {
+      var pct = (b.count * 100 / total).toFixed(1);
+      var barColor = parseFloat(pct) >= 50 ? "#3fb950" : parseFloat(pct) >= 10 ? "#e6a117" : "#3b82f6";
+      h += '<div class="build-pop-row">' +
+        '<span class="build-pop-name">' + b.build + '</span>' +
+        '<div class="build-pop-bar"><div class="build-pop-bar-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>' +
+        '<span class="build-pop-pct" style="color:' + barColor + '">' + pct + '%</span>' +
+        '<span class="build-pop-count">' + formatCount(b.count) + '</span>' +
+        '</div>';
+    });
+    if (builds.length > 8) {
+      var otherCount = builds.slice(8).reduce(function(s, b) { return s + b.count; }, 0);
+      h += '<div class="build-pop-row" style="border-top:1px solid #21262d;margin-top:4px;padding-top:6px">' +
+        '<span class="build-pop-name" style="color:#7d8590">Other (' + (builds.length - 8) + ' builds)</span>' +
+        '<div class="build-pop-bar"></div>' +
+        '<span class="build-pop-pct" style="color:#7d8590">' + (otherCount * 100 / total).toFixed(1) + '%</span>' +
+        '<span class="build-pop-count">' + formatCount(otherCount) + '</span>' +
+        '</div>';
+    }
+    h += '</div>';
+    return h;
   }
 
   function renderGauges(data) {
@@ -772,21 +882,63 @@ if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
     el.innerHTML = data.map(function(row, i) {
       var pct = Math.round((row.unique_tablet_count / maxVal) * 100);
       var color = GAUGE_COLORS[i % GAUGE_COLORS.length];
-      return '<div class="bar-gauge-row">' +
+      var popover = "";
+      if (BUILD_DIST_CACHE[row.model_group]) {
+        popover = buildPopoverHTML(row.model_group, BUILD_DIST_CACHE[row.model_group]);
+      }
+      var cursor = popover ? "cursor:pointer" : "";
+      return '<div class="bar-gauge-row" style="' + cursor + '">' +
         '<span class="bar-gauge-label">' + row.model_group + '</span>' +
         '<div class="bar-gauge-track"><div class="bar-gauge-fill" style="width:' + pct + '%;background:linear-gradient(90deg,' + color + '88,' + color + ')"></div></div>' +
         '<span class="bar-gauge-value">' + formatCount(row.unique_tablet_count) + '</span>' +
+        popover +
         '</div>';
     }).join("");
   }
 
-  fetch(DIPLOMAT_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ command: QUERY, name: "bigquery_weather_top_prod" })
+  function fetchBuildSnapshot(modelName, snapshotKey) {
+    return fetch("https://g-8ca636ed42.grafana-workspace.us-east-1.amazonaws.com/api/snapshots/" + snapshotKey)
+    .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(function(json) {
+      var panels = (json.dashboard && json.dashboard.panels) || [];
+      var panel = panels.find(function(p) { return p.snapshotData && p.snapshotData.length; });
+      if (!panel) throw new Error("No panel");
+      var fields = panel.snapshotData[0].fields;
+      var names = fields.find(function(f) { return f.name === "build"; });
+      var counts = fields.find(function(f) { return f.name === "unique_tablet_count"; }) ||
+                   fields.find(function(f) { return f.name === "percentage"; });
+      if (!names || !counts) throw new Error("Fields not found");
+      var builds = names.values.map(function(name, i) {
+        return { build: name, count: counts.values[i] };
+      });
+      builds.sort(function(a, b) { return b.count - a.count; });
+      BUILD_DIST_CACHE[modelName] = builds;
+    })
+    .catch(function() {});
+  }
+
+  var buildFetches = Object.keys(BUILD_SNAPSHOTS).map(function(model) {
+    return fetchBuildSnapshot(model, BUILD_SNAPSHOTS[model]);
+  });
+
+  Promise.all(buildFetches).then(function() {
+    return fetch(SNAPSHOT_URL)
+    .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(function(json) {
+      var panels = (json.dashboard && json.dashboard.panels) || [];
+      var panel = panels.find(function(p) { return p.id === 3; });
+      if (!panel || !panel.snapshotData || !panel.snapshotData[0]) throw new Error("Panel not found");
+      var fields = panel.snapshotData[0].fields;
+      var names = fields.find(function(f) { return f.name === "model_group"; });
+      var counts = fields.find(function(f) { return f.name === "unique_tablet_count"; });
+      if (!names || !counts) throw new Error("Fields not found");
+      var data = names.values.map(function(name, i) {
+        return { model_group: name, unique_tablet_count: counts.values[i] };
+      });
+      data.sort(function(a, b) { return b.unique_tablet_count - a.unique_tablet_count; });
+      renderGauges(data);
+    });
   })
-  .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-  .then(function(json) { renderGauges(json.results || json); })
   .catch(function() {
     if (DEVICE_DIST_CACHE) { renderGauges(DEVICE_DIST_CACHE); return; }
     document.getElementById("device-distribution").textContent = "Failed to load";
