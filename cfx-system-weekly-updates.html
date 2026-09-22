@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFX-System Weekly Updates — 9.22.2026</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: #0d1117;
+  color: #e6edf3;
+  font-size: 13px;
+  line-height: 1.5;
+  padding-bottom: 60px;
+}
+
+/* Top bar */
+.top-bar {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 16px 28px;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.top-bar .brand { font-weight: 700; color: #39d2b4; font-size: 17px; }
+.top-bar .title { font-weight: 600; font-size: 15px; }
+.top-bar .date { color: #7d8590; font-size: 13px; margin-left: auto; }
+
+/* Section jump nav */
+.jump-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 28px;
+  background: #10151c;
+  border-bottom: 1px solid #30363d;
+  position: sticky;
+  top: 57px;
+  z-index: 19;
+}
+.jump-nav a {
+  color: #7d8590;
+  text-decoration: none;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+.jump-nav a:hover { color: #e6edf3; border-color: #30363d; background: #1c2129; }
+
+/* Layout */
+.wrap { padding: 24px 28px; max-width: 1400px; margin: 0 auto; }
+section { margin-bottom: 34px; scroll-margin-top: 110px; }
+
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #30363d;
+}
+.sec-head h2 { font-size: 18px; font-weight: 600; }
+.sec-head .tag {
+  font-size: 11px;
+  color: #7d8590;
+  background: #1c2129;
+  border: 1px solid #30363d;
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+.card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.card h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #39d2b4;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+.card ul { list-style: none; }
+.card li { padding: 2px 0 2px 16px; position: relative; }
+.card li::before { content: "▸"; color: #4b93e6; position: absolute; left: 0; }
+.card li li::before { content: "–"; color: #7d8590; }
+.card ul ul { margin-left: 14px; }
+
+/* Column grid for sub-cards */
+.grid { display: grid; gap: 14px; }
+.grid.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 900px) { .grid.c2, .grid.c3 { grid-template-columns: 1fr; } }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th {
+  background: #1c2129;
+  color: #c9d1d9;
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid #30363d;
+  font-weight: 600;
+  white-space: nowrap;
+}
+tbody td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #21262d;
+  vertical-align: top;
+}
+tbody tr:hover { background: #1a1f27; }
+table code, .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; color: #d9a441; }
+table a { color: #58a6ff; text-decoration: none; word-break: break-all; }
+table a:hover { text-decoration: underline; }
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.b-ontrack { background: #1a3a2a; color: #39d2b4; border: 1px solid #26563b; }
+.b-risk    { background: #3a2f14; color: #e6a117; border: 1px solid #5c4a1a; }
+.b-critical{ background: #3b1c1c; color: #f0655d; border: 1px solid #5b2c2c; }
+.b-blocker { background: #45161f; color: #ff7b8a; border: 1px solid #6b2635; }
+.b-major   { background: #2f2417; color: #e0964a; border: 1px solid #4a3a1f; }
+.b-minor   { background: #1e2733; color: #79c0ff; border: 1px solid #2c3d52; }
+.b-open    { background: #2a2520; color: #e6a117; border: 1px solid #4a3510; }
+.b-merged  { background: #21262d; color: #a371f7; border: 1px solid #3b2d52; }
+
+/* Metric tiles */
+.metrics { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+.metric {
+  flex: 1 1 180px;
+  background: #10151c;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.metric .label { font-size: 11px; color: #7d8590; text-transform: uppercase; letter-spacing: 0.04em; }
+.metric .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+.metric .note { font-size: 11.5px; color: #8b949e; margin-top: 2px; }
+.metric .value .up { color: #f0655d; }
+.metric .value .flat { color: #39d2b4; }
+
+footer {
+  text-align: center;
+  color: #565f6b;
+  font-size: 11px;
+  padding: 20px;
+  border-top: 1px solid #21262d;
+  margin-top: 20px;
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span class="brand">CFX-System</span>
+  <span class="title">Internal Tablet SW Sync — Weekly Updates</span>
+  <span class="date">Week of 9/21 · 9.22.2026</span>
+</div>
+
+<nav class="jump-nav">
+  <a href="#status">Program Status</a>
+  <a href="#amber">Amber &amp; Redstone</a>
+  <a href="#prs">PRs · RC.09.25</a>
+  <a href="#amber2gb">Amber 2GB Issues</a>
+  <a href="#ar-issues">A&amp;R Issues</a>
+  <a href="#phoenix">Phoenix</a>
+  <a href="#g700">G700 Android 15</a>
+  <a href="#topaz">Topaz</a>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ PAGE 2 ============ -->
+<section id="status">
+  <div class="sec-head"><h2>Top Level Program Status</h2><span class="tag">Week of 9/21</span></div>
+  <div class="card" style="padding:0; overflow:hidden;">
+  <table>
+    <thead>
+      <tr><th>Program</th><th>Status</th><th>Upcoming Milestone</th><th>Key Callouts / New Risks</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Qbert 11</strong></td>
+        <td><span class="badge b-ontrack">On Track</span></td>
+        <td>EU ErP compliance — shutdown screen change</td>
+        <td>Still do not have approved design spec.</td>
+      </tr>
+      <tr>
+        <td><strong>Obsidian 11</strong></td>
+        <td><span class="badge b-ontrack">On Track</span></td>
+        <td>Obsidian 11 ET2.0 OTA — Sept. 2026</td>
+        <td>Consumer RC: <code>RO.260701.B</code><br>Commercial RC: <code>RO.260903.A</code><br>Rebuilt the signed builds for downgrade capability</td>
+      </tr>
+      <tr>
+        <td><strong>Sapphire 11</strong></td>
+        <td><span class="badge b-ontrack">On Track</span></td>
+        <td>Sapphire 11 ET2.0 OTA — Sept. 2026</td>
+        <td>RC build <code>RS.260629.A</code> sign-key build is under testing.</td>
+      </tr>
+      <tr>
+        <td><strong>Topaz 10</strong></td>
+        <td><span class="badge b-ontrack">On Track</span></td>
+        <td>Topaz 10 OTA — Sept. 2026</td>
+        <td>Consumer RC: <code>QT.260814.B-34</code><br>Commercial RC: <code>QT.260903.A-19</code><br>Need to fix build job for downgrade flag</td>
+      </tr>
+      <tr>
+        <td><strong>Topaz 11</strong></td>
+        <td><span class="badge b-risk">At Risk</span></td>
+        <td>TBD, low priority</td>
+        <td>Same as Topaz 10. After Topaz 10 wifi expansion release</td>
+      </tr>
+      <tr>
+        <td><strong>Amber</strong></td>
+        <td><span class="badge b-ontrack">On Track</span></td>
+        <td>OTA update — Dec. 2026</td>
+        <td>Reviewing the necessary patches · DLA engine for Redstone · PlutoTV ET2.0 for commercial</td>
+      </tr>
+      <tr>
+        <td><strong>Redstone</strong></td>
+        <td><span class="badge b-ontrack">On Track</span></td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ PAGE 4 ============ -->
+<section id="amber">
+  <div class="sec-head"><h2>Amber &amp; Redstone</h2><span class="tag">Program Detail</span></div>
+  <div class="grid c3">
+    <div class="card">
+      <h3>Key Initiatives</h3>
+      <ul>
+        <li>OTA update for Dec. 2026
+          <ul>
+            <li>DLA runtime engine for Mizaru</li>
+            <li>Update security patches</li>
+            <li>PlutoTV ET2.0</li>
+          </ul>
+        </li>
+        <li>Factory release for Dec. 2026
+          <ul><li>Single image for Amber and Redstone at the factory</li></ul>
+        </li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Where We Are</h3>
+      <ul>
+        <li>Released <code>TA.260908.A</code> to factory for Amber 2GB production</li>
+        <li>Released thermal hotfix OTA updates (<code>TA.260520.H</code> consumer, <code>TA.260526.E</code> commercial)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Active SW Tasks</h3>
+      <ul>
+        <li>DLA runtime engine testing by Feng</li>
+        <li>Redstone QA testing on the latest codebase</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Stage — Scoping</h3>
+      <ul><li>Reviewing the code changes in this OTA release</li></ul>
+    </div>
+    <div class="card">
+      <h3>Launch</h3>
+      <ul>
+        <li>OTA: Dogfood on Dec. 2026</li>
+        <li>Factory: Release on Dec. 2026</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Risks</h3>
+      <ul><li>Amber 2GB FT status</li></ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Monitoring Strategy (Grafana)</h3>
+    <div class="metrics">
+      <div class="metric">
+        <div class="label">Launcher Crashes</div>
+        <div class="value"><span class="up">64</span> <span style="font-size:13px;color:#7d8590;">vs 26</span></div>
+        <div class="note">Increased — new releases (64) vs older releases (26)</div>
+      </div>
+      <div class="metric">
+        <div class="label">ANR Trend</div>
+        <div class="value"><span class="flat">≈ Flat</span></div>
+        <div class="note">Trend is similar between new and older releases</div>
+      </div>
+      <div class="metric">
+        <div class="label">Kernel Panics</div>
+        <div class="value"><span class="flat">≈ Flat</span></div>
+        <div class="note">Similar between new and older releases</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PAGE 5 ============ -->
+<section id="prs">
+  <div class="sec-head"><h2>PRs for RC.09.25</h2><span class="tag">Pull Requests</span></div>
+  <div class="card" style="padding:0; overflow:hidden;">
+  <table>
+    <thead><tr><th>Ticket</th><th>Description</th><th>PR Link</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="mono">NGT-1418</td>
+        <td>Fixed a race condition when ET2.0's prestart buttons disappear after using Quick Settings.</td>
+        <td><a href="https://github.com/pelotoncycle/android/pull/92253">android#92253</a></td>
+        <td><span class="badge b-merged">Approved · merged to master</span></td>
+      </tr>
+      <tr>
+        <td class="mono">NGT-1476</td>
+        <td>Fixed profile picture taking being disabled when single-cam pipeline is on.</td>
+        <td><a href="https://github.com/pelotoncycle/android/pull/93328">android#93328</a></td>
+        <td><span class="badge b-open">Open · pending review</span></td>
+      </tr>
+      <tr>
+        <td class="mono">DSS-8500</td>
+        <td>Adding resiliency to OAuthClient through wrapper for SystemPluginUi, required for Android 15.</td>
+        <td><a href="https://github.com/pelotoncycle/android/pull/92790">android#92790</a></td>
+        <td><span class="badge b-open">Open · pending review</span></td>
+      </tr>
+      <tr>
+        <td class="mono">DSS-8444</td>
+        <td>Fixed OTAService that OTA dialog disappeared when invoked.</td>
+        <td><a href="https://github.com/pelotoncycle/ota-service/pull/322">ota-service#322</a></td>
+        <td><span class="badge b-open">Open · pending review</span></td>
+      </tr>
+      <tr>
+        <td class="mono">NGT-1437</td>
+        <td>On Amber 2GB device, disabling Sprig and applying Qbert rendering for Lanebreak.</td>
+        <td><a href="https://github.com/pelotoncycle/android/pull/92352">android#92352</a></td>
+        <td><span class="badge b-merged">Approved · merged to master</span></td>
+      </tr>
+      <tr>
+        <td class="mono">No-jira</td>
+        <td>GC Lanebreak when the game exits to menu screen.</td>
+        <td><a href="https://github.com/pelotoncycle/odyssey/pull/6395">odyssey#6395</a></td>
+        <td><span class="badge b-open">Open · pending review</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ PAGE 6 ============ -->
+<section id="amber2gb">
+  <div class="sec-head"><h2>Amber 2GB Issues</h2><span class="tag">Issue Tracker</span></div>
+  <div class="card" style="padding:0; overflow:hidden;">
+  <table>
+    <thead><tr><th>Date Opened</th><th>Priority</th><th>Issue Description</th><th>Next Steps / Path to Resolution</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>7/6/2026</td><td><span class="badge b-major">Major</span></td>
+        <td><span class="mono">NGT-1434</span> — FWUpdater non-persistent service mode</td>
+        <td>FWU stays in cached process but fails to get reactivated in QA regular test scenarios (manual system update, scheduler met, etc.). Is PCM responsible for all this? Ravik's intended changes reviewed? Already has a PR for this.</td>
+        <td>DavidB</td>
+      </tr>
+      <tr>
+        <td>8/4/2026</td><td><span class="badge b-critical">Critical</span></td>
+        <td><span class="mono">DSS-8241</span> — [Amber 2G] Quick Settings becomes unresponsive during Netflix playback with HRM connected</td>
+        <td>High FR: 3/5. Same PR as NGT-1418 can address this.</td>
+        <td>Rich</td>
+      </tr>
+      <tr>
+        <td>8/31/2026</td><td><span class="badge b-critical">Critical</span></td>
+        <td><span class="mono">DSS-8441</span> — OTAService 12.3.223 crashes after reboot when the OTA process check is triggered</td>
+        <td>After enabling "Display over other apps", this issue is not reproduced. However, in-class status is wrong. Still waiting for a PR on this.</td>
+        <td>Genesis</td>
+      </tr>
+      <tr>
+        <td>9/18/2026</td><td><span class="badge b-minor">Minor</span></td>
+        <td><span class="mono">FTT-4126</span> — [Amber 2GB FT] YoutubeTV location problem, cannot play local TV content</td>
+        <td>Need to check if GPS function is removed for 2G device. May need US team's help to reproduce.</td>
+        <td>RJ / US QA team</td>
+      </tr>
+      <tr>
+        <td>9/22/2026</td><td><span class="badge b-major">Major</span></td>
+        <td><span class="mono">FTT-4130</span> — [Amber 2GB FT] Youtube video stutter when playing 4k video</td>
+        <td>We can locally reproduce. To be triaged.</td>
+        <td>RJ</td>
+      </tr>
+      <tr>
+        <td>9/16/2026</td><td><span class="badge b-major">Major</span></td>
+        <td><span class="mono">FTT-4114</span> — [Amber 2B FT] Need manually connect to wifi on every boot</td>
+        <td>Preparing a document for FT user to capture sniffer and DebugLoggerUi logs.</td>
+        <td>Winston</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ PAGE 7 ============ -->
+<section id="ar-issues">
+  <div class="sec-head"><h2>Amber &amp; Redstone Issues</h2><span class="tag">Issue Tracker</span></div>
+  <div class="card" style="padding:0; overflow:hidden;">
+  <table>
+    <thead><tr><th>Date Opened</th><th>Priority</th><th>Issue Description</th><th>Next Steps / Path to Resolution</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>7/16/2026</td><td><span class="badge b-major">Major</span></td>
+        <td><span class="mono">NGT-1444</span> — CameraHalServer crash (single camera)</td>
+        <td>[9/22 update] FR has been reduced on a patch build optimized for more memory. Patches available. Can be merged for Dec. OTA release.</td>
+        <td>Nigel</td>
+      </tr>
+      <tr>
+        <td>8/17/2026</td><td><span class="badge b-major">Major</span></td>
+        <td><span class="mono">NGT-1476</span> — With single camera pipeline on, camera access setting can become incorrect</td>
+        <td>PR for Home app is available. QA verified it. David will check in about profile picture taking with Peloton's own camera app.</td>
+        <td>Lanny</td>
+      </tr>
+      <tr>
+        <td>5/28/2026</td><td><span class="badge b-major">Major</span></td>
+        <td><span class="mono">SETS-7621</span> — Camera stuck at loading state</td>
+        <td>Fixed in RC.08.28.</td>
+        <td>Lanny</td>
+      </tr>
+      <tr>
+        <td>9/3/2026</td><td><span class="badge b-major">Major</span></td>
+        <td><span class="mono">SWAT-4701</span> — BT continues with beep sound after exiting Lanebreak</td>
+        <td>FR: 3/20. To be triaged. QA didn't find this issue on Topaz nor on g700 4G devices.</td>
+        <td>NA</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ PAGE 8 ============ -->
+<section id="phoenix">
+  <div class="sec-head"><h2>Phoenix</h2><span class="tag">Remote FW EVT</span></div>
+  <div class="grid c2">
+    <div class="card">
+      <h3>Status — Phoenix Remote FW EVT Build</h3>
+      <ul>
+        <li>Confirming SN format</li>
+        <li>Using the alpha 2 board for developing FW with the following features:
+          <ul>
+            <li>OTA capability and stability</li>
+            <li>FW shipping mode (product key signed)</li>
+            <li>Wake on motion event</li>
+            <li>BLE connection parameters for saving power consumption</li>
+          </ul>
+        </li>
+        <li>Sample app development for debug and OTA testing</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Direct Test Mode Single Image</h3>
+      <ul>
+        <li>For factory BT testing during manufacturing</li>
+        <li>Test requirement is testing RSSI at Arcana. No need to enable DTM in normal mode.</li>
+        <li>Trying to improve battery life — projected 70 days standby mode but 180 days required</li>
+        <li>Accelerometer may be kept off in standby mode to save battery</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PAGE 9 ============ -->
+<section id="g700">
+  <div class="sec-head"><h2>G700 Android 15</h2><span class="tag">Program Detail</span></div>
+  <div class="grid c3">
+    <div class="card">
+      <h3>Key Initiatives</h3>
+      <ul>
+        <li>OTA update for Q1, 2027
+          <ul>
+            <li><span class="mono">NGT-1387</span> — EU ErP shutdown screen — June 2027 (Q3FY27)</li>
+            <li>Amber 2GB evaluation</li>
+            <li>EU ErP shutdown screen modification</li>
+          </ul>
+        </li>
+        <li>Factory release for Q1, 2027
+          <ul><li>Single image for Amber and Redstone at the factory</li></ul>
+        </li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Where We Are</h3>
+      <ul>
+        <li>Pending SystemPluginUi to be prebuilt in the system image to avoid it crashing at startup</li>
+        <li>Android 15 can run on Amber 2GB</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Active SW Tasks</h3>
+      <ul><li>Migrating system optimizations and features to Android 15</li></ul>
+    </div>
+    <div class="card">
+      <h3>Stage — Scoping</h3>
+      <ul><li>Reviewing the code changes in this OTA release</li></ul>
+    </div>
+    <div class="card">
+      <h3>Launch</h3>
+      <ul>
+        <li>OTA: Dogfood on Q1, 2027</li>
+        <li>Factory: Release on Q1, 2027</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Risks</h3>
+      <ul><li>Amber 2GB performance — pending on full testing status</li></ul>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0; overflow:hidden;">
+    <div style="padding:12px 16px;"><h3 style="margin:0;">Issues Related to CFU</h3></div>
+    <table>
+      <thead><tr><th>Date Opened</th><th>Priority</th><th>Issue Description</th><th>Next Steps / Path to Resolution</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>4/16/2026</td><td><span class="badge b-critical">Critical</span></td>
+          <td><span class="mono">SCS-5217</span> — Affernet crashes on boot. LED blinking red and affernet runs in fake data mode</td>
+          <td>FR: 2/10. The test apk has been verified.</td>
+          <td>QA</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ PAGE 11 ============ -->
+<section id="topaz">
+  <div class="sec-head"><h2>Topaz</h2><span class="tag">Program Detail</span></div>
+  <div class="grid c3">
+    <div class="card">
+      <h3>Key Initiatives</h3>
+      <ul>
+        <li>OTA updates by Sept.
+          <ul>
+            <li>Consumer build: <code>QT.260814.A</code></li>
+            <li>Commercial build: <code>QT.260903.A</code></li>
+          </ul>
+        </li>
+        <li>Topaz 11: Q2, 2027
+          <ul>
+            <li>Security patches update</li>
+            <li>EU ErP shutdown screen modification</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Where We Are</h3>
+      <ul>
+        <li>Previous signed build of <code>QT.260814.A</code> missed the downgrade capability</li>
+        <li>Rebuilt consumer and commercial signed builds for downgrade capability and correct build timestamp</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Active SW Tasks</h3>
+      <ul><li>None</li></ul>
+    </div>
+    <div class="card">
+      <h3>Stage — QA</h3>
+      <ul><li>QA is validating the signed builds</li></ul>
+    </div>
+    <div class="card">
+      <h3>Launch</h3>
+      <ul><li>OTA: Dogfood on Sept. 2026</li></ul>
+    </div>
+    <div class="card">
+      <h3>Risks</h3>
+      <ul><li>None</li></ul>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0; overflow:hidden;">
+    <div style="padding:12px 16px;"><h3 style="margin:0;">Topaz Issues</h3></div>
+    <table>
+      <thead><tr><th>Date Opened</th><th>Priority</th><th>Issue Description</th><th>Next Steps / Path to Resolution</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>9/15/2026</td><td><span class="badge b-blocker">Blocker</span></td>
+          <td><span class="mono">No-jira</span> — Commercial build QT.260903.A downgrading to consumer QT.260814.B is failing</td>
+          <td>Updated the Jenkins build job. QA is verifying the builds.</td>
+          <td>Wesley</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  CFX-System · Internal Tablet SW Sync · Week of 9/21 (9.22.2026) — one-page view compiled from slides 2, 4–9 &amp; 11
+</footer>
+
+</body>
+</html>
