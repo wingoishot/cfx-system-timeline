@@ -31,6 +31,17 @@ body {
 .top-bar .brand { font-weight: 700; color: #39d2b4; font-size: 17px; }
 .top-bar .title { font-weight: 600; font-size: 15px; }
 .top-bar .date { color: #7d8590; font-size: 13px; margin-left: auto; }
+.home-key {
+  color: #e6edf3;
+  background: #30363d;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.home-key:hover { background: #3c444d; }
 
 /* Section jump nav */
 .jump-nav {
@@ -157,6 +168,114 @@ table a:hover { text-decoration: underline; }
 .metric .value .up { color: #f0655d; }
 .metric .value .flat { color: #39d2b4; }
 
+/* ===== Program detail panel (POR / Current Status) ===== */
+.prog-panel {
+  background: #0c1016;
+  border: 1px solid #21262d;
+  border-radius: 14px;
+  padding: 26px 30px;
+  overflow: hidden;
+}
+.prog-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #21262d;
+  margin-bottom: 22px;
+}
+.prog-eyebrow {
+  color: #39d2b4;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.prog-title { font-size: 30px; font-weight: 700; line-height: 1.1; margin-top: 2px; }
+.prog-sub { font-size: 15px; color: #8b949e; margin-top: 6px; }
+.prog-badges { margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.pb {
+  font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 7px;
+  letter-spacing: 0.02em; white-space: nowrap;
+}
+.pb-stage   { background: #16311f; color: #4ade80; }
+.pb-weekly  { background: #3a1620; color: #f87171; letter-spacing: 0.1em; }
+.pb-time    { background: #16273f; color: #60a5fa; }
+
+.prog-body { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.prog-body > .col { min-width: 0; }
+.prog-body .col.right { border-left: 1px solid #1a1f27; padding-left: 40px; }
+@media (max-width: 960px) {
+  .prog-body { grid-template-columns: 1fr; gap: 28px; }
+  .prog-body .col.right { border-left: none; padding-left: 0; border-top: 1px solid #1a1f27; padding-top: 24px; }
+}
+
+.col-head {
+  display: flex; align-items: center; gap: 8px;
+  color: #8b949e; font-size: 14px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; padding-bottom: 10px;
+  border-bottom: 1px solid #21262d; margin-bottom: 18px;
+}
+.sub-head {
+  color: #7d8590; font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; margin: 20px 0 8px;
+}
+.sub-head:first-child { margin-top: 0; }
+
+/* Key initiatives */
+.init-row {
+  display: flex; gap: 10px; padding: 9px 0;
+  border-bottom: 1px solid #171c23; font-size: 14px;
+}
+.init-row:last-child { border-bottom: none; }
+.init-row .arrow { color: #58a6ff; font-weight: 700; }
+.init-row .txt { color: #e6edf3; }
+.init-row .txt .det { color: #8b949e; font-size: 12.5px; }
+
+/* Meta grid */
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; margin-top: 6px; }
+.meta-item .m-label { color: #6e7681; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.meta-item .m-val { color: #e6edf3; font-size: 13.5px; margin-top: 3px; }
+.meta-note { color: #7d8590; font-size: 12.5px; margin-top: 14px; font-style: italic; }
+
+/* Where we are box */
+.wwa-box {
+  background: #11161d; border: 1px solid #21262d; border-radius: 10px;
+  padding: 14px 16px; color: #adbac7; font-size: 13.5px; line-height: 1.6;
+}
+
+/* Task list */
+.task-list { list-style: none; }
+.task-list li { position: relative; padding: 5px 0 5px 20px; color: #c9d1d9; font-size: 13.5px; }
+.task-list li::before {
+  content: ""; position: absolute; left: 2px; top: 11px;
+  width: 8px; height: 8px; border-radius: 50%; background: #39d2b4;
+}
+.task-list li.none::before { background: #484f58; }
+.task-list li .when { color: #7d8590; }
+
+/* Monitoring mini-rows */
+.mon-row { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #171c23; }
+.mon-row:last-child { border-bottom: none; }
+.mon-row .m-k { color: #adbac7; min-width: 130px; }
+.mon-row .m-v { font-weight: 700; }
+.mon-row .m-v.up { color: #f0655d; }
+.mon-row .m-v.flat { color: #39d2b4; }
+.mon-row .m-note { color: #7d8590; font-size: 12px; }
+
+/* Risk cards */
+.risk-card {
+  background: #11161d; border: 1px solid #21262d; border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 10px;
+}
+.risk-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.risk-date { color: #7d8590; font-size: 12px; }
+.risk-owner { margin-left: auto; color: #6e7681; font-size: 11.5px; }
+.risk-title { color: #e6edf3; font-size: 13.5px; font-weight: 500; }
+.risk-title .mono { color: #d9a441; }
+.risk-note { color: #8b949e; font-size: 12.5px; margin-top: 5px; padding-left: 16px; position: relative; }
+.risk-note::before { content: "\21B3"; position: absolute; left: 0; color: #565f6b; }
+
 footer {
   text-align: center;
   color: #565f6b;
@@ -172,6 +291,7 @@ footer {
 <div class="top-bar">
   <span class="brand">CFX-System</span>
   <span class="title">Internal Tablet SW Sync — Weekly Updates</span>
+  <a class="home-key" href="https://pton.me/s/cfx-system-dashboard">Home</a>
   <span class="date">Week of 9/21 · 9.22.2026</span>
 </div>
 
@@ -184,6 +304,7 @@ footer {
   <a href="#phoenix">Phoenix</a>
   <a href="#g700">G700 Android 15</a>
   <a href="#topaz">Topaz</a>
+  <a href="#qos">Qbert / Obsidian / Sapphire</a>
 </nav>
 
 <div class="wrap">
@@ -246,71 +367,51 @@ footer {
 
 <!-- ============ PAGE 4 ============ -->
 <section id="amber">
-  <div class="sec-head"><h2>Amber &amp; Redstone</h2><span class="tag">Program Detail</span></div>
-  <div class="grid c3">
-    <div class="card">
-      <h3>Key Initiatives</h3>
-      <ul>
-        <li>OTA update for Dec. 2026
-          <ul>
-            <li>DLA runtime engine for Mizaru</li>
-            <li>Update security patches</li>
-            <li>PlutoTV ET2.0</li>
-          </ul>
-        </li>
-        <li>Factory release for Dec. 2026
-          <ul><li>Single image for Amber and Redstone at the factory</li></ul>
-        </li>
-      </ul>
-    </div>
-    <div class="card">
-      <h3>Where We Are</h3>
-      <ul>
-        <li>Released <code>TA.260908.A</code> to factory for Amber 2GB production</li>
-        <li>Released thermal hotfix OTA updates (<code>TA.260520.H</code> consumer, <code>TA.260526.E</code> commercial)</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h3>Active SW Tasks</h3>
-      <ul>
-        <li>DLA runtime engine testing by Feng</li>
-        <li>Redstone QA testing on the latest codebase</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h3>Stage — Scoping</h3>
-      <ul><li>Reviewing the code changes in this OTA release</li></ul>
-    </div>
-    <div class="card">
-      <h3>Launch</h3>
-      <ul>
-        <li>OTA: Dogfood on Dec. 2026</li>
-        <li>Factory: Release on Dec. 2026</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h3>Risks</h3>
-      <ul><li>Amber 2GB FT status</li></ul>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Monitoring Strategy (Grafana)</h3>
-    <div class="metrics">
-      <div class="metric">
-        <div class="label">Launcher Crashes</div>
-        <div class="value"><span class="up">64</span> <span style="font-size:13px;color:#7d8590;">vs 26</span></div>
-        <div class="note">Increased — new releases (64) vs older releases (26)</div>
+  <div class="prog-panel">
+    <div class="prog-head">
+      <div>
+        <div class="prog-eyebrow">Program</div>
+        <div class="prog-title">Amber &amp; Redstone</div>
+        <div class="prog-sub">OTA + Factory release — Dec. 2026</div>
       </div>
-      <div class="metric">
-        <div class="label">ANR Trend</div>
-        <div class="value"><span class="flat">≈ Flat</span></div>
-        <div class="note">Trend is similar between new and older releases</div>
+      <div class="prog-badges">
+        <span class="pb pb-stage">Scoping</span>
+        <span class="pb pb-weekly">WEEKLY</span>
+        <span class="pb pb-time">📌 Dec. 2026</span>
       </div>
-      <div class="metric">
-        <div class="label">Kernel Panics</div>
-        <div class="value"><span class="flat">≈ Flat</span></div>
-        <div class="note">Similar between new and older releases</div>
+    </div>
+    <div class="prog-body">
+      <div class="col left">
+        <div class="col-head">📋 Plan of Record</div>
+        <div class="sub-head">Key Initiatives</div>
+        <div class="init-row"><span class="arrow">→</span><span class="txt">OTA update — Dec. 2026 <span class="det">· DLA runtime engine for Mizaru · security patches · PlutoTV ET2.0</span></span></div>
+        <div class="init-row"><span class="arrow">→</span><span class="txt">Factory release — Dec. 2026 <span class="det">· single image for Amber &amp; Redstone at the factory</span></span></div>
+        <div class="meta-grid">
+          <div class="meta-item"><div class="m-label">Stage</div><div class="m-val"><span class="pb pb-stage">Scoping</span></div></div>
+          <div class="meta-item"><div class="m-label">Launch — OTA</div><div class="m-val">Dogfood — Dec. 2026</div></div>
+          <div class="meta-item"><div class="m-label">Factory</div><div class="m-val">Release — Dec. 2026</div></div>
+          <div class="meta-item"><div class="m-label">Platform</div><div class="m-val">Amber 2GB · Redstone</div></div>
+        </div>
+        <div class="meta-note">Reviewing the code changes in this OTA release.</div>
+      </div>
+      <div class="col right">
+        <div class="col-head">📊 Current Status</div>
+        <div class="sub-head">Where We Are</div>
+        <div class="wwa-box">Released <span class="mono">TA.260908.A</span> to factory for Amber 2GB production. Released thermal hotfix OTA updates (<span class="mono">TA.260520.H</span> consumer, <span class="mono">TA.260526.E</span> commercial).</div>
+        <div class="sub-head">Active SW Tasks</div>
+        <ul class="task-list">
+          <li>DLA runtime engine testing <span class="when">— Feng</span></li>
+          <li>Redstone QA testing on the latest codebase</li>
+        </ul>
+        <div class="sub-head">Monitoring (Grafana)</div>
+        <div class="mon-row"><span class="m-k">Launcher crashes</span><span class="m-v up">64 vs 26</span><span class="m-note">increased — new vs older releases</span></div>
+        <div class="mon-row"><span class="m-k">ANR trend</span><span class="m-v flat">≈ flat</span><span class="m-note">similar new vs older</span></div>
+        <div class="mon-row"><span class="m-k">Kernel panics</span><span class="m-v flat">≈ flat</span><span class="m-note">similar new vs older</span></div>
+        <div class="sub-head">Risks (1)</div>
+        <div class="risk-card">
+          <div class="risk-top"><span class="badge b-open">Open</span></div>
+          <div class="risk-title">Amber 2GB FT status</div>
+        </div>
       </div>
     </div>
   </div>
@@ -378,16 +479,16 @@ footer {
         <td>DavidB</td>
       </tr>
       <tr>
-        <td>8/4/2026</td><td><span class="badge b-critical">Critical</span></td>
-        <td><span class="mono">DSS-8241</span> — [Amber 2G] Quick Settings becomes unresponsive during Netflix playback with HRM connected</td>
-        <td>High FR: 3/5. Same PR as NGT-1418 can address this.</td>
-        <td>Rich</td>
-      </tr>
-      <tr>
         <td>8/31/2026</td><td><span class="badge b-critical">Critical</span></td>
         <td><span class="mono">DSS-8441</span> — OTAService 12.3.223 crashes after reboot when the OTA process check is triggered</td>
         <td>After enabling "Display over other apps", this issue is not reproduced. However, in-class status is wrong. Still waiting for a PR on this.</td>
         <td>Genesis</td>
+      </tr>
+      <tr>
+        <td>9/23/2026</td><td><span class="badge b-critical">Critical</span></td>
+        <td><span class="mono">FTT-4139</span> — [Amber 2GB FT] Freezing, intermittent unresponsiveness, lag issues during Entertainment rides</td>
+        <td>It may dictate green-lighting the Amber 2GB program — see if we can have a solution towards it soon.</td>
+        <td>RJ</td>
       </tr>
       <tr>
         <td>9/18/2026</td><td><span class="badge b-minor">Minor</span></td>
@@ -481,133 +582,149 @@ footer {
 
 <!-- ============ PAGE 9 ============ -->
 <section id="g700">
-  <div class="sec-head"><h2>G700 Android 15</h2><span class="tag">Program Detail</span></div>
-  <div class="grid c3">
-    <div class="card">
-      <h3>Key Initiatives</h3>
-      <ul>
-        <li>OTA update for Q1, 2027
-          <ul>
-            <li><span class="mono">NGT-1387</span> — EU ErP shutdown screen — June 2027 (Q3FY27)</li>
-            <li>Amber 2GB evaluation</li>
-            <li>EU ErP shutdown screen modification</li>
-          </ul>
-        </li>
-        <li>Factory release for Q1, 2027
-          <ul><li>Single image for Amber and Redstone at the factory</li></ul>
-        </li>
-      </ul>
+  <div class="prog-panel">
+    <div class="prog-head">
+      <div>
+        <div class="prog-eyebrow">Program</div>
+        <div class="prog-title">G700 Android 15</div>
+        <div class="prog-sub">Android 15 migration — Q1 2027</div>
+      </div>
+      <div class="prog-badges">
+        <span class="pb pb-stage">Scoping</span>
+        <span class="pb pb-weekly">WEEKLY</span>
+        <span class="pb pb-time">📌 Q1 2027</span>
+      </div>
     </div>
-    <div class="card">
-      <h3>Where We Are</h3>
-      <ul>
-        <li>Pending SystemPluginUi to be prebuilt in the system image to avoid it crashing at startup</li>
-        <li>Android 15 can run on Amber 2GB</li>
-      </ul>
+    <div class="prog-body">
+      <div class="col left">
+        <div class="col-head">📋 Plan of Record</div>
+        <div class="sub-head">Key Initiatives</div>
+        <div class="init-row"><span class="arrow">→</span><span class="txt">OTA update — Q1 2027 <span class="det">· <span class="mono">NGT-1387</span> EU ErP shutdown screen (June 2027, Q3FY27) · Amber 2GB evaluation · EU ErP screen mod</span></span></div>
+        <div class="init-row"><span class="arrow">→</span><span class="txt">Factory release — Q1 2027 <span class="det">· single image for Amber &amp; Redstone at the factory</span></span></div>
+        <div class="meta-grid">
+          <div class="meta-item"><div class="m-label">Stage</div><div class="m-val"><span class="pb pb-stage">Scoping</span></div></div>
+          <div class="meta-item"><div class="m-label">Launch — OTA</div><div class="m-val">Dogfood — Q1 2027</div></div>
+          <div class="meta-item"><div class="m-label">Factory</div><div class="m-val">Release — Q1 2027</div></div>
+          <div class="meta-item"><div class="m-label">Platform</div><div class="m-val">Amber 2GB · Redstone</div></div>
+        </div>
+        <div class="meta-note">Reviewing the code changes in this OTA release.</div>
+      </div>
+      <div class="col right">
+        <div class="col-head">📊 Current Status</div>
+        <div class="sub-head">Where We Are</div>
+        <div class="wwa-box">Pending SystemPluginUi to be prebuilt in the system image to avoid it crashing at startup. Android 15 can run on Amber 2GB.</div>
+        <div class="sub-head">Active SW Tasks</div>
+        <ul class="task-list">
+          <li>Migrating system optimizations and features to Android 15</li>
+        </ul>
+        <div class="sub-head">Risks (1)</div>
+        <div class="risk-card">
+          <div class="risk-top"><span class="badge b-open">Open</span></div>
+          <div class="risk-title">Amber 2GB performance — pending on full testing status</div>
+        </div>
+      </div>
     </div>
-    <div class="card">
-      <h3>Active SW Tasks</h3>
-      <ul><li>Migrating system optimizations and features to Android 15</li></ul>
-    </div>
-    <div class="card">
-      <h3>Stage — Scoping</h3>
-      <ul><li>Reviewing the code changes in this OTA release</li></ul>
-    </div>
-    <div class="card">
-      <h3>Launch</h3>
-      <ul>
-        <li>OTA: Dogfood on Q1, 2027</li>
-        <li>Factory: Release on Q1, 2027</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h3>Risks</h3>
-      <ul><li>Amber 2GB performance — pending on full testing status</li></ul>
-    </div>
-  </div>
-
-  <div class="card" style="padding:0; overflow:hidden;">
-    <div style="padding:12px 16px;"><h3 style="margin:0;">Issues Related to CFU</h3></div>
-    <table>
-      <thead><tr><th>Date Opened</th><th>Priority</th><th>Issue Description</th><th>Next Steps / Path to Resolution</th><th>Owner</th></tr></thead>
-      <tbody>
-        <tr>
-          <td>4/16/2026</td><td><span class="badge b-critical">Critical</span></td>
-          <td><span class="mono">SCS-5217</span> — Affernet crashes on boot. LED blinking red and affernet runs in fake data mode</td>
-          <td>FR: 2/10. The test apk has been verified.</td>
-          <td>QA</td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </section>
 
 <!-- ============ PAGE 11 ============ -->
 <section id="topaz">
-  <div class="sec-head"><h2>Topaz</h2><span class="tag">Program Detail</span></div>
-  <div class="grid c3">
-    <div class="card">
-      <h3>Key Initiatives</h3>
-      <ul>
-        <li>OTA updates by Sept.
-          <ul>
-            <li>Consumer build: <code>QT.260814.A</code></li>
-            <li>Commercial build: <code>QT.260903.A</code></li>
-          </ul>
-        </li>
-        <li>Topaz 11: Q2, 2027
-          <ul>
-            <li>Security patches update</li>
-            <li>EU ErP shutdown screen modification</li>
-          </ul>
-        </li>
-      </ul>
+  <div class="prog-panel">
+    <div class="prog-head">
+      <div>
+        <div class="prog-eyebrow">Program</div>
+        <div class="prog-title">Topaz</div>
+        <div class="prog-sub">OTA + security patches — Sept. 2026 / Q2 2027</div>
+      </div>
+      <div class="prog-badges">
+        <span class="pb pb-stage">QA</span>
+        <span class="pb pb-weekly">WEEKLY</span>
+        <span class="pb pb-time">📌 Sept. 2026</span>
+      </div>
     </div>
-    <div class="card">
-      <h3>Where We Are</h3>
-      <ul>
-        <li>Previous signed build of <code>QT.260814.A</code> missed the downgrade capability</li>
-        <li>Rebuilt consumer and commercial signed builds for downgrade capability and correct build timestamp</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h3>Active SW Tasks</h3>
-      <ul><li>None</li></ul>
-    </div>
-    <div class="card">
-      <h3>Stage — QA</h3>
-      <ul><li>QA is validating the signed builds</li></ul>
-    </div>
-    <div class="card">
-      <h3>Launch</h3>
-      <ul><li>OTA: Dogfood on Sept. 2026</li></ul>
-    </div>
-    <div class="card">
-      <h3>Risks</h3>
-      <ul><li>None</li></ul>
+    <div class="prog-body">
+      <div class="col left">
+        <div class="col-head">📋 Plan of Record</div>
+        <div class="sub-head">Key Initiatives</div>
+        <div class="init-row"><span class="arrow">→</span><span class="txt">OTA updates by 09/2026 <span class="det">· Consumer <span class="mono">QT.260814.A</span> · Commercial <span class="mono">QT.260903.A</span></span></span></div>
+        <div class="init-row"><span class="arrow">→</span><span class="txt">Topaz 11 — Q2 2027 <span class="det">· security patches update · EU ErP screen mod</span></span></div>
+        <div class="meta-grid">
+          <div class="meta-item"><div class="m-label">Stage</div><div class="m-val"><span class="pb pb-stage">QA</span></div></div>
+          <div class="meta-item"><div class="m-label">Launch — OTA</div><div class="m-val">Dogfood — Sept. 2026</div></div>
+          <div class="meta-item"><div class="m-label">Active SW Tasks</div><div class="m-val">None</div></div>
+          <div class="meta-item"><div class="m-label">Program Risks</div><div class="m-val">None</div></div>
+        </div>
+        <div class="meta-note">QA is validating the signed builds.</div>
+      </div>
+      <div class="col right">
+        <div class="col-head">📊 Current Status</div>
+        <div class="sub-head">Where We Are</div>
+        <div class="wwa-box">Previous signed build of <span class="mono">QT.260814.A</span> missed the downgrade capability. Rebuilt consumer and commercial signed builds for downgrade capability and correct build timestamp.</div>
+        <div class="sub-head">Active SW Tasks</div>
+        <ul class="task-list"><li class="none">None</li></ul>
+        <div class="sub-head">Risks (1)</div>
+        <div class="risk-card">
+          <div class="risk-top"><span class="badge b-blocker">Blocker</span><span class="badge b-ontrack">Resolved</span><span class="risk-date">2026-09-15</span></div>
+          <div class="risk-title"><span class="mono">No-jira</span> — Commercial build QT.260903.A downgrading to consumer QT.260814.B is failing</div>
+          <div class="risk-note">Updated the Jenkins build job. QA is verifying the builds.</div>
+        </div>
+      </div>
     </div>
   </div>
+</section>
 
-  <div class="card" style="padding:0; overflow:hidden;">
-    <div style="padding:12px 16px;"><h3 style="margin:0;">Topaz Issues</h3></div>
-    <table>
-      <thead><tr><th>Date Opened</th><th>Priority</th><th>Issue Description</th><th>Next Steps / Path to Resolution</th><th>Owner</th></tr></thead>
-      <tbody>
-        <tr>
-          <td>9/15/2026</td><td><span class="badge b-blocker">Blocker</span></td>
-          <td><span class="mono">No-jira</span> — Commercial build QT.260903.A downgrading to consumer QT.260814.B is failing</td>
-          <td>Updated the Jenkins build job. QA is verifying the builds.</td>
-          <td>Wesley</td>
-        </tr>
-      </tbody>
-    </table>
+<!-- ============ PAGE 12 ============ -->
+<section id="qos">
+  <div class="prog-panel">
+    <div class="prog-head">
+      <div>
+        <div class="prog-eyebrow">Program</div>
+        <div class="prog-title">Qbert / Obsidian / Sapphire</div>
+        <div class="prog-sub">ET2.0 OTA — Sept. 2026</div>
+      </div>
+      <div class="prog-badges">
+        <span class="pb pb-stage">QA</span>
+        <span class="pb pb-weekly">WEEKLY</span>
+        <span class="pb pb-time">📌 Sept. 2026</span>
+      </div>
+    </div>
+    <div class="prog-body">
+      <div class="col left">
+        <div class="col-head">📋 Plan of Record</div>
+        <div class="sub-head">Key Initiatives</div>
+        <div class="init-row"><span class="arrow">→</span><span class="txt">Obsidian — OTA update for ET2.0 <span class="det">· re-sign builds for downgrade capability (missing in Jenkins signed jobs) · Consumer <span class="mono">RO.260701.B</span> · Commercial <span class="mono">RO.260903.A</span></span></span></div>
+        <div class="init-row"><span class="arrow">→</span><span class="txt">Sapphire — OTA update for ET2.0 <span class="det">· <span class="mono">RS.260629.A</span> validation complete, ready for OTA</span></span></div>
+        <div class="meta-grid">
+          <div class="meta-item"><div class="m-label">Stage</div><div class="m-val"><span class="pb pb-stage">QA</span></div></div>
+          <div class="meta-item"><div class="m-label">Launch — Obsidian OTA</div><div class="m-val">Sept. 2026</div></div>
+          <div class="meta-item"><div class="m-label">Launch — Sapphire OTA</div><div class="m-val">Sept. 2026</div></div>
+          <div class="meta-item"><div class="m-label">Program Risks</div><div class="m-val">None</div></div>
+        </div>
+        <div class="meta-note">QA is validating the signed builds.</div>
+      </div>
+      <div class="col right">
+        <div class="col-head">📊 Current Status</div>
+        <div class="sub-head">Where We Are</div>
+        <div class="wwa-box">Resigning the builds for Obsidian.</div>
+        <div class="sub-head">Active SW Tasks</div>
+        <ul class="task-list">
+          <li>SystemPluginUi deployment on dogfood and toggle configuration</li>
+        </ul>
+        <div class="sub-head">Monitoring (Grafana)</div>
+        <div class="mon-row"><span class="m-k">Crash rates</span><span class="m-v up">↑ higher</span><span class="m-note">generally higher with new Qbert OS</span></div>
+        <div class="mon-row"><span class="m-k">ANR trend</span><span class="m-v">slightly higher (older)</span><span class="m-note">older Qbert OS has slightly higher ANRs</span></div>
+        <div class="mon-row"><span class="m-k">Kernel panics</span><span class="m-v flat">≈ flat</span><span class="m-note">similar new vs older</span></div>
+        <div class="sub-head">Risks (0)</div>
+        <div class="risk-card" style="color:#7d8590;">No open risks.</div>
+      </div>
+    </div>
   </div>
 </section>
 
 </div>
 
 <footer>
-  CFX-System · Internal Tablet SW Sync · Week of 9/21 (9.22.2026) — one-page view compiled from slides 2, 4–9 &amp; 11
+  CFX-System · Internal Tablet SW Sync · Week of 9/21 (9.22.2026) — one-page view compiled from slides 2, 4–9, 11 &amp; 12
 </footer>
 
 </body>
