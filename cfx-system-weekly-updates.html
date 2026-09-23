@@ -475,7 +475,7 @@ footer {
       <tr>
         <td>7/6/2026</td><td><span class="badge b-major">Major</span></td>
         <td><span class="mono">NGT-1434</span> — FWUpdater non-persistent service mode</td>
-        <td>FWU stays in cached process but fails to get reactivated in QA regular test scenarios (manual system update, scheduler met, etc.). Is PCM responsible for all this? Ravik's intended changes reviewed? Already has a PR for this.</td>
+        <td>FWU stays in cached process but fails to get reactivated in QA regular test scenarios (manual system update, scheduler met, etc.). Is PCM responsible for all this? Ravik's intended changes reviewed? Already has a PR for this. Sept. RC?</td>
         <td>DavidB</td>
       </tr>
       <tr>
@@ -499,8 +499,8 @@ footer {
       <tr>
         <td>9/22/2026</td><td><span class="badge b-major">Major</span></td>
         <td><span class="mono">FTT-4130</span> — [Amber 2GB FT] Youtube video stutter when playing 4k video</td>
-        <td>We can locally reproduce. To be triaged.</td>
-        <td>RJ</td>
+        <td>We can locally reproduce. To be triaged. Customize a chrome webview that prevents the user from streaming 4k video — DavidB.</td>
+        <td>RJ / DavidB</td>
       </tr>
       <tr>
         <td>9/16/2026</td><td><span class="badge b-major">Major</span></td>
@@ -573,8 +573,9 @@ footer {
       <ul>
         <li>For factory BT testing during manufacturing</li>
         <li>Test requirement is testing RSSI at Arcana. No need to enable DTM in normal mode.</li>
-        <li>Trying to improve battery life — projected 70 days standby mode but 180 days required</li>
+        <li>Trying to improve battery life — projected 70 days standby mode but 180 days required (spec is 2 years)</li>
         <li>Accelerometer may be kept off in standby mode to save battery</li>
+        <li>Measuring the power consumption on every component for breakdown</li>
       </ul>
     </div>
   </div>
@@ -709,6 +710,7 @@ footer {
         <div class="sub-head">Active SW Tasks</div>
         <ul class="task-list">
           <li>SystemPluginUi deployment on dogfood and toggle configuration</li>
+          <li>Double-check the downgrade flag on Obsidian</li>
         </ul>
         <div class="sub-head">Monitoring (Grafana)</div>
         <div class="mon-row"><span class="m-k">Crash rates</span><span class="m-v up">↑ higher</span><span class="m-note">generally higher with new Qbert OS</span></div>
