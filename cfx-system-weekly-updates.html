@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CFX-System Weekly Updates — 9.22.2026</title>
+<title>CFX-System Weekly Updates — 9.29.2026</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -292,7 +292,7 @@ footer {
   <span class="brand">CFX-System</span>
   <span class="title">Internal Tablet SW Sync — Weekly Updates</span>
   <a class="home-key" href="https://pton.me/s/cfx-system-dashboard">Home</a>
-  <span class="date">Week of 9/21 · 9.22.2026</span>
+  <span class="date">Week of 9/28 · 9.29.2026</span>
 </div>
 
 <nav class="jump-nav">
@@ -311,7 +311,7 @@ footer {
 
 <!-- ============ PAGE 2 ============ -->
 <section id="status">
-  <div class="sec-head"><h2>Top Level Program Status</h2><span class="tag">Week of 9/21</span></div>
+  <div class="sec-head"><h2>Top Level Program Status</h2><span class="tag">Week of 9/28</span></div>
   <div class="card" style="padding:0; overflow:hidden;">
   <table>
     <thead>
@@ -350,15 +350,15 @@ footer {
       </tr>
       <tr>
         <td><strong>Amber</strong></td>
-        <td><span class="badge b-risk">At Risk</span></td>
-        <td>FT feedback review</td>
-        <td>System team to investigate Entertainment class issues</td>
+        <td><span class="badge b-ontrack">On Track</span></td>
+        <td>OTA update — Dec. 2026</td>
+        <td>Reviewing the necessary patches · DLA engine for Redstone · PlutoTV ET2.0 for commercial</td>
       </tr>
       <tr>
         <td><strong>Redstone</strong></td>
         <td><span class="badge b-ontrack">On Track</span></td>
-        <td>OTA update — Dec. 2026</td>
-        <td>Reviewing the necessary patches · DLA engine for Redstone · PlutoTV ET2.0 for commercial</td>
+        <td></td>
+        <td></td>
       </tr>
     </tbody>
   </table>
@@ -384,7 +384,7 @@ footer {
       <div class="col left">
         <div class="col-head">📋 Plan of Record</div>
         <div class="sub-head">Key Initiatives</div>
-        <div class="init-row"><span class="arrow">→</span><span class="txt">OTA update — Dec. 2026 <span class="det">· DLA runtime engine for Mizaru · security patches · PlutoTV ET2.0</span></span></div>
+        <div class="init-row"><span class="arrow">→</span><span class="txt">OTA update — Dec. 2026 <span class="det">· DLA runtime engine for Mizaru · security patches · PlutoTV ET2.0 · more Amber 2GB optimizations (CPU performance) · Lock Service and SSI</span></span></div>
         <div class="init-row"><span class="arrow">→</span><span class="txt">Factory release — Dec. 2026 <span class="det">· single image for Amber &amp; Redstone at the factory</span></span></div>
         <div class="meta-grid">
           <div class="meta-item"><div class="m-label">Stage</div><div class="m-val"><span class="pb pb-stage">Scoping</span></div></div>
@@ -440,7 +440,7 @@ footer {
         <td class="mono">DSS-8500</td>
         <td>Adding resiliency to OAuthClient through wrapper for SystemPluginUi, required for Android 15.</td>
         <td><a href="https://github.com/pelotoncycle/android/pull/92790">android#92790</a></td>
-        <td><span class="badge b-open">Open · pending review</span></td>
+        <td><span class="badge b-merged">Approved · merged to master</span></td>
       </tr>
       <tr>
         <td class="mono">DSS-8444</td>
@@ -475,7 +475,7 @@ footer {
       <tr>
         <td>7/6/2026</td><td><span class="badge b-major">Major</span></td>
         <td><span class="mono">NGT-1434</span> — FWUpdater non-persistent service mode</td>
-        <td>FWU stays in cached process but fails to get reactivated in QA regular test scenarios (manual system update, scheduler met, etc.). Is PCM responsible for all this? Ravik's intended changes reviewed? Already has a PR for this. Sept. RC?</td>
+        <td>FWU stays in cached process but fails to get reactivated in QA regular test scenarios (manual system update, scheduler met, etc.). Is PCM responsible for all this? Ravik's intended changes reviewed? Already has a PR for this.</td>
         <td>DavidB</td>
       </tr>
       <tr>
@@ -487,25 +487,25 @@ footer {
       <tr>
         <td>9/23/2026</td><td><span class="badge b-critical">Critical</span></td>
         <td><span class="mono">FTT-4139</span> — [Amber 2GB FT] Freezing, intermittent unresponsiveness, lag issues during Entertainment rides</td>
-        <td>It may dictate green-lighting the Amber 2GB program — see if we can have a solution towards it soon.</td>
+        <td>Capping webview streaming at 1080P can mitigate this. Also, some FT concerns are about the app, not system performance.</td>
         <td>RJ</td>
       </tr>
       <tr>
         <td>9/18/2026</td><td><span class="badge b-minor">Minor</span></td>
         <td><span class="mono">FTT-4126</span> — [Amber 2GB FT] YoutubeTV location problem, cannot play local TV content</td>
-        <td>Need to check if GPS function is removed for 2G device. May need US team's help to reproduce.</td>
+        <td>Not able to reproduce by US team.</td>
         <td>RJ / US QA team</td>
       </tr>
       <tr>
         <td>9/22/2026</td><td><span class="badge b-major">Major</span></td>
         <td><span class="mono">FTT-4130</span> — [Amber 2GB FT] Youtube video stutter when playing 4k video</td>
-        <td>We can locally reproduce. To be triaged. Customize a chrome webview that prevents the user from streaming 4k video — DavidB.</td>
+        <td>Capping webview streaming at 1080P can mitigate this.</td>
         <td>RJ / DavidB</td>
       </tr>
       <tr>
         <td>9/16/2026</td><td><span class="badge b-major">Major</span></td>
         <td><span class="mono">FTT-4114</span> — [Amber 2B FT] Need manually connect to wifi on every boot</td>
-        <td>Preparing a document for FT user to capture sniffer and DebugLoggerUi logs.</td>
+        <td>Preparing a document for FT user to capture sniffer and DebugLoggerUi logs. Not finding DebugLogger logs via MTK's instructions.</td>
         <td>Winston</td>
       </tr>
     </tbody>
@@ -529,14 +529,8 @@ footer {
       <tr>
         <td>8/17/2026</td><td><span class="badge b-major">Major</span></td>
         <td><span class="mono">NGT-1476</span> — With single camera pipeline on, camera access setting can become incorrect</td>
-        <td>PR for Home app is available. QA verified it. David will check in about profile picture taking with Peloton's own camera app.</td>
-        <td>Lanny</td>
-      </tr>
-      <tr>
-        <td>5/28/2026</td><td><span class="badge b-major">Major</span></td>
-        <td><span class="mono">SETS-7621</span> — Camera stuck at loading state</td>
-        <td>Fixed in RC.08.28.</td>
-        <td>Lanny</td>
+        <td>Wait for US team to merge the PR.</td>
+        <td>Winston</td>
       </tr>
       <tr>
         <td>9/3/2026</td><td><span class="badge b-major">Major</span></td>
@@ -693,7 +687,7 @@ footer {
       <div class="col left">
         <div class="col-head">📋 Plan of Record</div>
         <div class="sub-head">Key Initiatives</div>
-        <div class="init-row"><span class="arrow">→</span><span class="txt">Obsidian — OTA update for ET2.0 <span class="det">· re-sign builds for downgrade capability (missing in Jenkins signed jobs) · Consumer <span class="mono">RO.260701.B</span> · Commercial <span class="mono">RO.260903.A</span></span></span></div>
+        <div class="init-row"><span class="arrow">→</span><span class="txt">Obsidian — OTA update for ET2.0 <span class="det">· Consumer <span class="mono">RO.260923.A</span> · Commercial <span class="mono">RO.260924.A</span></span></span></div>
         <div class="init-row"><span class="arrow">→</span><span class="txt">Sapphire — OTA update for ET2.0 <span class="det">· <span class="mono">RS.260629.A</span> validation complete, ready for OTA</span></span></div>
         <div class="meta-grid">
           <div class="meta-item"><div class="m-label">Stage</div><div class="m-val"><span class="pb pb-stage">QA</span></div></div>
@@ -706,7 +700,7 @@ footer {
       <div class="col right">
         <div class="col-head">📊 Current Status</div>
         <div class="sub-head">Where We Are</div>
-        <div class="wwa-box">Resigning the builds for Obsidian.</div>
+        <div class="wwa-box">Validating Obsidian signed builds.</div>
         <div class="sub-head">Active SW Tasks</div>
         <ul class="task-list">
           <li>SystemPluginUi deployment on dogfood and toggle configuration</li>
@@ -726,7 +720,7 @@ footer {
 </div>
 
 <footer>
-  CFX-System · Internal Tablet SW Sync · Week of 9/21 (9.22.2026) — one-page view compiled from slides 2, 4–9, 11 &amp; 12
+  CFX-System · Internal Tablet SW Sync · Week of 9/28 (9.29.2026) — one-page view compiled from slides 2, 4–9, 11 &amp; 12
 </footer>
 
 </body>
