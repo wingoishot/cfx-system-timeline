@@ -334,13 +334,13 @@ footer {
         <td><strong>Sapphire 11</strong></td>
         <td><span class="badge b-ontrack">On Track</span></td>
         <td>Sapphire 11 ET2.0 OTA — Sept. 2026</td>
-        <td>RC build <code>RS.260629.A</code> sign-key build is under testing.</td>
+        <td>RC build <code>RS.260629.A</code> is ready to ship. Begin with dogfood release and beta group.</td>
       </tr>
       <tr>
         <td><strong>Topaz 10</strong></td>
         <td><span class="badge b-ontrack">On Track</span></td>
         <td>Topaz 10 OTA — Sept. 2026</td>
-        <td>Consumer RC: <code>QT.260814.B-34</code><br>Commercial RC: <code>QT.260903.A-19</code><br>Need to fix build job for downgrade flag</td>
+        <td>Consumer RC: <code>QT.260814.B-34</code><br>Commercial RC: <code>QT.260903.A-19</code><br>Both consumer and commercial builds are ready to ship. Begin with dogfood release.</td>
       </tr>
       <tr>
         <td><strong>Topaz 11</strong></td>
@@ -404,14 +404,14 @@ footer {
           <li>Redstone QA testing on the latest codebase</li>
         </ul>
         <div class="sub-head">Monitoring (Grafana)</div>
-        <div class="mon-row"><span class="m-k">Launcher crashes</span><span class="m-v up">64 vs 26</span><span class="m-note">increased — new vs older releases</span></div>
-        <div class="mon-row"><span class="m-k">ANR trend</span><span class="m-v flat">≈ flat</span><span class="m-note">similar new vs older</span></div>
-        <div class="mon-row"><span class="m-k">Kernel panics</span><span class="m-v flat">≈ flat</span><span class="m-note">similar new vs older</span></div>
-        <div class="sub-head">Risks (1)</div>
-        <div class="risk-card">
-          <div class="risk-top"><span class="badge b-open">Open</span></div>
-          <div class="risk-title">Amber 2GB FT status</div>
-        </div>
+        <div class="mon-row"><span class="m-k">Crash rates</span><span class="m-v">Issue with Grafana query</span></div>
+        <div class="mon-row"><span class="m-k">ANR trend</span><span class="m-v">Issue with Grafana query</span></div>
+        <div class="mon-row"><span class="m-k">Kernel panics</span><span class="m-v">Issue with Grafana query</span></div>
+        <div class="sub-head">Risks (4)</div>
+        <div class="risk-card"><div class="risk-title">DLA runtime engine test completion</div></div>
+        <div class="risk-card"><div class="risk-title">PlutoTV ET2.0</div></div>
+        <div class="risk-card"><div class="risk-title">Security patches on Amber 2GB</div></div>
+        <div class="risk-card"><div class="risk-title">Check for Amber 2GB commercial</div></div>
       </div>
     </div>
   </div>
@@ -499,14 +499,8 @@ footer {
       <tr>
         <td>9/22/2026</td><td><span class="badge b-major">Major</span></td>
         <td><span class="mono">FTT-4130</span> — [Amber 2GB FT] Youtube video stutter when playing 4k video</td>
-        <td>Capping webview streaming at 1080P can mitigate this.</td>
-        <td>RJ / DavidB</td>
-      </tr>
-      <tr>
-        <td>9/16/2026</td><td><span class="badge b-major">Major</span></td>
-        <td><span class="mono">FTT-4114</span> — [Amber 2B FT] Need manually connect to wifi on every boot</td>
-        <td>Preparing a document for FT user to capture sniffer and DebugLoggerUi logs. Not finding DebugLogger logs via MTK's instructions.</td>
-        <td>Winston</td>
+        <td>Capping webview streaming at 1080P may mitigate this.</td>
+        <td>RJ</td>
       </tr>
     </tbody>
   </table>
@@ -527,16 +521,16 @@ footer {
         <td>Nigel</td>
       </tr>
       <tr>
+        <td>9/23/2026</td><td><span class="badge b-major">Major</span></td>
+        <td><span class="mono">NGT-1505</span> — Netflix app crashes when initiating a search</td>
+        <td>Re-enabling SearchManagerService to prevent the crash.</td>
+        <td>QA</td>
+      </tr>
+      <tr>
         <td>8/17/2026</td><td><span class="badge b-major">Major</span></td>
         <td><span class="mono">NGT-1476</span> — With single camera pipeline on, camera access setting can become incorrect</td>
         <td>Wait for US team to merge the PR.</td>
         <td>Winston</td>
-      </tr>
-      <tr>
-        <td>9/3/2026</td><td><span class="badge b-major">Major</span></td>
-        <td><span class="mono">SWAT-4701</span> — BT continues with beep sound after exiting Lanebreak</td>
-        <td>FR: 3/20. To be triaged. QA didn't find this issue on Topaz nor on g700 4G devices.</td>
-        <td>NA</td>
       </tr>
     </tbody>
   </table>
@@ -554,8 +548,8 @@ footer {
         <li>Using the alpha 2 board for developing FW with the following features:
           <ul>
             <li>OTA capability and stability</li>
-            <li>FW shipping mode (product key signed)</li>
-            <li>Wake on motion event</li>
+            <li>FW shipping mode (product key signed) <span class="badge b-ontrack">Done</span></li>
+            <li>Wake on motion event <span class="badge b-ontrack">Done</span></li>
             <li>BLE connection parameters for saving power consumption</li>
           </ul>
         </li>
@@ -570,6 +564,7 @@ footer {
         <li>Trying to improve battery life — projected 70 days standby mode but 180 days required (spec is 2 years)</li>
         <li>Accelerometer may be kept off in standby mode to save battery</li>
         <li>Measuring the power consumption on every component for breakdown</li>
+        <li>MCU &ldquo;System ON IDLE&rdquo; mode</li>
       </ul>
     </div>
   </div>
@@ -632,7 +627,7 @@ footer {
         <div class="prog-sub">OTA + security patches — Sept. 2026 / Q2 2027</div>
       </div>
       <div class="prog-badges">
-        <span class="pb pb-stage">QA</span>
+        <span class="pb pb-stage">DONE</span>
         <span class="pb pb-weekly">WEEKLY</span>
         <span class="pb pb-time">📌 Sept. 2026</span>
       </div>
@@ -644,25 +639,21 @@ footer {
         <div class="init-row"><span class="arrow">→</span><span class="txt">OTA updates by 09/2026 <span class="det">· Consumer <span class="mono">QT.260814.A</span> · Commercial <span class="mono">QT.260903.A</span></span></span></div>
         <div class="init-row"><span class="arrow">→</span><span class="txt">Topaz 11 — Q2 2027 <span class="det">· security patches update · EU ErP screen mod</span></span></div>
         <div class="meta-grid">
-          <div class="meta-item"><div class="m-label">Stage</div><div class="m-val"><span class="pb pb-stage">QA</span></div></div>
+          <div class="meta-item"><div class="m-label">Stage</div><div class="m-val"><span class="pb pb-stage">DONE</span></div></div>
           <div class="meta-item"><div class="m-label">Launch — OTA</div><div class="m-val">Dogfood — Sept. 2026</div></div>
           <div class="meta-item"><div class="m-label">Active SW Tasks</div><div class="m-val">None</div></div>
           <div class="meta-item"><div class="m-label">Program Risks</div><div class="m-val">None</div></div>
         </div>
-        <div class="meta-note">QA is validating the signed builds.</div>
+        <div class="meta-note">Topaz 10 is ready for release.</div>
       </div>
       <div class="col right">
         <div class="col-head">📊 Current Status</div>
         <div class="sub-head">Where We Are</div>
-        <div class="wwa-box">Previous signed build of <span class="mono">QT.260814.A</span> missed the downgrade capability. Rebuilt consumer and commercial signed builds for downgrade capability and correct build timestamp.</div>
+        <div class="wwa-box">Topaz 10 builds are ready for release, starting with dogfood.</div>
         <div class="sub-head">Active SW Tasks</div>
         <ul class="task-list"><li class="none">None</li></ul>
-        <div class="sub-head">Risks (1)</div>
-        <div class="risk-card">
-          <div class="risk-top"><span class="badge b-blocker">Blocker</span><span class="badge b-ontrack">Resolved</span><span class="risk-date">2026-09-15</span></div>
-          <div class="risk-title"><span class="mono">No-jira</span> — Commercial build QT.260903.A downgrading to consumer QT.260814.B is failing</div>
-          <div class="risk-note">Updated the Jenkins build job. QA is verifying the builds.</div>
-        </div>
+        <div class="sub-head">Risks (0)</div>
+        <div class="risk-card" style="color:#7d8590;">No open risks.</div>
       </div>
     </div>
   </div>
