@@ -615,6 +615,23 @@ body {
         <div id="cfu-launches" style="font-size:12px;color:#7d8590">Loading...</div>
       </div>
 
+      <div class="card card-wide" style="max-width:340px;min-width:300px">
+        <div class="card-header-row">
+          <span class="card-icon">&#128736;&#65039;</span>
+          <div style="flex:1">
+            <a class="card-name" href="https://pton.me/s/cbu-operator" style="text-decoration:none;color:inherit">CBU-Operator Pod</a>
+          </div>
+          <span class="badge badge-live">LIVE</span>
+        </div>
+        <a class="sub-card" href="https://pton.me/s/cbu-operator" style="margin-bottom:8px">
+          <span class="sub-icon">&#128203;</span>
+          <div>
+            <div class="sub-label">Upcoming Launches</div>
+          </div>
+        </a>
+        <div id="cbu-launches" style="font-size:12px;color:#7d8590">Loading...</div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -872,6 +889,43 @@ if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
   })
   .catch(function() {
     document.getElementById("cfu-launches").textContent = "Failed to load";
+  });
+
+  // Fetch CBU-Operator Pod upcoming launches due within 2 weeks
+  var CBU_PROJECT = "1219043385213719";
+  fetch("https://app.asana.com/api/1.0/projects/" + CBU_PROJECT +
+    "/tasks?opt_fields=name,due_on,completed&limit=100", {
+    headers: { "Authorization": "Bearer " + ASANA_PAT }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(json) {
+    var items = (json.data || []).filter(function(t) {
+      if (!t.name || !t.name.trim() || t.completed || !t.due_on) return false;
+      var due = new Date(t.due_on + "T00:00:00");
+      if (due < today || due > twoWeeks) return false;
+      return true;
+    }).map(function(t) {
+      var d = new Date(t.due_on + "T00:00:00");
+      var label = String(d.getMonth() + 1).padStart(2, "0") + "/" +
+                  String(d.getDate()).padStart(2, "0");
+      return { name: t.name, due: t.due_on, dueLabel: label };
+    }).sort(function(a, b) { return a.due < b.due ? -1 : 1; });
+
+    var el = document.getElementById("cbu-launches");
+    if (items.length === 0) {
+      el.textContent = "No launches in the next 2 weeks";
+      return;
+    }
+    el.innerHTML = items.map(function(m) {
+      return '<div class="ms-item">' +
+        '<div class="ms-dot launch"></div>' +
+        '<span class="ms-name">' + m.name + '</span>' +
+        '<span class="ms-due">' + m.dueLabel + '</span>' +
+        '</div>';
+    }).join("");
+  })
+  .catch(function() {
+    document.getElementById("cbu-launches").textContent = "Failed to load";
   });
 }
 
