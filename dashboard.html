@@ -767,16 +767,19 @@ var OTA_CACHE = {"production.system-eng-builds/g700/product/user/OTAConfig_v2.js
   loadCard(OTA_COMMERCIAL, "ota-rollout-commercial");
 })();
 
-var ASANA_PAT = "2/1208717380462980/1218142428533819:12448cbda0fbf36a8831453b49b12d65";
+var ASANA_PAT = "@@ASANA_PAT@@";
 if (ASANA_PAT && !ASANA_PAT.startsWith("@@")) {
-  fetch("https://app.asana.com/api/1.0/users/me?opt_fields=name", {
-    headers: { "Authorization": "Bearer " + ASANA_PAT }
-  })
+  // Welcome title: name of the logged-in GoLink account
+  fetch("https://pton.me/api/user")
   .then(function(r) { return r.json(); })
   .then(function(json) {
-    if (json.data && json.data.name) {
-      var first = json.data.name.split(" ")[0];
+    var u = (json && json.data) ? json.data : json;
+    var fullName = u && (u.name || u.display_name || u.displayName || u.full_name);
+    if (fullName) {
+      var first = fullName.split(" ")[0];
       document.getElementById("user-name").textContent = first;
+    } else {
+      document.getElementById("user-name").textContent = "User";
     }
   })
   .catch(function() {
