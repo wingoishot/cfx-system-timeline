@@ -298,11 +298,11 @@ footer {
 <nav class="jump-nav">
   <a href="#status">Program Status</a>
   <a href="#amber">Amber &amp; Redstone</a>
-  <a href="#prs">PRs · RC.09.25</a>
   <a href="#amber2gb">Amber 2GB Issues</a>
   <a href="#ar-issues">A&amp;R Issues</a>
   <a href="#phoenix">Phoenix</a>
   <a href="#g700">G700 Android 15</a>
+  <a href="#g700-issues">G700 Issues</a>
   <a href="#topaz">Topaz</a>
   <a href="#qos">Qbert / Obsidian / Sapphire</a>
 </nav>
@@ -412,54 +412,6 @@ footer {
         <div class="risk-card"><div class="risk-title">Security patches on Amber 2GB</div></div>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ============ PAGE 5 ============ -->
-<section id="prs">
-  <div class="sec-head"><h2>PRs for RC.09.25</h2><span class="tag">Pull Requests</span></div>
-  <div class="card" style="padding:0; overflow:hidden;">
-  <table>
-    <thead><tr><th>Ticket</th><th>Description</th><th>PR Link</th><th>Status</th></tr></thead>
-    <tbody>
-      <tr>
-        <td class="mono">NGT-1418</td>
-        <td>Fixed a race condition when ET2.0's prestart buttons disappear after using Quick Settings.</td>
-        <td><a href="https://github.com/pelotoncycle/android/pull/92253">android#92253</a></td>
-        <td><span class="badge b-merged">Approved · merged to master</span></td>
-      </tr>
-      <tr>
-        <td class="mono">NGT-1476</td>
-        <td>Fixed profile picture taking being disabled when single-cam pipeline is on.</td>
-        <td><a href="https://github.com/pelotoncycle/android/pull/93328">android#93328</a></td>
-        <td><span class="badge b-open">Open · pending review</span></td>
-      </tr>
-      <tr>
-        <td class="mono">DSS-8500</td>
-        <td>Adding resiliency to OAuthClient through wrapper for SystemPluginUi, required for Android 15.</td>
-        <td><a href="https://github.com/pelotoncycle/android/pull/92790">android#92790</a></td>
-        <td><span class="badge b-merged">Approved · merged to master</span></td>
-      </tr>
-      <tr>
-        <td class="mono">DSS-8444</td>
-        <td>Fixed OTAService that OTA dialog disappeared when invoked.</td>
-        <td><a href="https://github.com/pelotoncycle/ota-service/pull/322">ota-service#322</a></td>
-        <td><span class="badge b-open">Open · pending review</span></td>
-      </tr>
-      <tr>
-        <td class="mono">NGT-1437</td>
-        <td>On Amber 2GB device, disabling Sprig and applying Qbert rendering for Lanebreak.</td>
-        <td><a href="https://github.com/pelotoncycle/android/pull/92352">android#92352</a></td>
-        <td><span class="badge b-merged">Approved · merged to master</span></td>
-      </tr>
-      <tr>
-        <td class="mono">No-jira</td>
-        <td>GC Lanebreak when the game exits to menu screen.</td>
-        <td><a href="https://github.com/pelotoncycle/odyssey/pull/6395">odyssey#6395</a></td>
-        <td><span class="badge b-open">Open · pending review</span></td>
-      </tr>
-    </tbody>
-  </table>
   </div>
 </section>
 
@@ -600,6 +552,36 @@ footer {
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ============ G700 Android 15 Issues ============ -->
+<section id="g700-issues">
+  <div class="sec-head"><h2>G700 Android 15 Issues</h2><span class="tag">Issue Tracker</span></div>
+  <div class="card" style="padding:0; overflow:hidden;">
+  <table>
+    <thead><tr><th>Date Opened</th><th>Priority</th><th>Issue Description</th><th>Next Steps / Path to Resolution</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>9/21/2026</td><td><span class="badge b-major">Major</span></td>
+        <td><span class="mono">NGT-1502</span> — [G700-A15] Cannot enter Device Settings from Quick Settings</td>
+        <td>To be triaged.</td>
+        <td>RJ</td>
+      </tr>
+      <tr>
+        <td>9/21/2026</td><td><span class="badge b-major">Major</span></td>
+        <td><span class="mono">NGT-1501</span> — [G700-A15] "OTAService isn't responding" repeatedly appears during and after OOBE</td>
+        <td>To be triaged.</td>
+        <td>RJ</td>
+      </tr>
+      <tr>
+        <td>6/10/2026</td><td><span class="badge b-major">Major</span></td>
+        <td><span class="mono">NGT-1419</span> — [G700-A15] Native Android screen flashes before entering the system during boot up</td>
+        <td>Patch merged (gerrit 23750); QA verified on <span class="mono">VA.260916.A</span> — original flash resolved, but a home-app UI transition during boot-up is now observed. Pending re-check.</td>
+        <td>WH Hung</td>
+      </tr>
+    </tbody>
+  </table>
   </div>
 </section>
 
