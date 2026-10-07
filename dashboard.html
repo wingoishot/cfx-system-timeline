@@ -654,8 +654,21 @@ body {
 </div>
 
 <div class="footer">
-  Program Management Team &middot; FY27 &middot; Last updated September 2026
+  Managed by Winston Lee &middot; FY27 &middot; Last updated <span id="footer-updated"></span>
 </div>
+<script>
+(function() {
+  var el = document.getElementById("footer-updated");
+  if (!el) return;
+  // Auto-fill with this file's last-modified date (server Last-Modified
+  // header when hosted, filesystem mtime when opened locally).
+  var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var d = new Date(document.lastModified);
+  el.textContent = isNaN(d.getTime())
+    ? document.lastModified
+    : months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+})();
+</script>
 
 <script>
 // ---- OTA Rollout Status ----
