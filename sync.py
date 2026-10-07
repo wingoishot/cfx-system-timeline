@@ -55,6 +55,19 @@ OTA_S3_PATHS = [
     "production.system-eng-builds/sapphire/product/user/OTAConfig_v2.json",
 ]
 
+# ── dashboard.html Asana card config ─────────────────────────────────
+# Projects whose tasks feed the dashboard "milestones / launches" cards.
+# Data is baked into dashboard.html so the page needs no client-side PAT;
+# the client applies the "due within 2 weeks" window at render time.
+
+DASHBOARD_ASANA_PROJECTS = {
+    "1218045518949399": "name,due_on,completed,memberships.section.name",  # CFX-System
+    "1205153226090474": "name,due_on,completed",                            # Device Services
+    "1206116040205927": "name,due_on,completed",                            # CFU-System
+    "1219043385213719": "name,due_on,completed",                            # CBU-Operator Pod
+    "1219043385213716": "name,due_on,completed",                            # CBU-Exercisor Pod
+}
+
 # ── Shared utilities ─────────────────────────────────────────────────
 
 def get_pat():
@@ -213,6 +226,49 @@ def sync_ota_cache(cache):
         f.write(updated)
     print(f"  Wrote {len(cache)} OTA configs into dashboard.html")
 
+def sync_dashboard_asana_cards(pat):
+    """Bake per-project Asana tasks into dashboard.html's ASANA_TASKS_CACHE.
+
+    Stores a slim task shape per project; the client filters completed/overdue
+    and applies the 2-week window at render time, so no client PAT is needed.
+    """
+    print("Fetching Asana tasks for dashboard cards...")
+    cache = {}
+    for gid, fields in DASHBOARD_ASANA_PROJECTS.items():
+        data = fetch_all_tasks(pat, gid, fields)
+        slim = []
+        for t in data:
+            item = {"name": t.get("name"),
+                    "due_on": t.get("due_on"),
+                    "completed": t.get("completed")}
+            mems = t.get("memberships")
+            if mems:
+                item["memberships"] = [
+                    {"section": {"name": (m.get("section") or {}).get("name")}}
+                    for m in mems if m.get("section")
+                ]
+            slim.append(item)
+        cache[gid] = slim
+        print(f"  {gid}: {len(slim)} tasks")
+
+    inject = (
+        f"// @@ASANA_TASKS_CACHE_START@@\n"
+        f"var ASANA_TASKS_CACHE = {json.dumps(cache)};\n"
+        f"// @@ASANA_TASKS_CACHE_END@@"
+    )
+    html_path = os.path.join(BASE, "dashboard.html")
+    with open(html_path) as f:
+        html = f.read()
+    updated = re.sub(
+        r"// @@ASANA_TASKS_CACHE_START@@.*?// @@ASANA_TASKS_CACHE_END@@",
+        lambda _m: inject,
+        html,
+        flags=re.DOTALL,
+    )
+    with open(html_path, "w") as f:
+        f.write(updated)
+    print(f"  Wrote {len(cache)} project task sets into dashboard.html")
+
 def sync_cfx(pat):
     print(f"Fetching CFX-System tasks (project {CFX_PROJECT_GID})...")
     data = fetch_all_tasks(pat, CFX_PROJECT_GID, CFX_OPT_FIELDS)
@@ -224,18 +280,18 @@ def sync_cfx(pat):
 
     html_path = os.path.join(BASE, "index.html")
     inject_tasks(html_path, tasks)
-
-    with open(html_path) as f:
-        html = f.read()
-    updated = re.sub(r'const ASANA_PAT = "@@ASANA_PAT@@"', f'const ASANA_PAT = "{pat}"', html)
-    with open(html_path, "w") as f:
-        f.write(updated)
+    # NOTE: do NOT inject the real PAT into index.html. The @@ASANA_PAT@@
+    # sentinel is left in place so the token is never committed/published;
+    # tasks are already baked in above via inject_tasks(). Inject the PAT at
+    # serve time if live client-side Asana calls are ever needed.
 
     print(f"Wrote {count} tasks across {len(tasks)} sections into index.html")
 
     print("Fetching OTA configs from S3...")
     cache = fetch_ota_cache()
     sync_ota_cache(cache)
+
+    sync_dashboard_asana_cards(pat)
 
 # ── CFU-System sync ──────────────────────────────────────────────────
 
