@@ -455,7 +455,7 @@ body {
 <body>
 
 <div class="page">
-  <div class="page-title">Welcome, <span id="user-name">...</span></div>
+  <div class="page-title">CFX System Hub</div>
   <div class="page-subtitle">FY27 Strategic Dashboard &mdash; <span id="today-date"></span></div>
   <script>
   (function() {
@@ -766,18 +766,6 @@ var OTA_CACHE = {"production.system-eng-builds/g700/product/user/OTAConfig_v2.js
   loadCard(OTA_CONSUMER, "ota-rollout-consumer");
   loadCard(OTA_COMMERCIAL, "ota-rollout-commercial");
 })();
-
-// Welcome title: name of the logged-in GoLink account
-fetch("https://pton.me/api/user")
-.then(function(r) { return r.json(); })
-.then(function(json) {
-  var u = (json && json.data) ? json.data : json;
-  var fullName = u && (u.name || u.display_name || u.displayName || u.full_name);
-  document.getElementById("user-name").textContent = fullName ? fullName.split(" ")[0] : "User";
-})
-.catch(function() {
-  document.getElementById("user-name").textContent = "User";
-});
 
 // Asana cards are rendered from a server-synced cache written by sync.py.
 // No client-side Asana token is used; data is injected between the markers below.
