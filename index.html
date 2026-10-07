@@ -398,44 +398,12 @@ body.embed .gantt-wrapper { border: none; border-radius: 0; }
 
 <script>
 // @@TASKS_START@@
-// Auto-synced from Asana: 2026-10-07T02:44:40
+// Auto-synced from Asana: 2026-10-07T08:12:26
 var TASKS = [
   {
     "section": "OTA Releases",
     "cat": "cat-ota",
     "tasks": [
-      {
-        "gid": "1216104682778213",
-        "name": "Topaz OTA release for Wificonfig and Wifi expansion",
-        "completed": true,
-        "assignee": "Winston Lee",
-        "resource_subtype": "milestone",
-        "due": "2026-09-30"
-      },
-      {
-        "gid": "1216104682778222",
-        "name": "Obsidian 11 ET2.0 release",
-        "completed": true,
-        "assignee": "Winston Lee",
-        "resource_subtype": "milestone",
-        "due": "2026-09-30"
-      },
-      {
-        "gid": "1216104682778225",
-        "name": "Sapphire 11 ET2.0 release",
-        "completed": true,
-        "assignee": "Winston Lee",
-        "resource_subtype": "milestone",
-        "due": "2026-09-30"
-      },
-      {
-        "gid": "1218045518949425",
-        "name": "G700 Thermal hotfix",
-        "completed": true,
-        "assignee": "Winston Lee",
-        "resource_subtype": "milestone",
-        "due": "2026-09-15"
-      },
       {
         "gid": "1218045532103654",
         "name": "Amber 2GB Day 1 OTA - G700 single image",
@@ -451,6 +419,14 @@ var TASKS = [
         "assignee": "Winston Lee",
         "resource_subtype": "milestone",
         "due": "2026-12-01"
+      },
+      {
+        "gid": "1219240262557400",
+        "name": "G700 Android 15 release",
+        "completed": false,
+        "assignee": "Winston Lee",
+        "resource_subtype": "default_task",
+        "due": "2027-04-05"
       }
     ]
   },
@@ -459,12 +435,13 @@ var TASKS = [
     "cat": "cat-factory",
     "tasks": [
       {
-        "gid": "1216059261710057",
-        "name": "Amber 2GB - shipping image release to factory",
-        "completed": true,
+        "gid": "1218045532103707",
+        "name": "Android 15 on Amber 2GB",
+        "completed": false,
         "assignee": "Winston Lee",
-        "resource_subtype": "milestone",
-        "due": "2026-09-18"
+        "resource_subtype": "default_task",
+        "due": "2027-03-19",
+        "start": "2026-12-07"
       },
       {
         "gid": "1218045532103659",
@@ -488,15 +465,57 @@ var TASKS = [
         "resource_subtype": "default_task",
         "due": "2026-11-27",
         "start": "2026-09-21"
-      },
+      }
+    ]
+  },
+  {
+    "section": "Upcoming Priorities",
+    "cat": "cat-upcoming",
+    "tasks": [
       {
-        "gid": "1218045518949417",
-        "name": "Raccoon ongoing refinement",
+        "gid": "1218045518949411",
+        "name": "Wificonfig - Network Monitor",
+        "completed": false,
+        "assignee": "Winston Lee",
+        "resource_subtype": "default_task"
+      }
+    ]
+  },
+  {
+    "section": "Done",
+    "cat": "cat-done",
+    "tasks": [
+      {
+        "gid": "1216104682778225",
+        "name": "Sapphire 11 ET2.0 release",
         "completed": true,
         "assignee": "Winston Lee",
-        "resource_subtype": "default_task",
-        "due": "2026-09-30",
-        "start": "2026-07-01"
+        "resource_subtype": "milestone",
+        "due": "2026-09-30"
+      },
+      {
+        "gid": "1216104682778222",
+        "name": "Obsidian 11 ET2.0 release",
+        "completed": true,
+        "assignee": "Winston Lee",
+        "resource_subtype": "milestone",
+        "due": "2026-09-30"
+      },
+      {
+        "gid": "1216059261710057",
+        "name": "Amber 2GB - shipping image release to factory",
+        "completed": true,
+        "assignee": "Winston Lee",
+        "resource_subtype": "milestone",
+        "due": "2026-09-18"
+      },
+      {
+        "gid": "1218045518949425",
+        "name": "G700 Thermal hotfix",
+        "completed": true,
+        "assignee": "Winston Lee",
+        "resource_subtype": "milestone",
+        "due": "2026-09-15"
       },
       {
         "gid": "1218045518949423",
@@ -515,35 +534,24 @@ var TASKS = [
         "resource_subtype": "default_task",
         "due": "2026-09-18",
         "start": "2026-07-01"
-      }
-    ]
-  },
-  {
-    "section": "Upcoming Priorities",
-    "cat": "cat-upcoming",
-    "tasks": [
-      {
-        "gid": "1218045518949411",
-        "name": "Wificonfig - Network Monitor",
-        "completed": false,
-        "assignee": "Winston Lee",
-        "resource_subtype": "default_task"
       },
       {
-        "gid": "1218045532103707",
-        "name": "Android 15 on Amber 2GB",
-        "completed": false,
+        "gid": "1216104682778213",
+        "name": "Topaz OTA release for Wificonfig and Wifi expansion",
+        "completed": true,
+        "assignee": "Winston Lee",
+        "resource_subtype": "milestone",
+        "due": "2026-09-30"
+      },
+      {
+        "gid": "1218045518949417",
+        "name": "Raccoon ongoing refinement",
+        "completed": true,
         "assignee": "Winston Lee",
         "resource_subtype": "default_task",
-        "due": "2027-03-19",
-        "start": "2026-12-07"
-      }
-    ]
-  },
-  {
-    "section": "Done",
-    "cat": "cat-done",
-    "tasks": [
+        "due": "2026-09-30",
+        "start": "2026-07-01"
+      },
       {
         "gid": "1218045532103679",
         "name": "Topaz OTA update for Sept. 2026",
